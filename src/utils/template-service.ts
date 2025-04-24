@@ -1,5 +1,5 @@
 import { Template } from '../types';
-import { saveTemplates, getTemplates } from './chrome-storage';
+import { StorageService } from './storage-service';
 import { createLogger } from './logging';
 import { isDefaultTemplate, createTemplate } from './template-utils';
 import { sendMessageToBackground } from './chrome-api-utils';
@@ -9,6 +9,11 @@ const logger = createLogger('TEMPLATE_SERVICE');
 export class TemplateService {
   private templates: Template[] = [];
   private currentDomain: string = '';
+  private storageService: StorageService;
+  
+  constructor() {
+    this.storageService = new StorageService();
+  }
   
   async initialize(): Promise<void> {
     await this.loadTemplates();
@@ -16,7 +21,7 @@ export class TemplateService {
   
   async loadTemplates(): Promise<Template[]> {
     try {
-      this.templates = await getTemplates();
+      this.templates = await this.storageService.getTemplates();
       return this.templates;
     } catch (error) {
       logger.error('Error loading templates:', error);
@@ -107,7 +112,7 @@ export class TemplateService {
   
   async saveTemplates(): Promise<void> {
     try {
-      await saveTemplates(this.templates);
+      await this.storageService.saveTemplates(this.templates);
       await sendMessageToBackground({ action: 'templatesUpdated' });
     } catch (error) {
       logger.error('Error saving templates:', error);

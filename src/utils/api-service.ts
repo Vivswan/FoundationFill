@@ -1,6 +1,6 @@
 // API service for making consistent API requests
 import { createLogger } from './logging';
-import { getSettings } from './chrome-storage';
+import { SettingsModel } from '../popup/models/Settings';
 import { API_TIMEOUT } from '../defaults';
 
 const logger = createLogger('API');
@@ -28,7 +28,9 @@ interface APIResponse {
  */
 export const generateChatCompletion = async (options: APIRequestOptions): Promise<APIResponse> => {
   try {
-    const settings = await getSettings();
+    // Create an instance of SettingsModel to get settings
+    const settingsModel = new SettingsModel();
+    const settings = await settingsModel.loadSettings();
     
     // Validate API key
     if (!settings.apiKey) {

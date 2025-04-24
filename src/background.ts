@@ -2,7 +2,8 @@ import {
   MessageTypes, 
   GenerateTextMessage,
 } from './types';
-import { getTemplates, getSettings } from './utils/chrome-storage';
+import { StorageService } from './utils/storage-service';
+import { SettingsModel } from './popup/models/Settings';
 import { createLogger } from './utils/logging';
 import { generateChatCompletion } from './utils/api-service';
 import { API_TIMEOUT, extractDomainFromUrl } from './defaults';
@@ -11,6 +12,9 @@ import { filterTemplatesByDomain, getEnabledTemplates } from './utils/template-u
 
 // Create a logger instance for this component
 const logger = createLogger('BACKGROUND');
+
+// Initialize storage service
+const storageService = new StorageService();
 
 // Clean up when tabs are closed or navigated away
 chrome.tabs.onRemoved.addListener((tabId: number) => {
@@ -33,7 +37,7 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
     logger.debug('Loading templates into context menu');
     
     // Get all templates
-    const templates = await getTemplates();
+    const templates = await storageService.getTemplates();
     
     // Get enabled templates
     let enabledTemplates = getEnabledTemplates(templates);
@@ -140,7 +144,7 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
   // Handle template selection
   if (typeof info.menuItemId === 'string' && info.menuItemId.startsWith('template-')) {
     const templateId = info.menuItemId.replace('template-', '');
-    const templates = await getTemplates();
+    const templates = await storageService.getTemplates();
     const template = templates.find(t => t.id === templateId && t.enabled);
     
     if (template) {
@@ -154,7 +158,9 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
         });
         
         // Generate text using the template
-        const settings = await getSettings();
+        // Use the settings model to get settings
+        const settingsModel = new SettingsModel();
+        const settings = await settingsModel.loadSettings();
         
         // Skip generation if API key is missing
         if (!settings.apiKey) {

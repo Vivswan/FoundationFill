@@ -1,11 +1,33 @@
+// Combined storage service for Chrome extension
 import { Settings, Template, ThemeMode } from '../types';
 import { createLogger } from './logging';
 import { DEFAULT_TEMPLATE, DEFAULT_SETTINGS } from '../defaults';
 
 const logger = createLogger('STORAGE_SERVICE');
 
+/**
+ * Storage service that handles all storage operations for the extension
+ * Combines functionality from chrome-storage.ts and storage-service.ts
+ */
 export class StorageService {
+  /**
+   * Checks if Chrome storage API is available
+   */
+  private isStorageAvailable(): boolean {
+    return typeof chrome !== 'undefined' && !!chrome.storage && !!chrome.storage.sync;
+  }
+
+  /**
+   * Get an item from storage with fallback to default value
+   */
   async getItem<T>(key: string, defaultValue: T): Promise<T> {
+    logger.debug(`Getting ${key} from storage`);
+
+    if (!this.isStorageAvailable()) {
+      logger.warn('Chrome storage not available, returning default value');
+      return defaultValue;
+    }
+
     try {
       return new Promise<T>((resolve) => {
         chrome.storage.sync.get([key], (result) => {
@@ -16,6 +38,7 @@ export class StorageService {
           }
           
           const value = result[key] as T | undefined;
+          logger.debug(`${key} value:`, value !== undefined ? value : 'using default');
           resolve(value !== undefined ? value : defaultValue);
         });
       });
@@ -25,7 +48,17 @@ export class StorageService {
     }
   }
   
+  /**
+   * Set an item in storage
+   */
   async setItem<T>(key: string, value: T): Promise<void> {
+    logger.debug(`Saving ${key} to storage`);
+
+    if (!this.isStorageAvailable()) {
+      logger.warn('Chrome storage not available, cannot save');
+      return;
+    }
+
     try {
       return new Promise<void>((resolve, reject) => {
         chrome.storage.sync.set({ [key]: value }, () => {
@@ -35,6 +68,7 @@ export class StorageService {
             return;
           }
           
+          logger.debug(`${key} saved successfully`);
           resolve();
         });
       });
@@ -44,7 +78,17 @@ export class StorageService {
     }
   }
   
+  /**
+   * Remove an item from storage
+   */
   async removeItem(key: string): Promise<void> {
+    logger.debug(`Removing ${key} from storage`);
+
+    if (!this.isStorageAvailable()) {
+      logger.warn('Chrome storage not available, cannot remove');
+      return;
+    }
+
     try {
       return new Promise<void>((resolve, reject) => {
         chrome.storage.sync.remove(key, () => {
@@ -54,6 +98,7 @@ export class StorageService {
             return;
           }
           
+          logger.debug(`${key} removed successfully`);
           resolve();
         });
       });
@@ -63,7 +108,9 @@ export class StorageService {
     }
   }
   
-  // Convenience methods for templates
+  /**
+   * Get all templates with default fallback
+   */
   async getTemplates(): Promise<Template[]> {
     const templates = await this.getItem<Template[]>('templates', [DEFAULT_TEMPLATE]);
     
@@ -81,35 +128,17 @@ export class StorageService {
     return templates;
   }
   
+  /**
+   * Save templates and notify background script
+   */
   async saveTemplates(templates: Template[]): Promise<void> {
-    return this.setItem('templates', templates);
-  }
-  
-  // Convenience methods for settings
-  async getSettings(): Promise<Settings> {
-    return this.getItem<Settings>('settings', DEFAULT_SETTINGS);
-  }
-  
-  async saveSettings(settings: Settings): Promise<void> {
-    return this.setItem('settings', settings);
-  }
-  
-  async updateSettings(partialSettings: Partial<Settings>): Promise<Settings> {
-    const settings = await this.getSettings();
-    const updatedSettings = { ...settings, ...partialSettings };
-    await this.saveSettings(updatedSettings);
-    return updatedSettings;
-  }
-  
-  // Theme specific methods
-  async getTheme(): Promise<ThemeMode> {
-    const settings = await this.getSettings();
-    return settings.theme;
-  }
-  
-  async setTheme(theme: ThemeMode): Promise<void> {
-    const settings = await this.getSettings();
-    settings.theme = theme;
-    return this.saveSettings(settings);
+    await this.setItem('templates', templates);
+    
+    // Notify background script that templates were updated
+    try {
+      chrome.runtime.sendMessage({ action: 'templatesUpdated' });
+    } catch (error) {
+      logger.error('Failed to notify background script of template update:', error);
+    }
   }
 }
