@@ -5,18 +5,27 @@ import {
   ContentScriptReadyMessage,
   TemplatesUpdatedMessage
 } from '../types';
-import { getTemplates, getSettings } from '../utils/storage';
-import { markTabReady, sendMessageToTab } from '../utils/messages';
+import { getTemplates, getSettings } from '../utils/chrome-storage';
+import { createLogger } from '../utils/logging';
+import { generateChatCompletion } from '../utils/api-service';
+import { API_TIMEOUT, extractDomainFromUrl } from '../utils/defaults';
+import { sendMessageToTab, getCurrentTab, markTabReady } from '../utils/chrome-api-utils';
+import { filterTemplatesByDomain, getEnabledTemplates } from '../utils/template-utils';
+
+// Create a logger instance for this component
+const logger = createLogger('BACKGROUND');
 
 // Clean up when tabs are closed or navigated away
 chrome.tabs.onRemoved.addListener((tabId: number) => {
-  // Use the removeTabReady function
+  // Notify other parts of the extension that a tab was closed
+  logger.debug(`Tab ${tabId} was removed`);
   chrome.runtime.sendMessage({ action: 'tabRemoved', tabId });
 });
 
 chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: { status?: string }) => {
   if (changeInfo.status === 'loading') {
     // Tab is navigating, content script will be unloaded
+    logger.debug(`Tab ${tabId} is navigating, content script will be unloaded`);
     chrome.runtime.sendMessage({ action: 'tabUpdated', tabId });
   }
 });
@@ -24,21 +33,26 @@ chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: { status?: string 
 // Function to load templates and update context menu
 async function loadTemplatesIntoContextMenu(): Promise<void> {
   try {
+    logger.debug('Loading templates into context menu');
+    
+    // Get all templates
     const templates = await getTemplates();
-    let enabledTemplates = templates.filter(t => t.enabled);
+    
+    // Get enabled templates
+    let enabledTemplates = getEnabledTemplates(templates);
+    logger.debug(`Found ${enabledTemplates.length} enabled templates`);
     
     // Get current tab for domain filtering
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tab = await getCurrentTab();
     let currentDomain = '';
     
-    if (tabs[0]?.url) {
-      const url = new URL(tabs[0].url);
-      currentDomain = url.hostname + (url.port ? ':' + url.port : '');
+    if (tab?.url) {
+      currentDomain = extractDomainFromUrl(tab.url);
+      logger.debug(`Current domain: ${currentDomain}`);
       
-      // Filter out domain-specific templates that don't match the current domain
-      enabledTemplates = enabledTemplates.filter(t => 
-        !t.domainSpecific || !t.domain || t.domain === currentDomain
-      );
+      // Filter templates by domain using utility function
+      enabledTemplates = filterTemplatesByDomain(enabledTemplates, currentDomain);
+      logger.debug(`${enabledTemplates.length} templates match the current domain`);
     }
     
     // Remove existing template menu items (keep the parent and refresh items)
@@ -135,6 +149,7 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
     if (template) {
       try {
         // First show loading state
+        logger.debug(`Showing loading state for template: ${template.name}`);
         await sendMessageToTab(tab.id, {
           action: 'fillTemplate',
           template,
@@ -146,7 +161,7 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
         
         // Skip generation if API key is missing
         if (!settings.apiKey) {
-          console.error("API key is missing. Please add your API key in Settings.");
+          logger.error("API key is missing");
           // Still fill with the raw template as fallback
           await sendMessageToTab(tab.id, {
             action: 'fillTemplate',
@@ -161,55 +176,34 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
         let pageContent = '';
         if (template.includePageContent) {
           try {
-            // Try to get the page content from the tab
-            const contentResponse = await chrome.tabs.sendMessage(tab.id, { action: 'getPageContent' });
-            if (contentResponse && contentResponse.content) {
-              pageContent = contentResponse.content;
-            }
+            pageContent = await sendMessageToTab(tab.id, { action: 'getPageContent' })?.content || '';
+            logger.debug(`Retrieved ${pageContent.length} characters of page content`);
           } catch (error) {
-            console.error("Failed to get page content:", error);
+            logger.error("Failed to get page content:", error);
             // Continue without page content
           }
         }
         
-        // Set up request timeout
-        const timeoutDuration = 30000; // 30 seconds
-        const abortController = new AbortController();
-        const timeoutId = setTimeout(() => abortController.abort(), timeoutDuration);
-        
-        // Make API request
-        const response = await fetch(`${settings.baseUrl}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${settings.apiKey}`
-          },
-          body: JSON.stringify({
-            model: settings.model,
-            messages: [
-              { role: 'system', content: template.systemPrompt },
-              { role: 'user', content: template.userPrompt + (pageContent ? '\n\nPage Content:\n' + pageContent : '') }
-            ]
-          }),
-          signal: abortController.signal
-        }).finally(() => {
-          clearTimeout(timeoutId);
+        // Use the API service to generate text
+        logger.debug('Generating text with the API service');
+        const apiResponse = await generateChatCompletion({
+          systemPrompt: template.systemPrompt,
+          userPrompt: template.userPrompt,
+          pageContent,
+          timeout: API_TIMEOUT
         });
         
-        const data = await response.json();
-        
-        // If successful, fill with generated text
-        if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
-          const generatedText = data.choices[0].message.content;
-          
+        // Handle response
+        if (apiResponse.success && apiResponse.text) {
           // Create a modified template with the generated text as the system prompt
           const filledTemplate = {
             ...template,
-            systemPrompt: generatedText,
+            systemPrompt: apiResponse.text,
             userPrompt: '' // Clear user prompt since we've already used it for generation
           };
           
           // Fill with the generated content
+          logger.debug('Successfully generated text, filling template');
           await sendMessageToTab(tab.id, {
             action: 'fillTemplate',
             template: filledTemplate,
@@ -217,19 +211,18 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
           });
         } else {
           // On error, fall back to filling with the raw template but show error
-          const errorMsg = data.error?.message || `API error (${response.status}): ${response.statusText}`;
-          console.error("API request failed:", errorMsg);
+          logger.error("API request failed:", apiResponse.error);
           await sendMessageToTab(tab.id, {
             action: 'fillTemplate',
             template,
             status: 'error',
-            error: errorMsg
+            error: apiResponse.error || 'Unknown error generating text'
           });
         }
       } catch (error) {
         // On any error, fall back to filling with the raw template but show error
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-        console.error("Error generating text:", errorMsg);
+        logger.error("Error generating text:", errorMsg);
         
         // Check if it's an AbortError (timeout)
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -237,7 +230,7 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
             action: 'fillTemplate',
             template,
             status: 'error',
-            error: 'Request timed out after 30 seconds'
+            error: `Request timed out after ${API_TIMEOUT / 1000} seconds`
           });
         } else {
           await sendMessageToTab(tab.id, {
@@ -262,7 +255,7 @@ chrome.runtime.onMessage.addListener((
   if (request.action === 'contentScriptReady' && sender.tab && sender.tab.id) {
     // Mark this tab as having a ready content script
     markTabReady(sender.tab.id);
-    console.log(`Content script ready in tab ${sender.tab.id}`);
+    logger.debug(`Content script ready in tab ${sender.tab.id}`);
     return true;
   }
   
@@ -288,58 +281,26 @@ async function handleGenerateText(
   request: GenerateTextMessage, 
   sendResponse: (response?: any) => void
 ): Promise<void> {
+  logger.debug('Handling generate text request');
+  
   try {
-    const settings = await getSettings();
-    
-    // Validate API key
-    if (!settings.apiKey) {
-      sendResponse({ 
-        success: false, 
-        error: 'API key is missing. Please add your API key in Settings.' 
-      });
-      return;
-    }
-    
-    const response = await fetch(`${settings.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${settings.apiKey}`
-      },
-      body: JSON.stringify({
-        model: settings.model,
-        messages: [
-          { role: 'system', content: request.systemPrompt },
-          { role: 'user', content: request.userPrompt + (request.pageContent ? '\n\nPage Content:\n' + request.pageContent : '') }
-        ]
-      })
+    // Use the api-service utility to generate text
+    const response = await generateChatCompletion({
+      systemPrompt: request.systemPrompt,
+      userPrompt: request.userPrompt,
+      pageContent: request.pageContent,
+      timeout: API_TIMEOUT
     });
     
-    const data = await response.json();
-    
-    // Check if the API returned an error
-    if (!response.ok) {
-      sendResponse({ 
-        success: false, 
-        error: data.error?.message || `API error (${response.status}): ${response.statusText}`
-      });
-      return;
+    // Return the response
+    logger.debug(`Generation ${response.success ? 'succeeded' : 'failed'}`);
+    if (!response.success) {
+      logger.error(`API error: ${response.error}`);
     }
     
-    // Check if we have choices and content
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      sendResponse({ 
-        success: false, 
-        error: 'API response is missing expected content' 
-      });
-      return;
-    }
-    
-    sendResponse({ 
-      success: true, 
-      text: data.choices[0].message.content 
-    });
+    sendResponse(response);
   } catch (error) {
+    logger.error('Error in handleGenerateText:', error);
     sendResponse({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 

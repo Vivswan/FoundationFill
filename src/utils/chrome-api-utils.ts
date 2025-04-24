@@ -1,8 +1,38 @@
 // Utilities for working with Chrome extension APIs
+import { MessageTypes, SuccessResponse, PingResponse, GenerateTextResponse } from '../types';
 import { createLogger } from './logging';
 import { extractDomainFromUrl } from './defaults';
 
 const logger = createLogger('CHROME_API');
+
+// Type for message responses
+type MessageResponse = SuccessResponse | PingResponse | GenerateTextResponse | void;
+
+// Set of tab IDs with ready content scripts
+const contentScriptReadyTabs = new Set<number>();
+
+/**
+ * Mark a tab as having a ready content script
+ */
+export function markTabReady(tabId: number): void {
+  contentScriptReadyTabs.add(tabId);
+  logger.debug(`Tab ${tabId} marked as ready`);
+}
+
+/**
+ * Remove a tab from the ready list
+ */
+export function removeTabReady(tabId: number): void {
+  contentScriptReadyTabs.delete(tabId);
+  logger.debug(`Tab ${tabId} removed from ready list`);
+}
+
+/**
+ * Check if a tab has a ready content script
+ */
+export function isTabReady(tabId: number): boolean {
+  return contentScriptReadyTabs.has(tabId);
+}
 
 /**
  * Get the current active tab

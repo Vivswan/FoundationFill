@@ -4,15 +4,12 @@ import { SettingsModel } from '../models/SettingsModel';
 import { TemplateListView } from '../views/TemplateListView';
 import { TemplateEditorView } from '../views/TemplateEditorView';
 import { SettingsView } from '../views/SettingsView';
+import { createLogger } from '../../utils/logging';
+import { getCurrentDomain, executeScriptInTab, sendMessageToBackground, getCurrentTab } from '../../utils/chrome-api-utils';
+import { generateChatCompletion } from '../../utils/api-service';
 
-// Local debug function
-function debug(msg: string, ...data: any[]) {
-  if (data.length > 0) {
-    console.log(`%c[POPUP_CONTROLLER] ${msg}`, 'color: purple; font-weight: bold', ...data);
-  } else {
-    console.log(`%c[POPUP_CONTROLLER] ${msg}`, 'color: purple; font-weight: bold');
-  }
-}
+// Create a logger instance for this component
+const logger = createLogger('POPUP_CONTROLLER');
 
 export class PopupController {
   private templateModel: TemplateModel;
@@ -40,41 +37,39 @@ export class PopupController {
   
   // Initialize the controller
   async initialize(): Promise<void> {
-    debug('Initializing');
+    logger.debug('Initializing');
     
     try {
       // Get the current domain from the active tab
       await this.getCurrentDomain();
       
       // Load templates and settings
-      debug('Loading templates and settings');
+      logger.debug('Loading templates and settings');
       await this.templateModel.loadTemplates();
       await this.settingsModel.loadSettings();
       
       // Update views
-      debug('Updating views');
+      logger.debug('Updating views');
       this.updateTemplateListView();
       this.updateSelectedTemplateView();
       this.updateSettingsView();
       
-      debug('Initialization complete');
+      logger.debug('Initialization complete');
     } catch (error) {
-      debug('Error during initialization:', error);
+      logger.error('Error during initialization:', error);
     }
   }
   
   // Get the current domain from the active tab
   private async getCurrentDomain(): Promise<void> {
     try {
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tabs[0]?.url) {
-        const url = new URL(tabs[0].url);
-        const domain = url.hostname + (url.port ? ':' + url.port : '');
+      const domain = await getCurrentDomain();
+      if (domain) {
         this.templateModel.setCurrentDomain(domain);
         this.templateEditorView.setCurrentDomain(domain);
       }
     } catch (error) {
-      console.error('Error getting current domain:', error);
+      logger.error('Error getting current domain:', error);
     }
   }
   
@@ -123,9 +118,9 @@ export class PopupController {
   // Update the template list view
   private updateTemplateListView(): void {
     const templates = this.templateModel.getTemplates();
-    debug('Templates to render:', templates);
+    logger.debug('Templates to render:', templates);
     const selectedTemplateId = this.templateModel.getSelectedTemplateId();
-    debug('Selected template ID:', selectedTemplateId);
+    logger.debug('Selected template ID:', selectedTemplateId);
     this.templateListView.render(templates, selectedTemplateId);
   }
   
@@ -221,24 +216,19 @@ export class PopupController {
       // Get current page content if needed
       let pageContent = '';
       if (templateData.includePageContent) {
-        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tabs[0]?.id) {
-          const [{ result }] = await chrome.scripting.executeScript({
-            target: { tabId: tabs[0].id },
-            func: () => document.body.innerText
-          });
-          
-          pageContent = result;
+        const tab = await getCurrentTab();
+        if (tab?.id) {
+          pageContent = await executeScriptInTab(tab.id, () => document.body.innerText) || '';
         }
       }
       
-      // Call API via background script
-      const response = await chrome.runtime.sendMessage({
+      // Call the API using the api-service utility
+      const response = await sendMessageToBackground<GenerateTextResponse>({
         action: 'generateText',
         systemPrompt: templateData.systemPrompt,
         userPrompt: templateData.userPrompt,
         pageContent: pageContent
-      }) as GenerateTextResponse;
+      });
       
       // Update UI based on response
       if (response && response.success) {
@@ -247,7 +237,7 @@ export class PopupController {
         this.templateEditorView.setGeneratedText('Error: ' + (response?.error || 'Could not generate text. Check your API key and connection.'));
       }
     } catch (error) {
-      console.error('Error generating text:', error);
+      logger.error('Error generating text:', error);
       this.templateEditorView.setGeneratedText('Error: ' + (error instanceof Error ? error.message : 'An unknown error occurred'));
     } finally {
       // Reset loading state

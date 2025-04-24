@@ -1,14 +1,11 @@
 import { Template } from '../../types';
-import { getTemplates, saveTemplates } from '../../utils/storage';
+import { getTemplates, saveTemplates } from '../../utils/chrome-storage';
+import { createLogger } from '../../utils/logging';
+import { isDefaultTemplate, updateTemplate, createTemplate } from '../../utils/template-utils';
+import { sendMessageToBackground } from '../../utils/chrome-api-utils';
 
-// Local debug function
-function debug(msg: string, ...data: any[]) {
-  if (data.length > 0) {
-    console.log(`%c[TEMPLATE_MODEL] ${msg}`, 'color: green; font-weight: bold', ...data);
-  } else {
-    console.log(`%c[TEMPLATE_MODEL] ${msg}`, 'color: green; font-weight: bold');
-  }
-}
+// Create a logger for this component
+const logger = createLogger('TEMPLATE');
 
 export class TemplateModel {
   private templates: Template[] = [];
@@ -19,18 +16,18 @@ export class TemplateModel {
   
   // Load templates from storage
   async loadTemplates(): Promise<void> {
-    debug('Loading templates');
+    logger.debug('Loading templates');
     try {
       this.templates = await getTemplates();
-      debug('Templates loaded:', this.templates);
+      logger.debug('Templates loaded:', this.templates);
       
       // Select the first template by default if available
       if (this.templates.length > 0 && !this.selectedTemplateId) {
         this.selectedTemplateId = this.templates[0].id;
-        debug('Selected template ID:', this.selectedTemplateId);
+        logger.debug('Selected template ID:', this.selectedTemplateId);
       }
     } catch (error) {
-      debug('Error loading templates:', error);
+      logger.error('Error loading templates:', error);
       // Initialize with an empty array if there's an error
       this.templates = [];
     }
@@ -48,7 +45,7 @@ export class TemplateModel {
   
   // Get all templates
   getTemplates(): Template[] {
-    debug('Getting templates, count:', this.templates.length);
+    logger.debug('Getting templates, count:', this.templates.length);
     return this.templates;
   }
   
@@ -74,16 +71,14 @@ export class TemplateModel {
     // Find the default template to copy content from
     const defaultTemplate = this.templates.find(t => t.isDefault) || this.templates[0];
     
-    const newTemplate: Template = {
-      id: Date.now().toString(),
-      name: 'New Template',
-      systemPrompt: defaultTemplate ? defaultTemplate.systemPrompt : '',
-      userPrompt: defaultTemplate ? defaultTemplate.userPrompt : '',
-      enabled: true,
-      includePageContent: false,
-      domainSpecific: false,
-      domain: ''
-    };
+    // Use the template-utils to create a new template
+    const newTemplate = createTemplate('New Template');
+    
+    // Copy content from default template if available
+    if (defaultTemplate) {
+      newTemplate.systemPrompt = defaultTemplate.systemPrompt;
+      newTemplate.userPrompt = defaultTemplate.userPrompt;
+    }
     
     this.templates.push(newTemplate);
     this.saveTemplates();
@@ -98,22 +93,16 @@ export class TemplateModel {
     const templateIndex = this.templates.findIndex(t => t.id === this.selectedTemplateId);
     if (templateIndex === -1) return null;
     
-    // Don't allow domain-specific to be true for default template
-    if (this.templates[templateIndex].isDefault || this.templates[templateIndex].id === 'default') {
-      if (updatedTemplate.domainSpecific) {
-        updatedTemplate.domainSpecific = false;
-      }
-    }
+    // Use template-utils to handle the update with validation
+    const currentTemplate = this.templates[templateIndex];
+    const updatedTemplateData = updateTemplate(
+      currentTemplate, 
+      updatedTemplate, 
+      this.currentDomain
+    );
     
-    this.templates[templateIndex] = {
-      ...this.templates[templateIndex],
-      ...updatedTemplate
-    };
-    
-    // If we're updating domain-specific setting, also update the domain
-    if (updatedTemplate.domainSpecific !== undefined) {
-      this.templates[templateIndex].domain = updatedTemplate.domainSpecific ? this.currentDomain : '';
-    }
+    // Update the template in the array
+    this.templates[templateIndex] = updatedTemplateData;
     
     this.saveTemplates();
     return this.templates[templateIndex];
@@ -139,12 +128,14 @@ export class TemplateModel {
     
     // Find the template
     const template = this.templates.find(t => t.id === this.selectedTemplateId);
+    if (!template) return false;
     
     // Don't allow deleting the default template
-    if (template && (template.isDefault || template.id === 'default')) {
+    if (this.isDefaultTemplate(template.id)) {
       return false;
     }
     
+    // Filter out the template to delete
     this.templates = this.templates.filter(t => t.id !== this.selectedTemplateId);
     
     // Select the first template if available after deletion
@@ -161,14 +152,18 @@ export class TemplateModel {
   // Check if a template is the default template
   isDefaultTemplate(templateId: string): boolean {
     const template = this.templates.find(t => t.id === templateId);
-    return !!(template && (template.isDefault || template.id === 'default'));
+    return template ? isDefaultTemplate(template.id) || !!template.isDefault : false;
   }
   
   // Save templates to storage
   private async saveTemplates(): Promise<void> {
-    await saveTemplates(this.templates);
-    
-    // Notify the background script that templates were updated
-    chrome.runtime.sendMessage({ action: 'templatesUpdated' });
+    try {
+      await saveTemplates(this.templates);
+      
+      // Notify the background script that templates were updated
+      await sendMessageToBackground({ action: 'templatesUpdated' });
+    } catch (error) {
+      logger.error('Error saving templates:', error);
+    }
   }
 }

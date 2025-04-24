@@ -1,4 +1,7 @@
 import { ThemeMode } from '../types';
+import { createLogger } from './logging';
+
+const logger = createLogger('THEME');
 
 /**
  * Apply the selected theme to the document/extension
@@ -8,16 +11,22 @@ export const applyTheme = (theme: ThemeMode): void => {
   // Get the html element
   const html = document.documentElement;
   
+  logger.debug(`Applying theme: ${theme}`);
+  
   // Remove any existing theme classes
   html.classList.remove('theme-light', 'theme-dark');
   
   if (theme === 'system') {
     // Use system preference
     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    html.classList.add(prefersDarkMode ? 'theme-dark' : 'theme-light');
+    const appliedTheme = prefersDarkMode ? 'theme-dark' : 'theme-light';
+    html.classList.add(appliedTheme);
+    logger.debug(`Using system preference: ${appliedTheme}`);
   } else {
     // Use selected theme
-    html.classList.add(`theme-${theme}`);
+    const themeClass = `theme-${theme}`;
+    html.classList.add(themeClass);
+    logger.debug(`Applied explicit theme: ${themeClass}`);
   }
 };
 
@@ -30,14 +39,21 @@ export const listenForThemeChanges = (theme: ThemeMode, callback: () => void): v
   if (theme === 'system') {
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
-    // Modern approach (recommended)
-    if (darkModeMediaQuery.addEventListener) {
+    logger.debug('Setting up system theme listener');
+    
+    try {
+      // Standard approach
       darkModeMediaQuery.addEventListener('change', callback);
-    } 
-    // Deprecated but needed for some browsers
-    else if ('addListener' in darkModeMediaQuery) {
-      // @ts-ignore: Typings are missing for the deprecated method
-      darkModeMediaQuery.addListener(callback);
+      logger.debug('Using standard event listener for theme changes');
+    } catch (error) {
+      // Fallback for older browsers
+      logger.warn('Fallback to legacy event listener for theme changes');
+      try {
+        // @ts-ignore: Typings are missing for the legacy method
+        darkModeMediaQuery.addListener(callback);
+      } catch (error) {
+        logger.error('Failed to set up theme change listener:', error);
+      }
     }
   }
 };

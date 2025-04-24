@@ -5,8 +5,14 @@ import {
   PingMessage,
   MessageTypes
 } from '../types';
+import { createLogger } from '../utils/logging';
+import { createElement, getElementById } from '../utils/dom-utils';
+
+// Create a logger instance for this component
+const logger = createLogger('CONTENT');
 
 // Notify the background script that the content script is loaded
+logger.debug('Content script loaded, notifying background script');
 chrome.runtime.sendMessage({ action: 'contentScriptReady' });
 
 // Listen for messages from background script
@@ -15,25 +21,35 @@ chrome.runtime.onMessage.addListener((
   _sender: chrome.runtime.MessageSender, 
   sendResponse: (response?: any) => void
 ) => {
-  if (request.action === 'fillTemplate') {
-    const fillRequest = request as FillTemplateMessage;
-    fillTextArea(fillRequest.template, fillRequest.status, fillRequest.error);
-    sendResponse({ success: true });
-    return true;
-  } else if (request.action === 'showTemplateSelector') {
-    showTemplateSelector((request as ShowTemplateSelectorMessage).templates);
-    sendResponse({ success: true });
-    return true;
-  } else if (request.action === 'ping') {
-    // Respond to ping requests to check if content script is ready
-    sendResponse({ status: 'ready' });
-    return true;
-  } else if (request.action === 'getPageContent') {
-    // Return the current page content
-    const content = document.body.innerText;
-    sendResponse({ content });
-    return true;
+  logger.debug(`Received message with action: ${request.action}`);
+  
+  try {
+    if (request.action === 'fillTemplate') {
+      const fillRequest = request as FillTemplateMessage;
+      fillTextArea(fillRequest.template, fillRequest.status, fillRequest.error);
+      sendResponse({ success: true });
+      return true;
+    } else if (request.action === 'showTemplateSelector') {
+      showTemplateSelector((request as ShowTemplateSelectorMessage).templates);
+      sendResponse({ success: true });
+      return true;
+    } else if (request.action === 'ping') {
+      // Respond to ping requests to check if content script is ready
+      logger.debug('Responding to ping request');
+      sendResponse({ status: 'ready' });
+      return true;
+    } else if (request.action === 'getPageContent') {
+      // Return the current page content
+      const content = document.body.innerText;
+      logger.debug(`Returning page content (${content.length} characters)`);
+      sendResponse({ content });
+      return true;
+    }
+  } catch (error) {
+    logger.error('Error handling message:', error);
+    sendResponse({ success: false, error: 'Error processing request' });
   }
+  
   return true; // Always return true to indicate async response
 });
 
@@ -145,27 +161,25 @@ function isTextInput(element: HTMLElement | null): boolean {
 
 // Show a custom template selector dropdown near the cursor
 function showTemplateSelector(templates: Template[]): void {
+  logger.debug(`Showing template selector with ${templates.length} templates`);
+  
   // Remove any existing selectors
-  const existingSelector = document.getElementById('foundation-fill-selector');
+  const existingSelector = getElementById('foundation-fill-selector');
   if (existingSelector) {
     existingSelector.remove();
   }
   
   const activeElement = document.activeElement as HTMLElement;
-  if (!isTextInput(activeElement)) return;
+  if (!isTextInput(activeElement)) {
+    logger.debug('No active text input found, aborting template selector display');
+    return;
+  }
   
-  // Create dropdown element
-  const dropdown = document.createElement('div');
-  dropdown.id = 'foundation-fill-selector';
-  dropdown.style.position = 'absolute';
-  dropdown.style.zIndex = '9999';
-  dropdown.style.background = '#fff';
-  dropdown.style.border = '1px solid #ccc';
-  dropdown.style.borderRadius = '4px';
-  dropdown.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-  dropdown.style.maxHeight = '300px';
-  dropdown.style.overflowY = 'auto';
-  dropdown.style.width = '250px';
+  // Create dropdown using DOM utils
+  const dropdown = createElement<HTMLDivElement>('div', {
+    id: 'foundation-fill-selector',
+    style: 'position: absolute; z-index: 9999; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); max-height: 300px; overflow-y: auto; width: 250px;'
+  });
   
   // Get element position for dropdown placement
   const rect = activeElement.getBoundingClientRect();
@@ -173,50 +187,45 @@ function showTemplateSelector(templates: Template[]): void {
   dropdown.style.left = `${rect.left + window.scrollX}px`;
   
   // Add title
-  const title = document.createElement('div');
-  title.textContent = 'Select a template';
-  title.style.padding = '8px 12px';
-  title.style.borderBottom = '1px solid #eee';
-  title.style.fontWeight = 'bold';
-  title.style.fontSize = '14px';
-  dropdown.appendChild(title);
+  const title = createElement<HTMLDivElement>('div', {
+    textContent: 'Select a template',
+    style: 'padding: 8px 12px; border-bottom: 1px solid #eee; font-weight: bold; font-size: 14px;'
+  });
   
   // Add templates
   templates.forEach(template => {
-    const item = document.createElement('div');
-    item.textContent = template.name;
-    item.style.padding = '8px 12px';
-    item.style.cursor = 'pointer';
-    item.style.transition = 'background 0.2s';
-    
-    item.addEventListener('mouseover', () => {
-      item.style.background = '#f0f0f0';
-    });
-    
-    item.addEventListener('mouseout', () => {
-      item.style.background = 'transparent';
-    });
-    
-    item.addEventListener('click', () => {
-      fillTextArea(template);
-      dropdown.remove();
-    });
+    const item = createElement<HTMLDivElement>('div', 
+      {
+        textContent: template.name,
+        style: 'padding: 8px 12px; cursor: pointer; transition: background 0.2s;'
+      },
+      {
+        mouseover: () => { item.style.background = '#f0f0f0'; },
+        mouseout: () => { item.style.background = 'transparent'; },
+        click: () => {
+          fillTextArea(template);
+          dropdown.remove();
+        }
+      }
+    );
     
     dropdown.appendChild(item);
   });
   
   // Add close button
-  const closeBtn = document.createElement('div');
-  closeBtn.textContent = '✕';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '8px';
-  closeBtn.style.right = '10px';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.fontSize = '14px';
-  closeBtn.addEventListener('click', () => {
-    dropdown.remove();
-  });
+  const closeBtn = createElement<HTMLDivElement>('div', 
+    {
+      textContent: '✕',
+      style: 'position: absolute; top: 8px; right: 10px; cursor: pointer; font-size: 14px;'
+    },
+    {
+      click: () => dropdown.remove()
+    }
+  );
+  
+  // Assemble the dropdown
   title.appendChild(closeBtn);
+  dropdown.appendChild(title);
   
   // Close when clicking outside
   document.addEventListener('click', function closeDropdown(e) {
@@ -228,4 +237,6 @@ function showTemplateSelector(templates: Template[]): void {
   
   // Add to document
   document.body.appendChild(dropdown);
+  
+  logger.debug('Template selector displayed');
 }
