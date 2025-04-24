@@ -28,14 +28,14 @@ export const sendMessageToTab = async (
         });
       } else {
         // First, try to ping the tab to see if content script is already there
-        chrome.tabs.sendMessage(tabId, { action: 'ping' }, (response) => {
+        chrome.tabs.sendMessage(tabId, { action: 'ping' }, (response: PingResponse) => {
           if (chrome.runtime.lastError || !response) {
             // Content script not ready, need to inject
             injectAndSend(tabId, message).then(resolve);
           } else {
             // Content script is ready, mark tab and send message
             contentScriptReadyTabs.add(tabId);
-            chrome.tabs.sendMessage(tabId, message, (response) => {
+            chrome.tabs.sendMessage(tabId, message, (response: MessageResponse) => {
               resolve(response);
             });
           }
@@ -43,7 +43,7 @@ export const sendMessageToTab = async (
       }
     } catch (error) {
       console.error('Error in sendMessageToTab:', error);
-      resolve({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+      resolve({ success: false, error: error instanceof Error ? error.message : 'Unknown error' } as SuccessResponse);
     }
   });
 };
@@ -61,7 +61,7 @@ const injectAndSend = async (
       }).then(() => {
         // Wait a moment for content script to initialize
         setTimeout(() => {
-          chrome.tabs.sendMessage(tabId, message, (response) => {
+          chrome.tabs.sendMessage(tabId, message, (response: MessageResponse) => {
             if (!chrome.runtime.lastError && response && 'success' in response) {
               contentScriptReadyTabs.add(tabId);
             }
@@ -70,11 +70,11 @@ const injectAndSend = async (
         }, 200);
       }).catch(err => {
         console.error("Error injecting content script:", err);
-        resolve({ success: false, error: 'Failed to inject content script' });
+        resolve({ success: false, error: 'Failed to inject content script' } as SuccessResponse);
       });
     } catch (error) {
       console.error('Error in injectAndSend:', error);
-      resolve({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+      resolve({ success: false, error: error instanceof Error ? error.message : 'Unknown error' } as SuccessResponse);
     }
   });
 };

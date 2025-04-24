@@ -9,12 +9,12 @@ import { getTemplates, getSettings } from '../utils/storage';
 import { markTabReady, sendMessageToTab } from '../utils/messages';
 
 // Clean up when tabs are closed or navigated away
-chrome.tabs.onRemoved.addListener((tabId) => {
+chrome.tabs.onRemoved.addListener((tabId: number) => {
   // Use the removeTabReady function
   chrome.runtime.sendMessage({ action: 'tabRemoved', tabId });
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: { status?: string }) => {
   if (changeInfo.status === 'loading') {
     // Tab is navigating, content script will be unloaded
     chrome.runtime.sendMessage({ action: 'tabUpdated', tabId });
@@ -75,13 +75,13 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
 }
 
 // Initialize context menu items
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((_details: chrome.runtime.InstalledDetails) => {
   // Load templates and create menu items
   loadTemplatesIntoContextMenu();
 });
 
 // Listen for storage changes to update context menu
-chrome.storage.onChanged.addListener((changes, area) => {
+chrome.storage.onChanged.addListener((changes: { [key: string]: { oldValue?: any, newValue?: any } }, area: string) => {
   if (area === 'sync' && changes.templates) {
     // Templates have been updated, refresh the context menu
     loadTemplatesIntoContextMenu();
@@ -89,7 +89,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 // Handle context menu clicks
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | number }, tab?: chrome.tabs.Tab) => {
   // Check if the tab is valid for message sending
   if (!tab || !tab.id || tab.id === chrome.tabs.TAB_ID_NONE) {
     console.error("Invalid tab for sending message");
@@ -196,8 +196,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // Listen for messages from content scripts and popup
 chrome.runtime.onMessage.addListener((
   request: MessageTypes, 
-  sender, 
-  sendResponse
+  sender: chrome.runtime.MessageSender, 
+  sendResponse: (response?: any) => void
 ) => {
   // Handle content script ready message
   if (request.action === 'contentScriptReady' && sender.tab && sender.tab.id) {

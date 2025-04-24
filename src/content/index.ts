@@ -12,8 +12,8 @@ chrome.runtime.sendMessage({ action: 'contentScriptReady' });
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((
   request: MessageTypes, 
-  _sender, 
-  sendResponse
+  _sender: chrome.runtime.MessageSender, 
+  sendResponse: (response?: any) => void
 ) => {
   if (request.action === 'fillTemplate') {
     fillTextArea((request as FillTemplateMessage).template);
