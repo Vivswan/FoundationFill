@@ -56,15 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'generated-text'
     );
 
-    const settingsView = new SettingsView(
-        'settings-panel',
-        'api-key',
-        'base-url',
-        'model',
-        'settings-status',
-        'done-btn',
-        'settings-btn'
-    );
+    const settingsView = new SettingsView();
 
     console.log("[Popup] Views initialized");
 

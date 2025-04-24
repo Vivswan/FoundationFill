@@ -10,7 +10,6 @@ export class SettingsView {
   private themeDarkInput: HTMLInputElement;
   private themeSystemInput: HTMLInputElement;
   private settingsStatus: HTMLElement;
-  private doneBtn: HTMLElement;
   private settingsBtn: HTMLElement;
 
   // Status timeout
@@ -21,34 +20,19 @@ export class SettingsView {
   private onDoneCallback: (() => void) | null = null;
   private onShowCallback: (() => void) | null = null;
 
-  constructor(
-      settingsPanelId: string,
-      apiKeyId: string,
-      baseUrlId: string,
-      modelId: string,
-      settingsStatusId: string,
-      doneBtnId: string,
-      settingsBtnId: string
-  ) {
+  constructor() {
     // Get DOM elements
-    this.settingsPanel = document.getElementById(settingsPanelId) as HTMLElement;
-    this.apiKeyInput = document.getElementById(apiKeyId) as HTMLInputElement;
-    this.baseUrlInput = document.getElementById(baseUrlId) as HTMLInputElement;
-    this.modelInput = document.getElementById(modelId) as HTMLInputElement;
+    this.settingsPanel = document.getElementById('settings-panel') as HTMLElement;
+    this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
+    this.baseUrlInput = document.getElementById('base-url') as HTMLInputElement;
+    this.modelInput = document.getElementById('model') as HTMLInputElement;
     this.themeLightInput = document.getElementById('theme-light') as HTMLInputElement;
     this.themeDarkInput = document.getElementById('theme-dark') as HTMLInputElement;
     this.themeSystemInput = document.getElementById('theme-system') as HTMLInputElement;
-    this.settingsStatus = document.getElementById(settingsStatusId) as HTMLElement;
-    this.doneBtn = document.getElementById(doneBtnId) as HTMLElement;
-    this.settingsBtn = document.getElementById(settingsBtnId) as HTMLElement;
+    this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
+    this.settingsBtn = document.getElementById('settings-btn') as HTMLElement;
 
     // Add event listeners
-    this.doneBtn.addEventListener('click', () => {
-      if (this.onDoneCallback) {
-        this.onDoneCallback();
-      }
-    });
-
     this.settingsBtn.addEventListener('click', () => {
       if (this.onShowCallback) {
         this.onShowCallback();
