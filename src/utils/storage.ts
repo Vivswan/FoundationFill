@@ -69,7 +69,7 @@ export const getTemplates = (): Promise<Template[]> => {
         debug('Chrome storage is available, getting templates');
         
         // Try to get templates from Chrome storage
-        chrome.storage.sync.get(['templates'], (result) => {
+        chrome.storage.sync.get(['templates'], (result: {templates?: Template[]}) => {
           debug('Chrome storage result:', result);
           
           // Check if templates exist and are not empty
@@ -128,7 +128,7 @@ export const getSettings = (): Promise<Settings> => {
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
         debug('Chrome storage is available, getting settings');
         
-        chrome.storage.sync.get(['apiKey', 'baseUrl', 'model', 'theme'], (result) => {
+        chrome.storage.sync.get(['apiKey', 'baseUrl', 'model', 'theme'], (result: Partial<Settings>) => {
           debug('Settings from storage:', result);
           
           const settings: Settings = {

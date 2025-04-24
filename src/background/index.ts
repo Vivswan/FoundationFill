@@ -109,10 +109,86 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     const template = templates.find(t => t.id === templateId && t.enabled);
     
     if (template) {
-      sendMessageToTab(tab.id, {
-        action: 'fillTemplate',
-        template
-      });
+      try {
+        // First generate text using the template
+        const settings = await getSettings();
+        
+        // Skip generation if API key is missing
+        if (!settings.apiKey) {
+          console.error("API key is missing. Please add your API key in Settings.");
+          // Still fill with the raw template as fallback
+          sendMessageToTab(tab.id, {
+            action: 'fillTemplate',
+            template
+          });
+          return;
+        }
+        
+        // Get page content if needed
+        let pageContent = '';
+        if (template.includePageContent) {
+          try {
+            // Try to get the page content from the tab
+            const contentResponse = await chrome.tabs.sendMessage(tab.id, { action: 'getPageContent' });
+            if (contentResponse && contentResponse.content) {
+              pageContent = contentResponse.content;
+            }
+          } catch (error) {
+            console.error("Failed to get page content:", error);
+            // Continue without page content
+          }
+        }
+        
+        // Make API request
+        const response = await fetch(`${settings.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${settings.apiKey}`
+          },
+          body: JSON.stringify({
+            model: settings.model,
+            messages: [
+              { role: 'system', content: template.systemPrompt },
+              { role: 'user', content: template.userPrompt + (pageContent ? '\n\nPage Content:\n' + pageContent : '') }
+            ]
+          })
+        });
+        
+        const data = await response.json();
+        
+        // If successful, fill with generated text
+        if (response.ok && data.choices && data.choices[0] && data.choices[0].message) {
+          const generatedText = data.choices[0].message.content;
+          
+          // Create a modified template with the generated text as the system prompt
+          const filledTemplate = {
+            ...template,
+            systemPrompt: generatedText,
+            userPrompt: '' // Clear user prompt since we've already used it for generation
+          };
+          
+          // Fill with the generated content
+          sendMessageToTab(tab.id, {
+            action: 'fillTemplate',
+            template: filledTemplate
+          });
+        } else {
+          // On error, fall back to filling with the raw template
+          console.error("API request failed:", data.error?.message || `API error (${response.status}): ${response.statusText}`);
+          sendMessageToTab(tab.id, {
+            action: 'fillTemplate',
+            template
+          });
+        }
+      } catch (error) {
+        // On any error, fall back to filling with the raw template
+        console.error("Error generating text:", error);
+        sendMessageToTab(tab.id, {
+          action: 'fillTemplate',
+          template
+        });
+      }
     }
   }
 });

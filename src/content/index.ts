@@ -27,6 +27,11 @@ chrome.runtime.onMessage.addListener((
     // Respond to ping requests to check if content script is ready
     sendResponse({ status: 'ready' });
     return true;
+  } else if (request.action === 'getPageContent') {
+    // Return the current page content
+    const content = document.body.innerText;
+    sendResponse({ content });
+    return true;
   }
   return true; // Always return true to indicate async response
 });

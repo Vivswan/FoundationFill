@@ -57,6 +57,14 @@ export interface PingMessage extends Message {
   action: 'ping';
 }
 
+export interface GetPageContentMessage extends Message {
+  action: 'getPageContent';
+}
+
+export interface GetPageContentResponse {
+  content: string;
+}
+
 export interface GenerateTextResponse {
   success: boolean;
   text?: string;
@@ -78,4 +86,5 @@ export type MessageTypes =
   | GenerateTextMessage
   | ContentScriptReadyMessage
   | TemplatesUpdatedMessage
-  | PingMessage;
+  | PingMessage
+  | GetPageContentMessage;
