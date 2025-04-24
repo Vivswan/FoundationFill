@@ -31,6 +31,8 @@ export interface Message {
 export interface FillTemplateMessage extends Message {
   action: 'fillTemplate';
   template: Template;
+  status?: 'loading' | 'success' | 'error';
+  error?: string;
 }
 
 export interface ShowTemplateSelectorMessage extends Message {

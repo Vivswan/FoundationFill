@@ -110,16 +110,25 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
     
     if (template) {
       try {
-        // First generate text using the template
+        // First show loading state
+        await sendMessageToTab(tab.id, {
+          action: 'fillTemplate',
+          template,
+          status: 'loading'
+        });
+        
+        // Generate text using the template
         const settings = await getSettings();
         
         // Skip generation if API key is missing
         if (!settings.apiKey) {
           console.error("API key is missing. Please add your API key in Settings.");
           // Still fill with the raw template as fallback
-          sendMessageToTab(tab.id, {
+          await sendMessageToTab(tab.id, {
             action: 'fillTemplate',
-            template
+            template,
+            status: 'error',
+            error: 'API key is missing. Please add your API key in Settings.'
           });
           return;
         }
@@ -139,6 +148,11 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
           }
         }
         
+        // Set up request timeout
+        const timeoutDuration = 30000; // 30 seconds
+        const abortController = new AbortController();
+        const timeoutId = setTimeout(() => abortController.abort(), timeoutDuration);
+        
         // Make API request
         const response = await fetch(`${settings.baseUrl}/chat/completions`, {
           method: 'POST',
@@ -152,7 +166,10 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
               { role: 'system', content: template.systemPrompt },
               { role: 'user', content: template.userPrompt + (pageContent ? '\n\nPage Content:\n' + pageContent : '') }
             ]
-          })
+          }),
+          signal: abortController.signal
+        }).finally(() => {
+          clearTimeout(timeoutId);
         });
         
         const data = await response.json();
@@ -169,25 +186,43 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
           };
           
           // Fill with the generated content
-          sendMessageToTab(tab.id, {
+          await sendMessageToTab(tab.id, {
             action: 'fillTemplate',
-            template: filledTemplate
+            template: filledTemplate,
+            status: 'success'
           });
         } else {
-          // On error, fall back to filling with the raw template
-          console.error("API request failed:", data.error?.message || `API error (${response.status}): ${response.statusText}`);
-          sendMessageToTab(tab.id, {
+          // On error, fall back to filling with the raw template but show error
+          const errorMsg = data.error?.message || `API error (${response.status}): ${response.statusText}`;
+          console.error("API request failed:", errorMsg);
+          await sendMessageToTab(tab.id, {
             action: 'fillTemplate',
-            template
+            template,
+            status: 'error',
+            error: errorMsg
           });
         }
       } catch (error) {
-        // On any error, fall back to filling with the raw template
-        console.error("Error generating text:", error);
-        sendMessageToTab(tab.id, {
-          action: 'fillTemplate',
-          template
-        });
+        // On any error, fall back to filling with the raw template but show error
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        console.error("Error generating text:", errorMsg);
+        
+        // Check if it's an AbortError (timeout)
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          await sendMessageToTab(tab.id, {
+            action: 'fillTemplate',
+            template,
+            status: 'error',
+            error: 'Request timed out after 30 seconds'
+          });
+        } else {
+          await sendMessageToTab(tab.id, {
+            action: 'fillTemplate',
+            template,
+            status: 'error',
+            error: errorMsg
+          });
+        }
       }
     }
   }

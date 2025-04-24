@@ -16,7 +16,8 @@ chrome.runtime.onMessage.addListener((
   sendResponse: (response?: any) => void
 ) => {
   if (request.action === 'fillTemplate') {
-    fillTextArea((request as FillTemplateMessage).template);
+    const fillRequest = request as FillTemplateMessage;
+    fillTextArea(fillRequest.template, fillRequest.status, fillRequest.error);
     sendResponse({ success: true });
     return true;
   } else if (request.action === 'showTemplateSelector') {
@@ -37,26 +38,40 @@ chrome.runtime.onMessage.addListener((
 });
 
 // Fill the active text area with template content
-function fillTextArea(template: Template): void {
+function fillTextArea(template: Template, status?: 'loading' | 'success' | 'error', error?: string): void {
   const activeElement = document.activeElement as HTMLElement;
   
   if (isTextInput(activeElement)) {
     let content = '';
     
-    // If both system and user prompts exist, format them
-    if (template.systemPrompt && template.userPrompt) {
-      content = `${template.systemPrompt}\n\n${template.userPrompt}`;
-    } else if (template.systemPrompt) {
-      content = template.systemPrompt;
-    } else if (template.userPrompt) {
-      content = template.userPrompt;
+    // Handle different statuses
+    if (status === 'loading') {
+      content = 'Generating';
+      
+      // Start a loading animation if it's in loading state
+      startLoadingAnimation(activeElement);
+      return;
+    } else if (status === 'error' && error) {
+      content = `Error: ${error}`;
+    } else {
+      // Regular content processing
+      if (template.systemPrompt && template.userPrompt) {
+        content = `${template.systemPrompt}\n\n${template.userPrompt}`;
+      } else if (template.systemPrompt) {
+        content = template.systemPrompt;
+      } else if (template.userPrompt) {
+        content = template.userPrompt;
+      }
+      
+      // Include page content if needed
+      if (template.includePageContent) {
+        const pageContent = document.body.innerText;
+        content += `\n\nPage Content:\n${pageContent}`;
+      }
     }
     
-    // Include page content if needed
-    if (template.includePageContent) {
-      const pageContent = document.body.innerText;
-      content += `\n\nPage Content:\n${pageContent}`;
-    }
+    // Clear any existing loading animation
+    stopLoadingAnimation();
     
     // Fill the text area
     if (activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'INPUT') {
@@ -68,6 +83,52 @@ function fillTextArea(template: Template): void {
       activeElement.textContent = content;
       activeElement.dispatchEvent(new Event('input', { bubbles: true }));
     }
+  }
+}
+
+// Track the loading animation interval
+let loadingAnimationInterval: number | null = null;
+let loadingDots = '';
+
+// Start loading animation in the text field
+function startLoadingAnimation(element: HTMLElement): void {
+  // Clear any existing animation
+  stopLoadingAnimation();
+  
+  // Initialize loading text
+  loadingDots = '';
+  updateLoadingText(element);
+  
+  // Set up animation interval
+  loadingAnimationInterval = window.setInterval(() => {
+    // Add dots, cycle through 1-3 dots
+    loadingDots += '.';
+    if (loadingDots.length > 3) {
+      loadingDots = '.';
+    }
+    updateLoadingText(element);
+  }, 500);
+}
+
+// Update the loading text in the element
+function updateLoadingText(element: HTMLElement): void {
+  const loadingText = `Generating${loadingDots}`;
+  
+  if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+    const inputElement = element as HTMLInputElement | HTMLTextAreaElement;
+    inputElement.value = loadingText;
+    inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+  } else if (element.getAttribute('contenteditable') === 'true') {
+    element.textContent = loadingText;
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+// Stop loading animation
+function stopLoadingAnimation(): void {
+  if (loadingAnimationInterval !== null) {
+    clearInterval(loadingAnimationInterval);
+    loadingAnimationInterval = null;
   }
 }
 
