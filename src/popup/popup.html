@@ -23,12 +23,12 @@
       <div id="template-editor" class="template-editor hidden">
         <div class="form-group">
           <label for="system-prompt">System Prompt</label>
-          <textarea id="system-prompt" rows="5" placeholder="Enter your system prompt here..."></textarea>
+          <textarea id="system-prompt" rows="2" placeholder="Enter your system prompt here..."></textarea>
         </div>
         
         <div class="form-group">
           <label for="user-prompt">User Prompt</label>
-          <textarea id="user-prompt" rows="3" placeholder="Enter your user prompt here..."></textarea>
+          <textarea id="user-prompt" rows="4" placeholder="Enter your user prompt here..."></textarea>
         </div>
         
         <div class="form-group checkbox-group">
@@ -61,13 +61,11 @@
       </div>
       
       <div id="settings-panel" class="settings-panel hidden">
-        <h2>Settings</h2>
-        <p class="settings-info">Settings are saved automatically</p>
-        
-        <div class="form-group">
-          <label for="api-key">API Key</label>
-          <input type="password" id="api-key" placeholder="Enter your API key">
+        <div class="settings-header">
+          <h2>Settings</h2>
+          <button id="done-btn" class="button-small">Done</button>
         </div>
+        <p class="settings-info">Settings are saved automatically</p>
         
         <div class="form-group">
           <label for="base-url">Base URL</label>
@@ -75,19 +73,36 @@
         </div>
         
         <div class="form-group">
+          <label for="api-key">API Key</label>
+          <input type="text" id="api-key" placeholder="Enter your API key">
+        </div>
+        
+        <div class="form-group">
           <label for="model">Model</label>
           <input type="text" id="model" placeholder="Enter model name">
         </div>
         
-        <div id="settings-status" class="settings-status"></div>
-        
-        <div class="action-buttons">
-          <button id="back-btn" class="button-secondary">Back</button>
+        <div class="form-group">
+          <label>Theme</label>
+          <div class="theme-selector">
+            <div class="theme-option">
+              <input type="radio" id="theme-light" name="theme" value="light">
+              <label for="theme-light">Light</label>
+            </div>
+            <div class="theme-option">
+              <input type="radio" id="theme-dark" name="theme" value="dark">
+              <label for="theme-dark">Dark</label>
+            </div>
+            <div class="theme-option">
+              <input type="radio" id="theme-system" name="theme" value="system" checked>
+              <label for="theme-system">System</label>
+            </div>
+          </div>
         </div>
+        
+        <div id="settings-status" class="settings-status"></div>
       </div>
     </div>
   </div>
-
-  <script src="popup.js"></script>
 </body>
 </html>

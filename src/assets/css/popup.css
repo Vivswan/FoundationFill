@@ -11,18 +11,29 @@
   --sidebar-bg: #f9fafb;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --danger-color: #ef4444;
-    --danger-hover: #dc2626;
-    --bg-color: #0f172a;
-    --text-color: #f8fafc;
-    --border-color: #1e293b;
-    --highlight-color: #1e293b;
-    --sidebar-bg: #020617;
-  }
+.theme-light {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger-color: #dc2626;
+  --danger-hover: #b91c1c;
+  --bg-color: #ffffff;
+  --text-color: #1f2937;
+  --border-color: #e5e7eb;
+  --highlight-color: #f3f4f6;
+  --sidebar-width: 200px;
+  --sidebar-bg: #f9fafb;
+}
+
+.theme-dark {
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
+  --border-color: #1e293b;
+  --highlight-color: #1e293b;
+  --sidebar-bg: #020617;
 }
 
 * {
@@ -156,17 +167,15 @@ body {
   resize: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .form-group input[type="text"],
-  .form-group input[type="password"],
-  .form-group textarea {
-    background-color: #0f172a;
-    border-color: #1e293b;
-  }
-  
-  .form-group textarea[readonly] {
-    background-color: #0f172a;
-  }
+.theme-dark .form-group input[type="text"],
+.theme-dark .form-group input[type="password"],
+.theme-dark .form-group textarea {
+  background-color: #0f172a;
+  border-color: #1e293b;
+}
+
+.theme-dark .form-group textarea[readonly] {
+  background-color: #0f172a;
 }
 
 .form-group textarea:focus,
@@ -246,24 +255,22 @@ body {
   background-color: var(--border-color);
 }
 
-@media (prefers-color-scheme: dark) {
-  .button-secondary {
-    background-color: #1e293b;
-    color: #f8fafc;
-  }
-  
-  .button-secondary:hover {
-    background-color: #334155;
-  }
-  
-  .button-small {
-    background-color: #1e293b;
-    color: #f8fafc;
-  }
-  
-  .button-small:hover {
-    background-color: #334155;
-  }
+.theme-dark .button-secondary {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.theme-dark .button-secondary:hover {
+  background-color: #334155;
+}
+
+.theme-dark .button-small {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.theme-dark .button-small:hover {
+  background-color: #334155;
 }
 
 .button-danger {
@@ -294,6 +301,19 @@ body {
   display: none;
 }
 
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 .settings-info {
   font-size: 12px;
   color: var(--text-color);
@@ -310,20 +330,32 @@ body {
   transition: opacity 0.5s ease-in-out;
 }
 
-.template-name-edit {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
+.theme-dark .settings-status {
+  color: #4ade80;
 }
 
-@media (prefers-color-scheme: dark) {
-  .settings-status {
-    color: #4ade80;
-  }
-  
-  .template-name-edit {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: #334155 !important;
-  }
+/* Theme selector styling */
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 12px;
+  background-color: var(--highlight-color);
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+}
+
+.theme-option input[type="radio"] {
+  margin-right: 8px;
+}
+
+/* Specific dark mode overrides */
+.theme-dark .theme-selector {
+  background-color: #1e293b;
+  border-color: #334155;
 }

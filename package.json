@@ -1,0 +1,31 @@
+{
+  "name": "foundation-fill",
+  "version": "1.0.0",
+  "description": "A browser extension to fill text fields with predefined system prompt templates",
+  "scripts": {
+    "prebuild": "node generate-icons.js",
+    "build": "webpack --config webpack.config.js",
+    "clean-build": "node clean-rebuild.js",
+    "dev": "webpack --config webpack.config.js --watch",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "generate-icons": "node generate-icons.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.246",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "eslint": "^8.51.0",
+    "html-webpack-plugin": "^5.5.3",
+    "sharp": "^0.34.1",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.2.2",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

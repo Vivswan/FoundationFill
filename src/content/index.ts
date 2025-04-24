@@ -1,14 +1,26 @@
+import { 
+  Template,
+  FillTemplateMessage,
+  ShowTemplateSelectorMessage,
+  PingMessage,
+  MessageTypes
+} from '../types';
+
 // Notify the background script that the content script is loaded
 chrome.runtime.sendMessage({ action: 'contentScriptReady' });
 
 // Listen for messages from background script
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((
+  request: MessageTypes, 
+  _sender, 
+  sendResponse
+) => {
   if (request.action === 'fillTemplate') {
-    fillTextArea(request.template);
+    fillTextArea((request as FillTemplateMessage).template);
     sendResponse({ success: true });
     return true;
   } else if (request.action === 'showTemplateSelector') {
-    showTemplateSelector(request.templates);
+    showTemplateSelector((request as ShowTemplateSelectorMessage).templates);
     sendResponse({ success: true });
     return true;
   } else if (request.action === 'ping') {
@@ -20,8 +32,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // Fill the active text area with template content
-function fillTextArea(template) {
-  const activeElement = document.activeElement;
+function fillTextArea(template: Template): void {
+  const activeElement = document.activeElement as HTMLElement;
   
   if (isTextInput(activeElement)) {
     let content = '';
@@ -43,10 +55,11 @@ function fillTextArea(template) {
     
     // Fill the text area
     if (activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'INPUT') {
-      activeElement.value = content;
+      const inputElement = activeElement as HTMLInputElement | HTMLTextAreaElement;
+      inputElement.value = content;
       // Trigger input event to notify any listeners (like React forms)
-      activeElement.dispatchEvent(new Event('input', { bubbles: true }));
-    } else if (activeElement.contentEditable === 'true') {
+      inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+    } else if (activeElement.getAttribute('contenteditable') === 'true') {
       activeElement.textContent = content;
       activeElement.dispatchEvent(new Event('input', { bubbles: true }));
     }
@@ -54,25 +67,25 @@ function fillTextArea(template) {
 }
 
 // Check if element is a text input
-function isTextInput(element) {
+function isTextInput(element: HTMLElement | null): boolean {
   if (!element) return false;
   
   return (
     element.tagName === 'TEXTAREA' ||
-    (element.tagName === 'INPUT' && element.type === 'text') ||
-    element.contentEditable === 'true'
+    (element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'text') ||
+    element.getAttribute('contenteditable') === 'true'
   );
 }
 
 // Show a custom template selector dropdown near the cursor
-function showTemplateSelector(templates) {
+function showTemplateSelector(templates: Template[]): void {
   // Remove any existing selectors
   const existingSelector = document.getElementById('foundation-fill-selector');
   if (existingSelector) {
     existingSelector.remove();
   }
   
-  const activeElement = document.activeElement;
+  const activeElement = document.activeElement as HTMLElement;
   if (!isTextInput(activeElement)) return;
   
   // Create dropdown element
@@ -141,7 +154,7 @@ function showTemplateSelector(templates) {
   
   // Close when clicking outside
   document.addEventListener('click', function closeDropdown(e) {
-    if (!dropdown.contains(e.target) && e.target !== dropdown) {
+    if (!dropdown.contains(e.target as Node) && e.target !== dropdown) {
       dropdown.remove();
       document.removeEventListener('click', closeDropdown);
     }

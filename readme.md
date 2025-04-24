@@ -1,91 +1,97 @@
 # Foundation Fill
 
-A Chromium-based browser extension that allows you to fill text fields with predefined system prompt templates.
+A Chrome extension for filling text fields with predefined system prompt templates.
 
 ## Features
 
-- Works with Chromium-based browsers (Chrome, Edge, Brave)
-- Save base URL, API key, and model for LLM API access
-- OpenAI API as default and GPT-4 as default model
-- Manage multiple templates with simple UI
-- Fill text areas with templates via popup or context menu
+- Create, edit, and manage templates for text field filling
+- Customize system prompts and user prompts
 - Domain-specific templates
-- Option to include current page content
-- Generate text using LLM APIs
-- Dark mode support
-- Auto-save templates
+- Include page content in prompt generation
+- Context menu integration for quick access
+- Light/dark/system theme support
+- Generate text with API integration
 
 ## Project Structure
 
 ```
-foundation_fill/
-├── background/      # Background script for handling context menus and API calls
-│   └── background.js
-├── css/             # Styles for the extension
-│   └── popup.css
-├── docs/            # Documentation files
-│   └── ui_tempalte.png
-├── images/          # Extension icons
-│   ├── icon.svg
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-├── js/              # JavaScript content scripts
-│   └── content.js
-├── popup/           # Extension popup UI
-│   ├── popup.html
-│   └── popup.js
-├── manifest.json    # Extension configuration file
-└── README.md        # Documentation
+foundation-fill/
+├── dist/              # Build output directory
+├── src/               # Source code
+│   ├── assets/        # Static assets
+│   │   ├── css/       # Stylesheets
+│   │   └── images/    # Icons and images
+│   ├── background/    # Background script
+│   ├── content/       # Content script
+│   ├── popup/         # Popup UI
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── views/
+│   │   └── popup.html
+│   ├── types/         # TypeScript type definitions
+│   └── utils/         # Utility functions
+├── manifest.json      # Extension manifest
+├── generate-icons.js  # Script to generate PNG icons from SVG
+├── tsconfig.json      # TypeScript configuration
+└── webpack.config.js  # Webpack configuration
 ```
 
-## Installation
+## Development
 
-### Development Installation
+### Prerequisites
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/foundation_fill.git
-   ```
+- Node.js and npm
 
-2. Open Chrome/Edge/Brave and navigate to the extensions page:
-   - Chrome: `chrome://extensions`
-   - Edge: `edge://extensions`
-   - Brave: `brave://extensions`
+### Setup
 
-3. Enable "Developer mode" using the toggle in the top-right corner.
+1. Clone the repository
+2. Install dependencies:
 
-4. Click "Load unpacked" and select the root directory of this repository.
+```bash
+npm install
+```
 
-5. The extension should now be installed and visible in your browser toolbar.
+3. Build the extension:
 
-## Usage
+```bash
+npm run build
+```
 
-1. Click on the Foundation Fill extension icon in your browser toolbar to open the popup.
+4. Load the unpacked extension from the `dist` directory in Chrome:
+   - Go to `chrome://extensions/`
+   - Enable Developer mode
+   - Click "Load unpacked" and select the `dist` directory
 
-2. In the popup, you can:
-   - Create, edit, and delete templates
-   - Fill text fields with templates
-   - Generate text using LLM APIs
-   - Configure API settings
+### Commands
 
-3. Right-click on any text field to access your templates via the context menu.
+- `npm run build` - Build the extension
+- `npm run dev` - Build with watch mode for development
+- `npm run lint` - Run linting
+- `npm run typecheck` - Run TypeScript type checking
+- `npm run generate-icons` - Generate PNG icons from SVG source
 
-## Creating Templates
+## Architecture
 
-1. Click the "New" button to create a new template.
-2. Enter a system prompt and optional user prompt.
-3. Enable/disable the template using the checkbox.
-4. Choose whether to include the current page content.
-5. Choose whether to make the template specific to the current domain.
+The project follows the Model-View-Controller (MVC) architecture:
 
-## Configuration
+- **Models**: Handle data and business logic
+  - `TemplateModel`: Manages templates data
+  - `SettingsModel`: Manages extension settings
 
-1. Click the "Settings" button to configure API settings.
-2. Enter your API key.
-3. Optionally change the base URL and model.
-4. Click "Save Settings" to save your changes.
+- **Views**: Render the UI and handle user interactions
+  - `TemplateListView`: Renders the template list
+  - `TemplateEditorView`: Renders the template editor
+  - `SettingsView`: Renders the settings panel
+
+- **Controllers**: Connect models and views
+  - `PopupController`: Orchestrates popup UI interactions
+
+## Extension Components
+
+- **Background Script**: Handles context menu, API calls, and messaging
+- **Content Script**: Fills text fields and shows template selector
+- **Popup**: Main UI for managing templates and settings
 
 ## License
 
-[MIT License](LICENSE)
+MIT
