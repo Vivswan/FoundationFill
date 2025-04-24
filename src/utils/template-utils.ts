@@ -1,6 +1,6 @@
 // Utility functions for working with templates
 import { Template } from '../types';
-import { isDefaultTemplate as isDefaultTemplateOriginal, extractDomainFromUrl } from './defaults';
+import { isDefaultTemplate as isDefaultTemplateOriginal, extractDomainFromUrl } from '../defaults';
 
 // Re-export the isDefaultTemplate function
 export const isDefaultTemplate = isDefaultTemplateOriginal;

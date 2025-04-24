@@ -1,5 +1,5 @@
 // Central location for default values and constants
-import { Template, Settings } from '../types';
+import { Template, Settings } from './types';
 
 // Default template that's always present
 export const DEFAULT_TEMPLATE: Template = {

@@ -1,7 +1,7 @@
 // Utilities for working with Chrome extension APIs
 import { MessageTypes, SuccessResponse, PingResponse, GenerateTextResponse } from '../types';
 import { createLogger } from './logging';
-import { extractDomainFromUrl } from './defaults';
+import { extractDomainFromUrl } from '../defaults';
 
 const logger = createLogger('CHROME_API');
 

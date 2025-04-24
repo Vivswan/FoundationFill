@@ -1,7 +1,7 @@
 // API service for making consistent API requests
 import { createLogger } from './logging';
 import { getSettings } from './chrome-storage';
-import { API_TIMEOUT } from './defaults';
+import { API_TIMEOUT } from '../defaults';
 
 const logger = createLogger('API');
 

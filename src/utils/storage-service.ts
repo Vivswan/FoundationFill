@@ -1,6 +1,6 @@
 import { Settings, Template, ThemeMode } from '../types';
 import { createLogger } from './logging';
-import { DEFAULT_TEMPLATE, DEFAULT_SETTINGS } from './defaults';
+import { DEFAULT_TEMPLATE, DEFAULT_SETTINGS } from '../defaults';
 
 const logger = createLogger('STORAGE_SERVICE');
 

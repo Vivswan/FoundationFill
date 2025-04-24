@@ -1,6 +1,6 @@
 // Chrome storage utility for consistent storage operations
 import { createLogger } from './logging';
-import { DEFAULT_SETTINGS, DEFAULT_TEMPLATE } from './defaults';
+import { DEFAULT_SETTINGS, DEFAULT_TEMPLATE } from '../defaults';
 import { Template, Settings } from '../types';
 
 const logger = createLogger('STORAGE');
