@@ -13,23 +13,18 @@ if (!fs.existsSync(distDir)) {
 
 // HTML template processing
 const processHTML = () => {
-  let htmlContent = fs.readFileSync(path.join(rootDir, 'src/popup/popup.html'), 'utf8');
+  let htmlContent = fs.readFileSync(path.join(rootDir, 'src/popup.html'), 'utf8');
   
   // Add script tags to HTML before closing body tag
   htmlContent = htmlContent.replace('</body>', `
   <!-- Initialization script -->
-  <script src="../popup-init.js"></script>
+  <script src="popup-init.js"></script>
   
   <!-- Main script bundle -->
-  <script src="../popup.js"></script>
+  <script src="popup.js"></script>
 </body>`);
   
-  // Ensure popup directory exists
-  const popupDir = path.resolve(distDir, 'popup');
-  if (!fs.existsSync(popupDir)) {
-    fs.mkdirSync(popupDir, { recursive: true });
-  }
-  fs.writeFileSync(path.join(popupDir, 'popup.html'), htmlContent);
+  fs.writeFileSync(path.join(distDir, 'popup.html'), htmlContent);
   console.log('Processed popup.html');
 };
 
@@ -54,10 +49,10 @@ async function build(watch = false) {
     // Build options
     const options = {
       entryPoints: {
-        popup: path.join(rootDir, 'src/popup/popup.ts'),
-        'popup-init': path.join(rootDir, 'src/popup/init.js'),
-        background: path.join(rootDir, 'src/background/background.ts'),
-        content: path.join(rootDir, 'src/content/content.ts')
+        popup: path.join(rootDir, 'src/index.ts'),
+        background: path.join(rootDir, 'src/background.ts'),
+        content: path.join(rootDir, 'src/popup/content.ts'),
+        'popup-init': path.join(rootDir, 'src/assets/js/init.js')
       },
       bundle: true,
       outdir: distDir,
@@ -69,8 +64,8 @@ async function build(watch = false) {
       plugins: [
         copy({
           assets: [
-            { from: [path.join(rootDir, 'src/assets/css/*')], to: ['css'] },
-            { from: [path.join(rootDir, 'src/assets/images/*')], to: ['images'] }
+            { from: [path.join(rootDir, 'src/assets/css/*')], to: [path.join(distDir, 'css')] },
+            { from: [path.join(rootDir, 'src/assets/images/*')], to: [path.join(distDir, 'images')] }
           ]
         })
       ]
@@ -83,7 +78,7 @@ async function build(watch = false) {
       console.log('Watching for changes...');
       
       // Watch HTML template and manifest for changes
-      fs.watch(path.join(rootDir, 'src/popup/popup.html'), () => {
+      fs.watch(path.join(rootDir, 'src/popup.html'), () => {
         processHTML();
         console.log('Detected changes in popup.html, updated it');
       });

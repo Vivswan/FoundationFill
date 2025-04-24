@@ -39,10 +39,13 @@ async function cleanRebuild() {
     process.exit(1);
   }
 
-  // Then run esbuild in production mode
-  console.log('Running esbuild in production mode...');
+  // Check if we should run in development mode
+  const isDev = process.argv.includes('--dev');
+  const buildEnv = isDev ? 'development' : 'production';
+  
+  console.log(`Running esbuild in ${buildEnv} mode...`);
   try {
-    execSync('NODE_ENV=production node ' + path.join(__dirname, 'esbuild.config.js'), { stdio: 'inherit' });
+    execSync(`NODE_ENV=${buildEnv} node ${path.join(__dirname, 'esbuild.config.js')}`, { stdio: 'inherit' });
   } catch (error) {
     console.error('Error during esbuild build:', error);
     process.exit(1);

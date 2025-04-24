@@ -1,14 +1,13 @@
-import '../utils/chrome-api-debug'; // Import first to initialize debug helpers
-import { TemplateModel } from './models/Template';
-import { SettingsModel } from './models/Settings';
-import { TemplateListView } from './views/TemplateList';
-import { TemplateEditorView } from './views/TemplateEditor';
-import { SettingsView } from './views/Settings';
-import { PopupController } from '../controllers/Popup';
-import { applyTheme, listenForThemeChanges } from '../utils/theme';
+import './utils/chrome-api-debug'; // Import first to initialize debug helpers
+import { TemplateModel } from './popup/models/Template';
+import { SettingsModel } from './popup/models/Settings';
+import { TemplateListView } from './popup/views/TemplateList';
+import { TemplateEditorView } from './popup/views/TemplateEditor';
+import { SettingsView } from './popup/views/Settings';
+import { PopupController } from './popup/Popup';
 
 // Import the theme service
-import { ThemeService } from '../utils/theme-service';
+import { ThemeService } from './utils/theme-service';
 
 // Initialize popup
 console.log("[Popup] Starting main initialization");

@@ -1,13 +1,13 @@
 import { 
   MessageTypes, 
   GenerateTextMessage,
-} from '../types';
-import { getTemplates, getSettings } from '../utils/chrome-storage';
-import { createLogger } from '../utils/logging';
-import { generateChatCompletion } from '../utils/api-service';
-import { API_TIMEOUT, extractDomainFromUrl } from '../utils/defaults';
-import { sendMessageToTab, getCurrentTab, markTabReady } from '../utils/chrome-api-utils';
-import { filterTemplatesByDomain, getEnabledTemplates } from '../utils/template-utils';
+} from './types';
+import { getTemplates, getSettings } from './utils/chrome-storage';
+import { createLogger } from './utils/logging';
+import { generateChatCompletion } from './utils/api-service';
+import { API_TIMEOUT, extractDomainFromUrl } from './utils/defaults';
+import { sendMessageToTab, getCurrentTab, markTabReady } from './utils/chrome-api-utils';
+import { filterTemplatesByDomain, getEnabledTemplates } from './utils/template-utils';
 
 // Create a logger instance for this component
 const logger = createLogger('BACKGROUND');

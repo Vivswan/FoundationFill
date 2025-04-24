@@ -2,7 +2,6 @@ import {
   Template,
   FillTemplateMessage,
   ShowTemplateSelectorMessage,
-  PingMessage,
   MessageTypes
 } from '../types';
 import { createLogger } from '../utils/logging';

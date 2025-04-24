@@ -1,12 +1,11 @@
 import { Template, GenerateTextResponse, Settings } from '../types';
-import { TemplateModel } from '../popup/models/Template';
-import { SettingsModel } from '../popup/models/Settings';
-import { TemplateListView } from '../popup/views/TemplateList';
-import { TemplateEditorView } from '../popup/views/TemplateEditor';
-import { SettingsView } from '../popup/views/Settings';
+import { TemplateModel } from './models/Template';
+import { SettingsModel } from './models/Settings';
+import { TemplateListView } from './views/TemplateList';
+import { TemplateEditorView } from './views/TemplateEditor';
+import { SettingsView } from './views/Settings';
 import { createLogger } from '../utils/logging';
 import { getCurrentDomain, executeScriptInTab, sendMessageToBackground, getCurrentTab } from '../utils/chrome-api-utils';
-import { generateChatCompletion } from '../utils/api-service';
 
 // Create a logger instance for this component
 const logger = createLogger('POPUP_CONTROLLER');
