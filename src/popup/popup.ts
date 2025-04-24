@@ -1,11 +1,14 @@
 import '../utils/chrome-api-debug'; // Import first to initialize debug helpers
-import { TemplateModel } from './models/TemplateModel';
-import { SettingsModel } from './models/SettingsModel';
-import { TemplateListView } from './views/TemplateListView';
-import { TemplateEditorView } from './views/TemplateEditorView';
-import { SettingsView } from './views/SettingsView';
-import { PopupController } from './controllers/PopupController';
+import { TemplateModel } from './models/Template';
+import { SettingsModel } from './models/Settings';
+import { TemplateListView } from './views/TemplateList';
+import { TemplateEditorView } from './views/TemplateEditor';
+import { SettingsView } from './views/Settings';
+import { PopupController } from '../controllers/Popup';
 import { applyTheme, listenForThemeChanges } from '../utils/theme';
+
+// Import the theme service
+import { ThemeService } from '../utils/theme-service';
 
 // Initialize popup
 console.log("[Popup] Starting main initialization");
@@ -26,22 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     console.log("[Popup] Settings loaded:", settings);
     
-    // Apply theme
-    applyTheme(settings.theme);
-    
-    // Listen for system theme changes
-    listenForThemeChanges(settings.theme, () => {
-      applyTheme(settings.theme);
-    });
+    // Initialize theme service
+    const themeService = new ThemeService(settings.theme);
     
     // Set up a theme listener on the settings model
     settingsModel.onChange((updatedSettings) => {
-      applyTheme(updatedSettings.theme);
-      
-      // If theme is system, we need to listen for system changes
-      listenForThemeChanges(updatedSettings.theme, () => {
-        applyTheme(updatedSettings.theme);
-      });
+      themeService.setTheme(updatedSettings.theme);
     });
     
     console.log("[Popup] Theme setup complete");
@@ -58,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'template-enabled',
       'include-page-content',
       'domain-specific',
-      'current-domain',
+      'template-domain',
       'delete-template-btn',
       'generate-btn',
       'generated-text'

@@ -1,13 +1,9 @@
 import { Template } from '../../types';
 
-// Local debug function
-function debug(msg: string, ...data: any[]) {
-  if (data.length > 0) {
-    console.log(`%c[TEMPLATE_LIST_VIEW] ${msg}`, 'color: orange; font-weight: bold', ...data);
-  } else {
-    console.log(`%c[TEMPLATE_LIST_VIEW] ${msg}`, 'color: orange; font-weight: bold');
-  }
-}
+import { createLogger } from '../../utils/logging';
+
+// Create a logger for this component
+const logger = createLogger('TEMPLATE_LIST_VIEW');
 
 export class TemplateListView {
   private templateList: HTMLElement;
@@ -19,22 +15,22 @@ export class TemplateListView {
   private onEditNameCallback: ((templateId: string, newName: string) => void) | null = null;
   
   constructor(templateListId: string, newTemplateBtnId: string) {
-    debug('Initializing TemplateListView');
+    logger.debug('Initializing TemplateListView');
     
     this.templateList = document.getElementById(templateListId) as HTMLElement;
     if (!this.templateList) {
-      debug('Error: Template list element not found with ID:', templateListId);
+      logger.error('Template list element not found with ID:', templateListId);
     }
     
     this.newTemplateBtn = document.getElementById(newTemplateBtnId) as HTMLElement;
     if (!this.newTemplateBtn) {
-      debug('Error: New template button element not found with ID:', newTemplateBtnId);
+      logger.error('New template button element not found with ID:', newTemplateBtnId);
     }
     
     // Add event listener for new template button
     if (this.newTemplateBtn) {
       this.newTemplateBtn.addEventListener('click', () => {
-        debug('New template button clicked');
+        logger.debug('New template button clicked');
         if (this.onNewTemplateCallback) {
           this.onNewTemplateCallback();
         }
@@ -44,18 +40,18 @@ export class TemplateListView {
   
   // Render the template list
   render(templates: Template[], selectedTemplateId: string | null): void {
-    debug('Rendering template list');
+    logger.debug('Rendering template list');
     
     if (!this.templateList) {
-      debug('Error: Cannot render, template list element is null');
+      logger.error('Cannot render, template list element is null');
       return;
     }
     
     this.templateList.innerHTML = '';
-    debug('Templates count:', templates?.length);
+    logger.debug('Templates count:', templates?.length);
     
     if (!templates || templates.length === 0) {
-      debug('No templates to render');
+      logger.debug('No templates to render');
       const emptyMessage = document.createElement('div');
       emptyMessage.className = 'empty-templates';
       emptyMessage.textContent = 'No templates found';
@@ -64,7 +60,7 @@ export class TemplateListView {
     }
     
     templates.forEach(template => {
-      debug('Rendering template:', template.id, template.name);
+      logger.debug('Rendering template:', template.id, template.name);
       const templateItem = document.createElement('div');
       templateItem.className = 'template-item';
       templateItem.dataset.templateId = template.id;
@@ -182,7 +178,7 @@ export class TemplateListView {
   }
   
   // Set the onEditName callback
-  onEditName(callback: (templateId: string, newName: string) => void): void {
+  onTemplateNameEdit(callback: (templateId: string, newName: string) => void): void {
     this.onEditNameCallback = callback;
   }
 }

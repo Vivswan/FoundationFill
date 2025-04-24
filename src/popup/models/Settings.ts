@@ -1,6 +1,6 @@
 import { Settings } from '../../types';
-import { getSettings, saveSettings } from '../../utils/chrome-storage';
 import { createLogger } from '../../utils/logging';
+import { StorageService } from '../../utils/storage-service';
 
 // Create a logger for this component
 const logger = createLogger('SETTINGS_MODEL');
@@ -13,15 +13,19 @@ export class SettingsModel {
     theme: 'system'
   };
   
+  private storageService: StorageService;
+  
   // Callback for settings changes
   private onChangeCallback: ((settings: Settings) => void) | null = null;
   
-  constructor() {}
+  constructor() {
+    this.storageService = new StorageService();
+  }
   
   // Load settings from storage
   async loadSettings(): Promise<Settings> {
     logger.debug('Loading settings');
-    this.settings = await getSettings();
+    this.settings = await this.storageService.getSettings();
     logger.debug('Settings loaded:', this.settings);
     return this.settings;
   }
@@ -42,7 +46,7 @@ export class SettingsModel {
   // Save settings to storage
   private async saveSettings(): Promise<void> {
     logger.debug('Saving settings');
-    await saveSettings(this.settings);
+    await this.storageService.saveSettings(this.settings);
     logger.debug('Settings saved successfully');
     
     // Call the onChange callback if it exists

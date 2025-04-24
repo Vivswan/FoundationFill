@@ -16,7 +16,7 @@ A Chrome extension for filling text fields with predefined system prompt templat
 
 ```
 foundation-fill/
-├── build/             # Build scripts and configuration
+├── scripts/           # Build scripts and configuration
 │   ├── clean-rebuild.js  # Clean build script
 │   ├── esbuild.config.js # ESBuild configuration
 │   └── generate-icons.js # Script to generate PNG icons from SVG
@@ -27,13 +27,13 @@ foundation-fill/
 │   │   └── images/    # Icons and images
 │   ├── background/    # Background script
 │   ├── content/       # Content script
+│   ├── controllers/   # Controllers for application components
 │   ├── popup/         # Popup UI
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── views/
-│   │   └── popup.html
+│   │   ├── models/    # Data models
+│   │   ├── views/     # UI components
+│   │   └── popup.html # Popup HTML template
 │   ├── types/         # TypeScript type definitions
-│   └── utils/         # Utility functions
+│   └── utils/         # Utility functions and services
 ├── manifest.json      # Extension manifest
 └── tsconfig.json      # TypeScript configuration
 ```
@@ -84,25 +84,33 @@ Foundation Fill uses ESBuild for fast, efficient builds:
 
 ## Architecture
 
-The project follows the Model-View-Controller (MVC) architecture:
+The project follows a simplified Model-View-Controller (MVC) architecture with service-oriented components:
 
 - **Models**: Handle data and business logic
-  - `TemplateModel`: Manages templates data
-  - `SettingsModel`: Manages extension settings
+  - `Template`: Manages templates data
+  - `Settings`: Manages extension settings
 
 - **Views**: Render the UI and handle user interactions
-  - `TemplateListView`: Renders the template list
-  - `TemplateEditorView`: Renders the template editor
-  - `SettingsView`: Renders the settings panel
+  - `TemplateList`: Renders the template list
+  - `TemplateEditor`: Renders the template editor
+  - `Settings`: Renders the settings panel
 
 - **Controllers**: Connect models and views
-  - `PopupController`: Orchestrates popup UI interactions
+  - `Popup`: Orchestrates popup UI interactions
+
+- **Services**: Provide reusable functionality
+  - `StorageService`: Centralized storage access
+  - `TemplateService`: Template operations and validation
+  - `ThemeService`: Theme management
+  - `MessageService`: Cross-component communication
+  - `DOMService`: DOM manipulation utilities
 
 ## Extension Components
 
 - **Background Script**: Handles context menu, API calls, and messaging
 - **Content Script**: Fills text fields and shows template selector
 - **Popup**: Main UI for managing templates and settings
+- **Utils**: Common utilities for storage, API access, and Chrome integration
 
 ## License
 

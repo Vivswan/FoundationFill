@@ -1,9 +1,6 @@
 import { 
-  Template, 
   MessageTypes, 
   GenerateTextMessage,
-  ContentScriptReadyMessage,
-  TemplatesUpdatedMessage
 } from '../types';
 import { getTemplates, getSettings } from '../utils/chrome-storage';
 import { createLogger } from '../utils/logging';

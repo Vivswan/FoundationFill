@@ -1,12 +1,12 @@
-import { Template, GenerateTextResponse, Settings } from '../../types';
-import { TemplateModel } from '../models/TemplateModel';
-import { SettingsModel } from '../models/SettingsModel';
-import { TemplateListView } from '../views/TemplateListView';
-import { TemplateEditorView } from '../views/TemplateEditorView';
-import { SettingsView } from '../views/SettingsView';
-import { createLogger } from '../../utils/logging';
-import { getCurrentDomain, executeScriptInTab, sendMessageToBackground, getCurrentTab } from '../../utils/chrome-api-utils';
-import { generateChatCompletion } from '../../utils/api-service';
+import { Template, GenerateTextResponse, Settings } from '../types';
+import { TemplateModel } from '../popup/models/Template';
+import { SettingsModel } from '../popup/models/Settings';
+import { TemplateListView } from '../popup/views/TemplateList';
+import { TemplateEditorView } from '../popup/views/TemplateEditor';
+import { SettingsView } from '../popup/views/Settings';
+import { createLogger } from '../utils/logging';
+import { getCurrentDomain, executeScriptInTab, sendMessageToBackground, getCurrentTab } from '../utils/chrome-api-utils';
+import { generateChatCompletion } from '../utils/api-service';
 
 // Create a logger instance for this component
 const logger = createLogger('POPUP_CONTROLLER');
@@ -41,7 +41,7 @@ export class PopupController {
     
     try {
       // Get the current domain from the active tab
-      await this.getCurrentDomain();
+      await this.fetchCurrentDomain();
       
       // Load templates and settings
       logger.debug('Loading templates and settings');
@@ -61,12 +61,12 @@ export class PopupController {
   }
   
   // Get the current domain from the active tab
-  private async getCurrentDomain(): Promise<void> {
+  private async fetchCurrentDomain(): Promise<void> {
     try {
       const domain = await getCurrentDomain();
       if (domain) {
         this.templateModel.setCurrentDomain(domain);
-        this.templateEditorView.setCurrentDomain(domain);
+        this.templateEditorView.setTemplateDomain(domain);
       }
     } catch (error) {
       logger.error('Error getting current domain:', error);
@@ -84,7 +84,7 @@ export class PopupController {
       this.handleNewTemplate();
     });
     
-    this.templateListView.onEditName((templateId, newName) => {
+    this.templateListView.onTemplateNameEdit((templateId, newName) => {
       this.handleEditTemplateName(templateId, newName);
     });
     
@@ -94,11 +94,11 @@ export class PopupController {
     });
     
     this.templateEditorView.onGenerate(() => {
-      this.handleGenerateText();
+      this.handleGenerateButtonClick();
     });
     
-    this.templateEditorView.onInputChange((templateData) => {
-      this.handleTemplateInputChange(templateData);
+    this.templateEditorView.onTemplateFieldChange((templateData) => {
+      this.handleTemplateEditorInputChange(templateData);
     });
     
     // Settings events
@@ -110,8 +110,8 @@ export class PopupController {
       this.handleHideSettings();
     });
     
-    this.settingsView.onInputChange((key, value) => {
-      this.handleSettingsInputChange(key, value);
+    this.settingsView.onSettingChange((key, value) => {
+      this.handleSettingValueChange(key, value);
     });
   }
   
@@ -133,10 +133,10 @@ export class PopupController {
       this.templateEditorView.update(selectedTemplate, isDefault);
       
       if (selectedTemplate.domainSpecific && selectedTemplate.domain) {
-        this.templateEditorView.setCurrentDomain(selectedTemplate.domain);
+        this.templateEditorView.setTemplateDomain(selectedTemplate.domain);
       } else {
         const currentDomain = this.templateModel.getCurrentDomain();
-        this.templateEditorView.setCurrentDomain(currentDomain);
+        this.templateEditorView.setTemplateDomain(currentDomain);
       }
       
       this.templateEditorView.show();
@@ -188,13 +188,13 @@ export class PopupController {
   }
   
   // Handle generating text
-  private async handleGenerateText(): Promise<void> {
+  private async handleGenerateButtonClick(): Promise<void> {
     const selectedTemplate = this.templateModel.getSelectedTemplate();
     
     if (!selectedTemplate) return;
     
     // Get template data from the editor (in case it was changed but not yet saved)
-    const templateData = this.templateEditorView.getTemplateData();
+    const templateData = this.templateEditorView.getEditorFormData();
     
     // Validate required fields
     if (!templateData.systemPrompt && !templateData.userPrompt) {
@@ -246,14 +246,14 @@ export class PopupController {
   }
   
   // Handle template input changes
-  private handleTemplateInputChange(templateData: Partial<Template>): void {
+  private handleTemplateEditorInputChange(templateData: Partial<Template>): void {
     const updatedTemplate = this.templateModel.updateSelectedTemplate(templateData);
     
     // If domain-specific was just checked, update the domain display immediately
     if (updatedTemplate && templateData.domainSpecific !== undefined) {
       const currentDomain = this.templateModel.getCurrentDomain();
       if (templateData.domainSpecific) {
-        this.templateEditorView.setCurrentDomain(currentDomain);
+        this.templateEditorView.setTemplateDomain(currentDomain);
       }
     }
   }
@@ -271,7 +271,7 @@ export class PopupController {
   }
   
   // Handle settings input changes
-  private async handleSettingsInputChange(key: keyof Settings, value: string): Promise<void> {
+  private async handleSettingValueChange(key: keyof Settings, value: string): Promise<void> {
     await this.settingsModel.updateSetting(key, value);
     this.settingsView.showStatus('Settings saved!');
   }

@@ -1,7 +1,6 @@
 import { Template } from '../../types';
-import { getTemplates, saveTemplates } from '../../utils/chrome-storage';
 import { createLogger } from '../../utils/logging';
-import { isDefaultTemplate, updateTemplate, createTemplate } from '../../utils/template-utils';
+import { TemplateService } from '../../utils/template-service';
 import { sendMessageToBackground } from '../../utils/chrome-api-utils';
 
 // Create a logger for this component
@@ -11,14 +10,17 @@ export class TemplateModel {
   private templates: Template[] = [];
   private selectedTemplateId: string | null = null;
   private currentDomain: string = '';
+  private templateService: TemplateService;
   
-  constructor() {}
+  constructor() {
+    this.templateService = new TemplateService();
+  }
   
   // Load templates from storage
   async loadTemplates(): Promise<void> {
     logger.debug('Loading templates');
     try {
-      this.templates = await getTemplates();
+      this.templates = await this.templateService.loadTemplates();
       logger.debug('Templates loaded:', this.templates);
       
       // Select the first template by default if available
@@ -71,17 +73,19 @@ export class TemplateModel {
     // Find the default template to copy content from
     const defaultTemplate = this.templates.find(t => t.isDefault) || this.templates[0];
     
-    // Use the template-utils to create a new template
-    const newTemplate = createTemplate('New Template');
+    // Use the template service to create a new template
+    const newTemplate = this.templateService.addTemplate('New Template');
     
     // Copy content from default template if available
     if (defaultTemplate) {
-      newTemplate.systemPrompt = defaultTemplate.systemPrompt;
-      newTemplate.userPrompt = defaultTemplate.userPrompt;
+      this.templateService.updateTemplate(newTemplate.id, {
+        systemPrompt: defaultTemplate.systemPrompt,
+        userPrompt: defaultTemplate.userPrompt
+      });
     }
     
-    this.templates.push(newTemplate);
-    this.saveTemplates();
+    // Update local cache
+    this.templates = this.templateService.getTemplates();
     this.selectedTemplateId = newTemplate.id;
     return newTemplate;
   }
@@ -93,18 +97,19 @@ export class TemplateModel {
     const templateIndex = this.templates.findIndex(t => t.id === this.selectedTemplateId);
     if (templateIndex === -1) return null;
     
-    // Use template-utils to handle the update with validation
+    // Use template service to handle the update with validation
     const currentTemplate = this.templates[templateIndex];
-    const updatedTemplateData = updateTemplate(
-      currentTemplate, 
-      updatedTemplate, 
-      this.currentDomain
+    const updatedTemplateData = this.templateService.updateTemplate(
+      currentTemplate.id, 
+      updatedTemplate
     );
     
-    // Update the template in the array
-    this.templates[templateIndex] = updatedTemplateData;
+    if (updatedTemplateData) {
+      // Update the local cache
+      this.templates = this.templateService.getTemplates();
+    }
     
-    this.saveTemplates();
+    // No need to call saveTemplates() since the service handles it
     return this.templates[templateIndex];
   }
   
@@ -151,14 +156,13 @@ export class TemplateModel {
   
   // Check if a template is the default template
   isDefaultTemplate(templateId: string): boolean {
-    const template = this.templates.find(t => t.id === templateId);
-    return template ? isDefaultTemplate(template.id) || !!template.isDefault : false;
+    return this.templateService.isDefaultTemplate(templateId);
   }
   
   // Save templates to storage
   private async saveTemplates(): Promise<void> {
     try {
-      await saveTemplates(this.templates);
+      await this.templateService.saveTemplates();
       
       // Notify the background script that templates were updated
       await sendMessageToBackground({ action: 'templatesUpdated' });

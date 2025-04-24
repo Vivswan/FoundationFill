@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "A browser extension to fill text fields with predefined system prompt templates",
   "scripts": {
-    "prebuild": "node build/generate-icons.js",
-    "build": "node build/esbuild.config.js",
-    "clean-build": "node build/clean-rebuild.js",
-    "dev": "node build/esbuild.config.js --watch",
+    "prebuild": "node scripts/generate-icons.js",
+    "build": "node scripts/esbuild.config.js",
+    "clean-build": "node scripts/clean-rebuild.js",
+    "dev": "node scripts/esbuild.config.js --watch",
     "lint": "eslint src/**/*.ts",
     "typecheck": "tsc --noEmit",
-    "generate-icons": "node build/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js"
   },
   "author": "",
   "license": "MIT",

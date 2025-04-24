@@ -142,7 +142,7 @@ export class SettingsView {
   }
   
   // Set the onInputChange callback
-  onInputChange(callback: (key: keyof Settings, value: string) => void): void {
+  onSettingChange(callback: (key: keyof Settings, value: string) => void): void {
     this.onInputChangeCallback = callback;
   }
   

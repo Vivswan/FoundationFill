@@ -54,10 +54,10 @@ async function build(watch = false) {
     // Build options
     const options = {
       entryPoints: {
-        popup: path.join(rootDir, 'src/popup/index.ts'),
+        popup: path.join(rootDir, 'src/popup/popup.ts'),
         'popup-init': path.join(rootDir, 'src/popup/init.js'),
-        background: path.join(rootDir, 'src/background/index.ts'),
-        content: path.join(rootDir, 'src/content/index.ts')
+        background: path.join(rootDir, 'src/background/background.ts'),
+        content: path.join(rootDir, 'src/content/content.ts')
       },
       bundle: true,
       outdir: distDir,

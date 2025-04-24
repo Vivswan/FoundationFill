@@ -8,7 +8,7 @@ export class TemplateEditorView {
   private templateEnabledCheckbox: HTMLInputElement;
   private includePageContentCheckbox: HTMLInputElement;
   private domainSpecificCheckbox: HTMLInputElement;
-  private currentDomainSpan: HTMLElement;
+  private templateDomainSpan: HTMLElement;
   private deleteTemplateBtn: HTMLButtonElement;
   private generateBtn: HTMLButtonElement;
   private generatedTextArea: HTMLTextAreaElement;
@@ -25,7 +25,7 @@ export class TemplateEditorView {
     templateEnabledId: string,
     includePageContentId: string,
     domainSpecificId: string,
-    currentDomainId: string,
+    templateDomainId: string,
     deleteTemplateBtnId: string,
     generateBtnId: string,
     generatedTextId: string
@@ -37,7 +37,7 @@ export class TemplateEditorView {
     this.templateEnabledCheckbox = document.getElementById(templateEnabledId) as HTMLInputElement;
     this.includePageContentCheckbox = document.getElementById(includePageContentId) as HTMLInputElement;
     this.domainSpecificCheckbox = document.getElementById(domainSpecificId) as HTMLInputElement;
-    this.currentDomainSpan = document.getElementById(currentDomainId) as HTMLElement;
+    this.templateDomainSpan = document.getElementById(templateDomainId) as HTMLElement;
     this.deleteTemplateBtn = document.getElementById(deleteTemplateBtnId) as HTMLButtonElement;
     this.generateBtn = document.getElementById(generateBtnId) as HTMLButtonElement;
     this.generatedTextArea = document.getElementById(generatedTextId) as HTMLTextAreaElement;
@@ -59,9 +59,9 @@ export class TemplateEditorView {
     this.domainSpecificCheckbox.addEventListener('change', () => {
       // Update domain display immediately on checkbox change
       if (this.domainSpecificCheckbox.checked) {
-        this.currentDomainSpan.style.display = 'inline';
+        this.templateDomainSpan.style.display = 'inline';
       } else {
-        this.currentDomainSpan.style.display = 'none';
+        this.templateDomainSpan.style.display = 'none';
       }
       this.handleInputChange();
     });
@@ -96,13 +96,13 @@ export class TemplateEditorView {
     this.templateEditor.classList.add('hidden');
   }
   
-  // Set the current domain
-  setCurrentDomain(domain: string): void {
+  // Set the template domain display
+  setTemplateDomain(domain: string): void {
     if (this.domainSpecificCheckbox.checked) {
-      this.currentDomainSpan.textContent = domain;
-      this.currentDomainSpan.style.display = 'inline';
+      this.templateDomainSpan.textContent = domain;
+      this.templateDomainSpan.style.display = 'inline';
     } else {
-      this.currentDomainSpan.style.display = 'none';
+      this.templateDomainSpan.style.display = 'none';
     }
   }
   
@@ -140,10 +140,10 @@ export class TemplateEditorView {
       this.domainSpecificCheckbox.checked = template.domainSpecific;
       
       if (template.domainSpecific && template.domain) {
-        this.currentDomainSpan.textContent = template.domain;
-        this.currentDomainSpan.style.display = 'inline';
+        this.templateDomainSpan.textContent = template.domain;
+        this.templateDomainSpan.style.display = 'inline';
       } else {
-        this.currentDomainSpan.style.display = 'none';
+        this.templateDomainSpan.style.display = 'none';
       }
     }
   }
@@ -165,7 +165,7 @@ export class TemplateEditorView {
   }
   
   // Get the current template data from the editor
-  getTemplateData(): Partial<Template> {
+  getEditorFormData(): Partial<Template> {
     return {
       systemPrompt: this.systemPromptInput.value,
       userPrompt: this.userPromptInput.value,
@@ -186,7 +186,7 @@ export class TemplateEditorView {
   }
   
   // Set the onInputChange callback
-  onInputChange(callback: (template: Partial<Template>) => void): void {
+  onTemplateFieldChange(callback: (template: Partial<Template>) => void): void {
     this.onInputChangeCallback = callback;
   }
 }
