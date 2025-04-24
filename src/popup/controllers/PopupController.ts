@@ -136,6 +136,14 @@ export class PopupController {
     if (selectedTemplate) {
       const isDefault = this.templateModel.isDefaultTemplate(selectedTemplate.id);
       this.templateEditorView.update(selectedTemplate, isDefault);
+      
+      if (selectedTemplate.domainSpecific && selectedTemplate.domain) {
+        this.templateEditorView.setCurrentDomain(selectedTemplate.domain);
+      } else {
+        const currentDomain = this.templateModel.getCurrentDomain();
+        this.templateEditorView.setCurrentDomain(currentDomain);
+      }
+      
       this.templateEditorView.show();
       this.settingsView.hide();
     } else {
