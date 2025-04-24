@@ -4,9 +4,9 @@
   "description": "A browser extension to fill text fields with predefined system prompt templates",
   "scripts": {
     "prebuild": "node scripts/generate-icons.js",
-    "build": "node scripts/esbuild.config.js",
+    "build": "bun scripts/bun.config.js",
     "clean-build": "node scripts/clean-rebuild.js",
-    "dev": "node scripts/esbuild.config.js --watch",
+    "dev": "bun scripts/bun.config.js --watch",
     "dev-clean-build": "node scripts/clean-rebuild.js --dev",
     "lint": "npx eslint .",
     "typecheck": "tsc --noEmit",
@@ -18,8 +18,7 @@
     "@types/chrome": "^0.0.246",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
-    "esbuild": "^0.20.1",
-    "esbuild-plugin-copy": "^2.1.1",
+    "bun": "latest",
     "eslint": "^8.51.0",
     "sharp": "^0.34.1",
     "typescript": "^5.2.2"
