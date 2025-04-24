@@ -3,13 +3,20 @@ import { createLogger } from './logging';
 
 const logger = createLogger('MESSAGE_SERVICE');
 
-type MessageHandler<T extends Message, R = any> = (
+// Generic handler type
+type AnyMessageHandler = (
+  message: Message, 
+  sender?: chrome.runtime.MessageSender
+) => Promise<unknown> | unknown;
+
+// Type for specific message and response
+type TypedMessageHandler<T extends Message, R = unknown> = (
   message: T, 
   sender?: chrome.runtime.MessageSender
 ) => Promise<R> | R;
 
 export class MessageService {
-  private handlers: Map<string, MessageHandler<any, any>> = new Map();
+  private handlers: Map<string, AnyMessageHandler> = new Map();
   
   constructor() {
     this.setupListener();
@@ -19,7 +26,7 @@ export class MessageService {
     chrome.runtime.onMessage.addListener((
       message: Message, 
       sender: chrome.runtime.MessageSender, 
-      sendResponse: (response?: any) => void
+      sendResponse: (response?: unknown) => void
     ) => {
       if (!message.action) {
         logger.error('Received message with no action');
@@ -63,15 +70,16 @@ export class MessageService {
     });
   }
   
-  registerHandler<T extends Message, R = any>(
+  registerHandler<T extends Message, R = unknown>(
     action: string, 
-    handler: MessageHandler<T, R>
+    handler: TypedMessageHandler<T, R>
   ): void {
-    this.handlers.set(action, handler);
+    // Safe to cast since T extends Message
+    this.handlers.set(action, handler as AnyMessageHandler);
     logger.debug(`Registered handler for action: ${action}`);
   }
   
-  async sendMessage<T extends Message, R = any>(message: T): Promise<R> {
+  async sendMessage<T extends Message, R = unknown>(message: T): Promise<R> {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(message, (response: R | undefined) => {
         if (chrome.runtime.lastError) {
@@ -83,7 +91,7 @@ export class MessageService {
     });
   }
   
-  async sendMessageToTab<T extends Message, R = any>(tabId: number, message: T): Promise<R> {
+  async sendMessageToTab<T extends Message, R = unknown>(tabId: number, message: T): Promise<R> {
     return new Promise((resolve, reject) => {
       chrome.tabs.sendMessage(tabId, message, (response: R | undefined) => {
         if (chrome.runtime.lastError) {

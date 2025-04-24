@@ -49,7 +49,6 @@ export const listenForThemeChanges = (theme: ThemeMode, callback: () => void): v
       // Fallback for older browsers
       logger.warn('Fallback to legacy event listener for theme changes');
       try {
-        // @ts-ignore: Typings are missing for the legacy method
         darkModeMediaQuery.addListener(callback);
       } catch (error) {
         logger.error('Failed to set up theme change listener:', error);

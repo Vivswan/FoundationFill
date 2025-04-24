@@ -104,7 +104,7 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
 }
 
 // Initialize context menu items
-chrome.runtime.onInstalled.addListener((_details: chrome.runtime.InstalledDetails) => {
+chrome.runtime.onInstalled.addListener(() => {
   // Load templates and create menu items
   loadTemplatesIntoContextMenu();
 });
@@ -116,7 +116,7 @@ chrome.tabs.onActivated.addListener(() => {
 });
 
 // Listen for storage changes to update context menu
-chrome.storage.onChanged.addListener((changes: { [key: string]: { oldValue?: any, newValue?: any } }, area: string) => {
+chrome.storage.onChanged.addListener((changes: { [key: string]: { oldValue?: unknown, newValue?: unknown } }, area: string) => {
   if (area === 'sync' && changes.templates) {
     // Templates have been updated, refresh the context menu
     loadTemplatesIntoContextMenu();
@@ -173,7 +173,8 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
         let pageContent = '';
         if (template.includePageContent) {
           try {
-            pageContent = await sendMessageToTab(tab.id, { action: 'getPageContent' })?.content || '';
+            const response = await sendMessageToTab<{ content: string }>(tab.id, { action: 'getPageContent' });
+            pageContent = response?.content || '';
             logger.debug(`Retrieved ${pageContent.length} characters of page content`);
           } catch (error) {
             logger.error("Failed to get page content:", error);
@@ -246,7 +247,7 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
 chrome.runtime.onMessage.addListener((
   request: MessageTypes, 
   sender: chrome.runtime.MessageSender, 
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: unknown) => void
 ) => {
   // Handle content script ready message
   if (request.action === 'contentScriptReady' && sender.tab && sender.tab.id) {
@@ -276,7 +277,7 @@ chrome.runtime.onMessage.addListener((
 // Handle generate text action
 async function handleGenerateText(
   request: GenerateTextMessage, 
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: unknown) => void
 ): Promise<void> {
   logger.debug('Handling generate text request');
   

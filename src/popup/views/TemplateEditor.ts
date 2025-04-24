@@ -122,7 +122,7 @@ export class TemplateEditorView {
       
       // Hide domain-specific UI for default template
       const domainSpecificContainer = this.domainSpecificCheckbox.closest('.checkbox-item');
-      if (domainSpecificContainer) {
+      if (domainSpecificContainer instanceof HTMLElement) {
         domainSpecificContainer.style.display = 'none';
       }
     } else {
@@ -132,7 +132,7 @@ export class TemplateEditorView {
       
       // Show domain-specific UI for non-default templates
       const domainSpecificContainer = this.domainSpecificCheckbox.closest('.checkbox-item');
-      if (domainSpecificContainer) {
+      if (domainSpecificContainer instanceof HTMLElement) {
         domainSpecificContainer.style.display = 'flex';
       }
       

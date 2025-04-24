@@ -3,7 +3,7 @@
  */
 
 // Debug function
-function debug(msg: string, ...data: any[]) {
+function debug(msg: string, ...data: unknown[]) {
   if (data.length > 0) {
     console.log(`%c[CHROME_API] ${msg}`, 'color: red; font-weight: bold', ...data);
   } else {
@@ -18,16 +18,19 @@ export function initChromeApiDebug() {
   // Save original chrome.storage.sync.get
   const originalGet = chrome.storage.sync.get;
   
-  // Override with debug version
-  chrome.storage.sync.get = function(keys: any, callback?: any) {
+  // @ts-expect-error Overriding Chrome API for debugging
+  chrome.storage.sync.get = function(
+    keys: string | string[] | Record<string, unknown> | null, 
+    callback?: (result: Record<string, unknown>) => void
+  ) {
     debug("storage.sync.get called with keys:", keys);
     
     // Create a default response if we're looking for templates but they don't exist
-    if (typeof keys === 'object' && Array.isArray(keys) && keys.includes('templates')) {
+    if (Array.isArray(keys) && keys.includes('templates')) {
       debug("Getting templates - using mock if needed");
-      return originalGet.call(chrome.storage.sync, keys, function(result: any) {
+      return originalGet.call(chrome.storage.sync, keys, function(result: Record<string, unknown>) {
         debug("storage.sync.get original result:", result);
-        if (!result || !result.templates || result.templates.length === 0) {
+        if (!result || !result.templates || !Array.isArray(result.templates) || !result.templates.length) {
           debug("No templates found, returning mock template");
           // Inject a mock template
           result = result || {};
@@ -49,7 +52,7 @@ export function initChromeApiDebug() {
     
     // Normal processing
     debug("Calling original storage.sync.get");
-    return originalGet.apply(chrome.storage.sync, arguments as any);
+    return originalGet.call(chrome.storage.sync, keys, callback as any);
   };
   
   debug("Chrome API Debug Helpers Initialized");

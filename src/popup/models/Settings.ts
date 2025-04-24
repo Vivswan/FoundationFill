@@ -36,9 +36,14 @@ export class SettingsModel {
   }
   
   // Update a single setting
-  async updateSetting(key: keyof Settings, value: any): Promise<Settings> {
+  async updateSetting(key: keyof Settings, value: string): Promise<Settings> {
     logger.debug(`Updating setting ${key} to:`, value);
-    this.settings[key] = value;
+    if (key === 'theme') {
+      // Make sure theme is valid
+      this.settings[key] = value as 'light' | 'dark' | 'system';
+    } else {
+      this.settings[key] = value;
+    }
     await this.saveSettings();
     return this.settings;
   }

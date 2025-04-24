@@ -1,12 +1,8 @@
 // Utilities for working with Chrome extension APIs
-import { MessageTypes, SuccessResponse, PingResponse, GenerateTextResponse } from '../types';
 import { createLogger } from './logging';
 import { extractDomainFromUrl } from '../defaults';
 
 const logger = createLogger('CHROME_API');
-
-// Type for message responses
-type MessageResponse = SuccessResponse | PingResponse | GenerateTextResponse | void;
 
 // Set of tab IDs with ready content scripts
 const contentScriptReadyTabs = new Set<number>();
@@ -66,7 +62,7 @@ export const getCurrentDomain = async (): Promise<string> => {
 /**
  * Send a message to a specific tab
  */
-export const sendMessageToTab = async <T>(tabId: number, message: any): Promise<T | null> => {
+export const sendMessageToTab = async <T>(tabId: number, message: unknown): Promise<T | null> => {
   try {
     return await chrome.tabs.sendMessage(tabId, message) as T;
   } catch (error) {
@@ -78,7 +74,7 @@ export const sendMessageToTab = async <T>(tabId: number, message: any): Promise<
 /**
  * Send a message to the background script
  */
-export const sendMessageToBackground = async <T>(message: any): Promise<T | null> => {
+export const sendMessageToBackground = async <T>(message: unknown): Promise<T | null> => {
   try {
     return await chrome.runtime.sendMessage(message) as T;
   } catch (error) {
@@ -98,7 +94,7 @@ export const executeScriptInTab = async <T>(tabId: number, func: () => T): Promi
     });
     
     if (results && results.length > 0) {
-      return results[0].result;
+      return results[0].result as T;
     }
     return null;
   } catch (error) {

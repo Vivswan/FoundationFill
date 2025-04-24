@@ -1,7 +1,4 @@
 // DOM utilities for common DOM operations
-import { createLogger } from './logging';
-
-const logger = createLogger('DOM');
 
 /**
  * Safely get an element by ID with type casting

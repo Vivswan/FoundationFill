@@ -25,7 +25,7 @@ export interface Settings {
 // Message interfaces
 export interface Message {
   action: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface FillTemplateMessage extends Message {

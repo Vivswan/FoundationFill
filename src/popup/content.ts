@@ -18,7 +18,7 @@ chrome.runtime.sendMessage({ action: 'contentScriptReady' });
 chrome.runtime.onMessage.addListener((
   request: MessageTypes, 
   _sender: chrome.runtime.MessageSender, 
-  sendResponse: (response?: any) => void
+  sendResponse: (response?: unknown) => void
 ) => {
   logger.debug(`Received message with action: ${request.action}`);
   

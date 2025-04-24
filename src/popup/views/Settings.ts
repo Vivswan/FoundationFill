@@ -1,4 +1,4 @@
-import { Settings, ThemeMode } from '../../types';
+import { Settings } from '../../types';
 
 export class SettingsView {
   // DOM elements
@@ -14,7 +14,7 @@ export class SettingsView {
   private settingsBtn: HTMLElement;
   
   // Status timeout
-  private statusTimeout: NodeJS.Timeout | null = null;
+  private statusTimeout: number | null = null;
   
   // Event callbacks
   private onInputChangeCallback: ((key: keyof Settings, value: string) => void) | null = null;

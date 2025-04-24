@@ -13,7 +13,7 @@ const LOG_COLORS = {
 };
 
 // Generic logging function
-export function log(type: keyof typeof LOG_COLORS, prefix: string, msg: string, ...data: any[]) {
+export function log(type: keyof typeof LOG_COLORS, prefix: string, msg: string, ...data: unknown[]) {
   if (data && data.length > 0) {
     console.log(`%c[${prefix}] ${msg}`, LOG_COLORS[type], ...data);
   } else {
@@ -22,22 +22,22 @@ export function log(type: keyof typeof LOG_COLORS, prefix: string, msg: string, 
 }
 
 // Specific logging functions
-export const debug = (prefix: string, msg: string, ...data: any[]) => 
+export const debug = (prefix: string, msg: string, ...data: unknown[]) => 
   log('DEBUG', prefix, msg, ...data);
 
-export const info = (prefix: string, msg: string, ...data: any[]) => 
+export const info = (prefix: string, msg: string, ...data: unknown[]) => 
   log('INFO', prefix, msg, ...data);
 
-export const warn = (prefix: string, msg: string, ...data: any[]) => 
+export const warn = (prefix: string, msg: string, ...data: unknown[]) => 
   log('WARN', prefix, msg, ...data);
 
-export const error = (prefix: string, msg: string, ...data: any[]) => 
+export const error = (prefix: string, msg: string, ...data: unknown[]) => 
   log('ERROR', prefix, msg, ...data);
 
 // Component-specific loggers
 export const createLogger = (component: string) => ({
-  debug: (msg: string, ...data: any[]) => log('DEBUG', component, msg, ...data),
-  info: (msg: string, ...data: any[]) => log('INFO', component, msg, ...data),
-  warn: (msg: string, ...data: any[]) => log('WARN', component, msg, ...data),
-  error: (msg: string, ...data: any[]) => log('ERROR', component, msg, ...data)
+  debug: (msg: string, ...data: unknown[]) => log('DEBUG', component, msg, ...data),
+  info: (msg: string, ...data: unknown[]) => log('INFO', component, msg, ...data),
+  warn: (msg: string, ...data: unknown[]) => log('WARN', component, msg, ...data),
+  error: (msg: string, ...data: unknown[]) => log('ERROR', component, msg, ...data)
 });
