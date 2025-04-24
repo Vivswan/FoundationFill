@@ -1,5 +1,5 @@
-import { ThemeMode } from '../types';
-import { createLogger } from './logging';
+import {ThemeMode} from '../types';
+import {createLogger} from './logging';
 
 const logger = createLogger('THEME');
 
@@ -10,12 +10,12 @@ const logger = createLogger('THEME');
 export const applyTheme = (theme: ThemeMode): void => {
   // Get the html element
   const html = document.documentElement;
-  
+
   logger.debug(`Applying theme: ${theme}`);
-  
+
   // Remove any existing theme classes
   html.classList.remove('theme-light', 'theme-dark');
-  
+
   if (theme === 'system') {
     // Use system preference
     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -38,9 +38,9 @@ export const applyTheme = (theme: ThemeMode): void => {
 export const listenForThemeChanges = (theme: ThemeMode, callback: () => void): void => {
   if (theme === 'system') {
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     logger.debug('Setting up system theme listener');
-    
+
     try {
       // Standard approach
       darkModeMediaQuery.addEventListener('change', callback);
@@ -64,9 +64,13 @@ export const listenForThemeChanges = (theme: ThemeMode, callback: () => void): v
  */
 export const getThemeLabel = (theme: ThemeMode): string => {
   switch (theme) {
-    case 'light': return 'Light Mode';
-    case 'dark': return 'Dark Mode';
-    case 'system': return 'Use System Setting';
-    default: return 'Unknown';
+    case 'light':
+      return 'Light Mode';
+    case 'dark':
+      return 'Dark Mode';
+    case 'system':
+      return 'Use System Setting';
+    default:
+      return 'Unknown';
   }
 };

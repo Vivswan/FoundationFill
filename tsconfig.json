@@ -12,12 +12,19 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "lib": ["dom", "es2020"]
+    "lib": [
+      "dom",
+      "es2020"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "types": [
-      "chrome"
+  "include": [
+    "src/**/*"
   ],
-  
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "types": [
+    "chrome"
+  ]
 }

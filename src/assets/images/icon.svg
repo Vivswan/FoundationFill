@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-  <rect x="4" y="4" width="120" height="120" rx="18" ry="18" fill="#3B82F6" />
-  <rect x="18" y="34" width="92" height="12" rx="4" ry="4" fill="white" />
-  <rect x="18" y="58" width="68" height="12" rx="4" ry="4" fill="white" />
-  <rect x="18" y="82" width="92" height="12" rx="4" ry="4" fill="white" />
+    <rect x="4" y="4" width="120" height="120" rx="18" ry="18" fill="#3B82F6"/>
+    <rect x="18" y="34" width="92" height="12" rx="4" ry="4" fill="white"/>
+    <rect x="18" y="58" width="68" height="12" rx="4" ry="4" fill="white"/>
+    <rect x="18" y="82" width="92" height="12" rx="4" ry="4" fill="white"/>
 </svg>

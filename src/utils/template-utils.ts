@@ -1,6 +1,6 @@
 // Utility functions for working with templates
-import { Template } from '../types';
-import { isDefaultTemplate as isDefaultTemplateOriginal } from '../defaults';
+import {Template} from '../types';
+import {isDefaultTemplate as isDefaultTemplateOriginal} from '../defaults';
 
 // Re-export the isDefaultTemplate function
 export const isDefaultTemplate = isDefaultTemplateOriginal;
@@ -13,7 +13,7 @@ export const shouldShowTemplateForDomain = (template: Template, domain: string):
   if (!template.domainSpecific) {
     return true;
   }
-  
+
   // Domain-specific templates are only shown on their specific domain
   return template.domain === domain;
 };
@@ -27,7 +27,7 @@ export const filterTemplatesByDomain = (templates: Template[], domain: string): 
     if (!template.domainSpecific) {
       return true;
     }
-    
+
     // For domain-specific templates, only include if they match the current domain
     return template.domain === domain;
   });
@@ -65,7 +65,7 @@ export const validateTemplate = (template: Partial<Template>): boolean => {
   if (template.id && isDefaultTemplate(template.id) && template.domainSpecific) {
     return false;
   }
-  
+
   return true;
 };
 
@@ -74,22 +74,22 @@ export const validateTemplate = (template: Partial<Template>): boolean => {
  */
 export const updateTemplate = (template: Template, updates: Partial<Template>, currentDomain: string): Template => {
   const isDefault = isDefaultTemplate(template.id) || !!template.isDefault;
-  
+
   // Don't allow domain-specific for default template
   if (isDefault && updates.domainSpecific) {
     updates.domainSpecific = false;
   }
-  
+
   // Update the template with the new values
   const updated = {
     ...template,
     ...updates
   };
-  
+
   // Update domain if domain-specific state changes
   if (updates.domainSpecific !== undefined) {
     updated.domain = updates.domainSpecific ? currentDomain : '';
   }
-  
+
   return updated;
 };

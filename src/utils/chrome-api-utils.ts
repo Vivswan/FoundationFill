@@ -1,6 +1,6 @@
 // Utilities for working with Chrome extension APIs
-import { createLogger } from './logging';
-import { extractDomainFromUrl } from '../defaults';
+import {createLogger} from './logging';
+import {extractDomainFromUrl} from '../defaults';
 
 const logger = createLogger('CHROME_API');
 
@@ -35,7 +35,7 @@ export function isTabReady(tabId: number): boolean {
  */
 export const getCurrentTab = async (): Promise<chrome.tabs.Tab | null> => {
   try {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabs = await chrome.tabs.query({active: true, currentWindow: true});
     return tabs[0] || null;
   } catch (error) {
     logger.error('Error getting current tab:', error);
@@ -89,10 +89,10 @@ export const sendMessageToBackground = async <T>(message: unknown): Promise<T | 
 export const executeScriptInTab = async <T>(tabId: number, func: () => T): Promise<T | null> => {
   try {
     const results = await chrome.scripting.executeScript({
-      target: { tabId },
+      target: {tabId},
       func
     });
-    
+
     if (results && results.length > 0) {
       return results[0].result as T;
     }

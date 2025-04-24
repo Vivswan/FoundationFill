@@ -2,107 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Foundation Fill</title>
-  <link rel="stylesheet" href="css/popup.css">
+  <link href="css/popup.css" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <div class="sidebar">
       <div class="template-list-header">
         <h2>Templates</h2>
-        <button id="new-template-btn" class="button-small">New</button>
+        <button class="button-small" id="new-template-btn">New</button>
       </div>
-      <div id="template-list" class="template-list"></div>
+      <div class="template-list" id="template-list"></div>
       <div class="sidebar-footer">
-        <button id="settings-btn" class="button-small">Settings</button>
+        <button class="button-small" id="settings-btn">Settings</button>
       </div>
     </div>
-    
+
     <div class="main-content">
-      <div id="template-editor" class="template-editor hidden">
+      <div class="template-editor hidden" id="template-editor">
         <div class="form-group">
           <label for="system-prompt">System Prompt</label>
-          <textarea id="system-prompt" rows="2" placeholder="Enter your system prompt here..."></textarea>
+          <textarea id="system-prompt" placeholder="Enter your system prompt here..." rows="2"></textarea>
         </div>
-        
+
         <div class="form-group">
           <label for="user-prompt">User Prompt</label>
-          <textarea id="user-prompt" rows="4" placeholder="Enter your user prompt here..."></textarea>
+          <textarea id="user-prompt" placeholder="Enter your user prompt here..." rows="4"></textarea>
         </div>
-        
+
         <div class="form-group checkbox-group">
           <div class="checkbox-item">
-            <input type="checkbox" id="template-enabled" checked>
+            <input checked id="template-enabled" type="checkbox">
             <label for="template-enabled">Enabled</label>
           </div>
-          
+
           <div class="checkbox-item">
-            <input type="checkbox" id="include-page-content">
+            <input id="include-page-content" type="checkbox">
             <label for="include-page-content">Include page content</label>
           </div>
-          
+
           <div class="checkbox-item">
-            <input type="checkbox" id="domain-specific">
+            <input id="domain-specific" type="checkbox">
             <label for="domain-specific">Domain specific</label>
-            <span id="template-domain" class="domain-text"></span>
+            <span class="domain-text" id="template-domain"></span>
           </div>
         </div>
-        
+
         <div class="action-buttons">
-          <button id="delete-template-btn" class="button-danger">Delete</button>
-          <button id="generate-btn" class="button-primary">Generate</button>
+          <button class="button-danger" id="delete-template-btn">Delete</button>
+          <button class="button-primary" id="generate-btn">Generate</button>
         </div>
-        
+
         <div class="form-group">
           <label for="generated-text">Generated Text</label>
-          <textarea id="generated-text" rows="5" readonly placeholder="Generated text will appear here..."></textarea>
+          <textarea id="generated-text" placeholder="Generated text will appear here..." readonly
+                    rows="5"></textarea>
         </div>
       </div>
-      
-      <div id="settings-panel" class="settings-panel hidden">
+
+      <div class="settings-panel hidden" id="settings-panel">
         <div class="settings-header">
           <h2>Settings</h2>
-          <button id="done-btn" class="button-small">Done</button>
+          <button class="button-small" id="done-btn">Done</button>
         </div>
         <p class="settings-info">Settings are saved automatically</p>
-        
+
         <div class="form-group">
           <label for="base-url">Base URL</label>
-          <input type="text" id="base-url" placeholder="Enter API base URL">
+          <input id="base-url" placeholder="Enter API base URL" type="text">
         </div>
-        
+
         <div class="form-group">
           <label for="api-key">API Key</label>
-          <input type="text" id="api-key" placeholder="Enter your API key">
+          <input id="api-key" placeholder="Enter your API key" type="text">
         </div>
-        
+
         <div class="form-group">
           <label for="model">Model</label>
-          <input type="text" id="model" placeholder="Enter model name">
+          <input id="model" placeholder="Enter model name" type="text">
         </div>
-        
+
         <div class="form-group">
           <label>Theme</label>
           <div class="theme-selector">
             <div class="theme-option">
-              <input type="radio" id="theme-light" name="theme" value="light">
+              <input id="theme-light" name="theme" type="radio" value="light">
               <label for="theme-light">Light</label>
             </div>
             <div class="theme-option">
-              <input type="radio" id="theme-dark" name="theme" value="dark">
+              <input id="theme-dark" name="theme" type="radio" value="dark">
               <label for="theme-dark">Dark</label>
             </div>
             <div class="theme-option">
-              <input type="radio" id="theme-system" name="theme" value="system" checked>
+              <input checked id="theme-system" name="theme" type="radio" value="system">
               <label for="theme-system">System</label>
             </div>
           </div>
         </div>
-        
-        <div id="settings-status" class="settings-status"></div>
+
+        <div class="settings-status" id="settings-status"></div>
       </div>
     </div>
-  </div>
+</div>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 ```mermaid
 graph TD
-    %% Extension Components
+%% Extension Components
     User((User))
     Popup[Popup UI]
     Background[Background Script]
@@ -10,43 +10,36 @@ graph TD
     Browser[Browser]
     Storage[Chrome Storage]
     API[External API]
-    
-    %% Models
+%% Models
     TemplateModel[Template Model]
     SettingsModel[Settings Model]
-    
-    %% Views
+%% Views
     TemplateList[Template List View]
     TemplateEditor[Template Editor View]
     Settings[Settings View]
-    
-    %% Services
+%% Services
     ThemeService[Theme Service]
     APIService[API Service]
     StorageService[Storage Service]
     MessageService[Message Service]
     TemplateService[Template Service]
-    
-    %% Flow
+%% Flow
     User -->|Opens Extension| Popup
-    User -->|Right-clicks on text field| Browser
+   User -->|Right - clicks on text field| Browser
     Browser -->|Triggers Context Menu| Background
     Background -->|Fill Template| ContentScript
-    
-    %% Models-Views-Controller
+%% Models-Views-Controller
     Popup -->|Initializes| TemplateModel
     Popup -->|Initializes| SettingsModel
     Popup -->|Initializes| ThemeService
     Popup -->|Initializes| TemplateList
     Popup -->|Initializes| TemplateEditor
     Popup -->|Initializes| Settings
-    
-    %% Data Flow
+%% Data Flow
     TemplateModel <-->|Save/Load| StorageService
     SettingsModel <-->|Save/Load| StorageService
     StorageService <-->|CRUD Operations| Storage
-    
-    %% Event Flow
+%% Event Flow
     TemplateList -->|Template Selection| TemplateEditor
     TemplateEditor -->|Generate Text| Background
     Background -->|API Request| APIService
@@ -55,37 +48,31 @@ graph TD
     APIService -->|Generated Text| Background
     Background -->|Fill Text Area| ContentScript
     ContentScript -->|Fill Active Element| Browser
-    
-    %% Settings Flow
+%% Settings Flow
     Settings -->|Theme Change| ThemeService
     Settings -->|Save Settings| SettingsModel
     ThemeService -->|Apply Theme| Popup
-    
-    %% Storage Flow
+%% Storage Flow
     StorageService -->|Watch Changes| Background
     Background -->|Update Context Menu| Browser
-    
-    %% Message Flow
+%% Message Flow
     Popup <-->|Messages| Background
     Background <-->|Messages| ContentScript
-    
-    %% Template Service
+%% Template Service
     TemplateService -->|Filter Templates| Background
-    
-    %% Styles
-    classDef component fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef service fill:#bbf,stroke:#333,stroke-width:1px;
-    classDef model fill:#bfb,stroke:#333,stroke-width:1px;
-    classDef view fill:#ffb,stroke:#333,stroke-width:1px;
-    classDef external fill:#ddd,stroke:#333,stroke-width:1px;
-    classDef user fill:#fbb,stroke:#333,stroke-width:2px;
-    
+%% Styles
+   classDef component fill: #f9f, stroke: #333, stroke-width: 2px;
+   classDef service fill: #bbf, stroke: #333, stroke-width: 1px;
+   classDef model fill: #bfb, stroke: #333, stroke-width: 1px;
+   classDef view fill: #ffb, stroke: #333, stroke-width: 1px;
+   classDef external fill: #ddd, stroke: #333, stroke-width: 1px;
+   classDef user fill: #fbb, stroke: #333, stroke-width: 2px;
     class User user;
-    class Popup,Background,ContentScript,Browser component;
-    class ThemeService,APIService,StorageService,MessageService,TemplateService service;
-    class TemplateModel,SettingsModel model;
-    class TemplateList,TemplateEditor,Settings view;
-    class Storage,API external;
+class Popup, Background, ContentScript, Browser component;
+class ThemeService,APIService, StorageService, MessageService, TemplateService service;
+class TemplateModel,SettingsModel model;
+class TemplateList,TemplateEditor, Settings view;
+class Storage,API external;
 ```
 
 ## Data Flow Description
@@ -105,8 +92,8 @@ graph TD
    - Templates are stored with system prompts and user prompts
    - Templates can be domain-specific and filtered accordingly
    - When a template is selected, it can be enhanced with:
-     - Page content (optional)
-     - API generation (if API key is configured)
+      - Page content (optional)
+      - API generation (if API key is configured)
 
 4. **External API Integration:**
    - Extension sends template data to configured API

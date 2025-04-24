@@ -25,6 +25,7 @@ export interface Settings {
 // Message interfaces
 export interface Message {
   action: string;
+
   [key: string]: unknown;
 }
 
@@ -82,11 +83,11 @@ export interface SuccessResponse {
 }
 
 // Union type for all possible messages
-export type MessageTypes = 
-  | FillTemplateMessage
-  | ShowTemplateSelectorMessage
-  | GenerateTextMessage
-  | ContentScriptReadyMessage
-  | TemplatesUpdatedMessage
-  | PingMessage
-  | GetPageContentMessage;
+export type MessageTypes =
+    | FillTemplateMessage
+    | ShowTemplateSelectorMessage
+    | GenerateTextMessage
+    | ContentScriptReadyMessage
+    | TemplatesUpdatedMessage
+    | PingMessage
+    | GetPageContentMessage;

@@ -1,4 +1,4 @@
-const { copy } = require('esbuild-plugin-copy');
+const {copy} = require('esbuild-plugin-copy');
 const path = require('path');
 const fs = require('fs');
 
@@ -8,13 +8,13 @@ const distDir = path.resolve(rootDir, 'dist');
 
 // Ensure dist directory exists
 if (!fs.existsSync(distDir)) {
-  fs.mkdirSync(distDir, { recursive: true });
+  fs.mkdirSync(distDir, {recursive: true});
 }
 
 // HTML template processing
 const processHTML = () => {
   let htmlContent = fs.readFileSync(path.join(rootDir, 'src/popup.html'), 'utf8');
-  
+
   // Add script tags to HTML before closing body tag
   htmlContent = htmlContent.replace('</body>', `
   <!-- Initialization script -->
@@ -23,7 +23,7 @@ const processHTML = () => {
   <!-- Main script bundle -->
   <script src="popup.js"></script>
 </body>`);
-  
+
   fs.writeFileSync(path.join(distDir, 'popup.html'), htmlContent);
   console.log('Processed popup.html');
 };
@@ -31,8 +31,8 @@ const processHTML = () => {
 // Copy manifest file
 const copyManifest = () => {
   fs.copyFileSync(
-    path.resolve(rootDir, 'manifest.json'),
-    path.resolve(distDir, 'manifest.json')
+      path.resolve(rootDir, 'manifest.json'),
+      path.resolve(distDir, 'manifest.json')
   );
   console.log('Copied manifest.json to dist directory');
 };
@@ -64,8 +64,8 @@ async function build(watch = false) {
       plugins: [
         copy({
           assets: [
-            { from: [path.join(rootDir, 'src/assets/css/*')], to: [path.join(distDir, 'css')] },
-            { from: [path.join(rootDir, 'src/assets/images/*')], to: [path.join(distDir, 'images')] }
+            {from: [path.join(rootDir, 'src/assets/css/*')], to: [path.join(distDir, 'css')]},
+            {from: [path.join(rootDir, 'src/assets/images/*')], to: [path.join(distDir, 'images')]}
           ]
         })
       ]
@@ -76,18 +76,18 @@ async function build(watch = false) {
       const ctx = await esbuild.context(options);
       await ctx.watch();
       console.log('Watching for changes...');
-      
+
       // Watch HTML template and manifest for changes
       fs.watch(path.join(rootDir, 'src/popup.html'), () => {
         processHTML();
         console.log('Detected changes in popup.html, updated it');
       });
-      
+
       fs.watch(path.join(rootDir, 'manifest.json'), () => {
         copyManifest();
         console.log('Detected changes in manifest.json, updated it');
       });
-      
+
     } else {
       // Build once
       await esbuild.build(options);
