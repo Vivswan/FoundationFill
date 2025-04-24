@@ -98,6 +98,13 @@ export class TemplateModel {
     const templateIndex = this.templates.findIndex(t => t.id === this.selectedTemplateId);
     if (templateIndex === -1) return null;
     
+    // Don't allow domain-specific to be true for default template
+    if (this.templates[templateIndex].isDefault || this.templates[templateIndex].id === 'default') {
+      if (updatedTemplate.domainSpecific) {
+        updatedTemplate.domainSpecific = false;
+      }
+    }
+    
     this.templates[templateIndex] = {
       ...this.templates[templateIndex],
       ...updatedTemplate

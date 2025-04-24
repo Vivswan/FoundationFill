@@ -23,60 +23,84 @@ chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: { status?: string 
 
 // Function to load templates and update context menu
 async function loadTemplatesIntoContextMenu(): Promise<void> {
-  const templates = await getTemplates();
-  const enabledTemplates = templates.filter(t => t.enabled);
-  
-  // Remove existing template menu items (keep the parent and refresh items)
-  chrome.contextMenus.removeAll(() => {
-    // Recreate the parent menu
-    chrome.contextMenus.create({
-      id: 'foundationFill',
-      title: 'Foundation Fill',
-      contexts: ['editable']
-    });
+  try {
+    const templates = await getTemplates();
+    let enabledTemplates = templates.filter(t => t.enabled);
     
-    // Add refresh menu item
-    chrome.contextMenus.create({
-      id: 'refreshTemplates',
-      title: 'Refresh Templates',
-      parentId: 'foundationFill',
-      contexts: ['editable']
-    });
+    // Get current tab for domain filtering
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    let currentDomain = '';
     
-    // Create separator
-    chrome.contextMenus.create({
-      id: 'separator',
-      type: 'separator',
-      parentId: 'foundationFill',
-      contexts: ['editable']
-    });
-    
-    // Add each enabled template as a menu item
-    enabledTemplates.forEach(template => {
-      chrome.contextMenus.create({
-        id: `template-${template.id}`,
-        title: template.name,
-        parentId: 'foundationFill',
-        contexts: ['editable']
-      });
-    });
-    
-    // If no enabled templates, add a disabled item
-    if (enabledTemplates.length === 0) {
-      chrome.contextMenus.create({
-        id: 'noTemplates',
-        title: 'No enabled templates',
-        parentId: 'foundationFill',
-        enabled: false,
-        contexts: ['editable']
-      });
+    if (tabs[0]?.url) {
+      const url = new URL(tabs[0].url);
+      currentDomain = url.hostname + (url.port ? ':' + url.port : '');
+      
+      // Filter out domain-specific templates that don't match the current domain
+      enabledTemplates = enabledTemplates.filter(t => 
+        !t.domainSpecific || !t.domain || t.domain === currentDomain
+      );
     }
-  });
+    
+    // Remove existing template menu items (keep the parent and refresh items)
+    chrome.contextMenus.removeAll(() => {
+      // Recreate the parent menu
+      chrome.contextMenus.create({
+        id: 'foundationFill',
+        title: 'Foundation Fill',
+        contexts: ['editable']
+      });
+      
+      // Add refresh menu item
+      chrome.contextMenus.create({
+        id: 'refreshTemplates',
+        title: 'Refresh Templates',
+        parentId: 'foundationFill',
+        contexts: ['editable']
+      });
+      
+      // Create separator
+      chrome.contextMenus.create({
+        id: 'separator',
+        type: 'separator',
+        parentId: 'foundationFill',
+        contexts: ['editable']
+      });
+      
+      // Add each enabled template as a menu item
+      enabledTemplates.forEach(template => {
+        chrome.contextMenus.create({
+          id: `template-${template.id}`,
+          title: template.name,
+          parentId: 'foundationFill',
+          contexts: ['editable']
+        });
+      });
+      
+      // If no enabled templates, add a disabled item
+      if (enabledTemplates.length === 0) {
+        chrome.contextMenus.create({
+          id: 'noTemplates',
+          title: 'No enabled templates',
+          parentId: 'foundationFill',
+          enabled: false,
+          contexts: ['editable']
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error loading templates into context menu:", error);
+  }
 }
 
 // Initialize context menu items
 chrome.runtime.onInstalled.addListener((_details: chrome.runtime.InstalledDetails) => {
   // Load templates and create menu items
+  loadTemplatesIntoContextMenu();
+});
+
+// Update context menu when tab changes
+chrome.tabs.onActivated.addListener(() => {
+  // When user switches tabs, refresh the context menu
   loadTemplatesIntoContextMenu();
 });
 

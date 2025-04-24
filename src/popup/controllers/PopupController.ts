@@ -257,7 +257,15 @@ export class PopupController {
   
   // Handle template input changes
   private handleTemplateInputChange(templateData: Partial<Template>): void {
-    this.templateModel.updateSelectedTemplate(templateData);
+    const updatedTemplate = this.templateModel.updateSelectedTemplate(templateData);
+    
+    // If domain-specific was just checked, update the domain display immediately
+    if (updatedTemplate && templateData.domainSpecific !== undefined) {
+      const currentDomain = this.templateModel.getCurrentDomain();
+      if (templateData.domainSpecific) {
+        this.templateEditorView.setCurrentDomain(currentDomain);
+      }
+    }
   }
   
   // Handle showing settings

@@ -55,12 +55,22 @@ export class TemplateEditorView {
       }
     });
     
+    // Domain-specific checkbox handler for immediate UI updates
+    this.domainSpecificCheckbox.addEventListener('change', () => {
+      // Update domain display immediately on checkbox change
+      if (this.domainSpecificCheckbox.checked) {
+        this.currentDomainSpan.style.display = 'inline';
+      } else {
+        this.currentDomainSpan.style.display = 'none';
+      }
+      this.handleInputChange();
+    });
+    
     // Auto-save template on input changes
     this.systemPromptInput.addEventListener('input', () => this.handleInputChange());
     this.userPromptInput.addEventListener('input', () => this.handleInputChange());
     this.templateEnabledCheckbox.addEventListener('change', () => this.handleInputChange());
     this.includePageContentCheckbox.addEventListener('change', () => this.handleInputChange());
-    this.domainSpecificCheckbox.addEventListener('change', () => this.handleInputChange());
   }
   
   // Handle input changes
@@ -88,7 +98,12 @@ export class TemplateEditorView {
   
   // Set the current domain
   setCurrentDomain(domain: string): void {
-    this.currentDomainSpan.textContent = domain;
+    if (this.domainSpecificCheckbox.checked) {
+      this.currentDomainSpan.textContent = domain;
+      this.currentDomainSpan.style.display = 'inline';
+    } else {
+      this.currentDomainSpan.style.display = 'none';
+    }
   }
   
   // Update the editor with template data
@@ -97,7 +112,6 @@ export class TemplateEditorView {
     this.userPromptInput.value = template.userPrompt || '';
     this.templateEnabledCheckbox.checked = template.enabled;
     this.includePageContentCheckbox.checked = template.includePageContent;
-    this.domainSpecificCheckbox.checked = template.domainSpecific;
     this.generatedTextArea.value = '';
     
     // Hide/show delete button based on default template status
@@ -105,10 +119,32 @@ export class TemplateEditorView {
       this.deleteTemplateBtn.style.visibility = 'hidden';
       this.deleteTemplateBtn.disabled = true;
       this.deleteTemplateBtn.title = 'Default template cannot be deleted';
+      
+      // Hide domain-specific UI for default template
+      const domainSpecificContainer = this.domainSpecificCheckbox.closest('.checkbox-item');
+      if (domainSpecificContainer) {
+        domainSpecificContainer.style.display = 'none';
+      }
     } else {
       this.deleteTemplateBtn.style.visibility = 'visible';
       this.deleteTemplateBtn.disabled = false;
       this.deleteTemplateBtn.title = 'Delete this template';
+      
+      // Show domain-specific UI for non-default templates
+      const domainSpecificContainer = this.domainSpecificCheckbox.closest('.checkbox-item');
+      if (domainSpecificContainer) {
+        domainSpecificContainer.style.display = 'flex';
+      }
+      
+      // Set domain-specific checkbox and update domain display
+      this.domainSpecificCheckbox.checked = template.domainSpecific;
+      
+      if (template.domainSpecific && template.domain) {
+        this.currentDomainSpan.textContent = template.domain;
+        this.currentDomainSpan.style.display = 'inline';
+      } else {
+        this.currentDomainSpan.style.display = 'none';
+      }
     }
   }
   
