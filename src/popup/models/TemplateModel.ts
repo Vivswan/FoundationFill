@@ -1,6 +1,15 @@
 import { Template } from '../../types';
 import { getTemplates, saveTemplates } from '../../utils/storage';
 
+// Local debug function
+function debug(msg: string, ...data: any[]) {
+  if (data.length > 0) {
+    console.log(`%c[TEMPLATE_MODEL] ${msg}`, 'color: green; font-weight: bold', ...data);
+  } else {
+    console.log(`%c[TEMPLATE_MODEL] ${msg}`, 'color: green; font-weight: bold');
+  }
+}
+
 export class TemplateModel {
   private templates: Template[] = [];
   private selectedTemplateId: string | null = null;
@@ -10,11 +19,20 @@ export class TemplateModel {
   
   // Load templates from storage
   async loadTemplates(): Promise<void> {
-    this.templates = await getTemplates();
-    
-    // Select the first template by default if available
-    if (this.templates.length > 0 && !this.selectedTemplateId) {
-      this.selectedTemplateId = this.templates[0].id;
+    debug('Loading templates');
+    try {
+      this.templates = await getTemplates();
+      debug('Templates loaded:', this.templates);
+      
+      // Select the first template by default if available
+      if (this.templates.length > 0 && !this.selectedTemplateId) {
+        this.selectedTemplateId = this.templates[0].id;
+        debug('Selected template ID:', this.selectedTemplateId);
+      }
+    } catch (error) {
+      debug('Error loading templates:', error);
+      // Initialize with an empty array if there's an error
+      this.templates = [];
     }
   }
   
@@ -30,6 +48,7 @@ export class TemplateModel {
   
   // Get all templates
   getTemplates(): Template[] {
+    debug('Getting templates, count:', this.templates.length);
     return this.templates;
   }
   

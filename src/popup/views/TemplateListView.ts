@@ -1,5 +1,14 @@
 import { Template } from '../../types';
 
+// Local debug function
+function debug(msg: string, ...data: any[]) {
+  if (data.length > 0) {
+    console.log(`%c[TEMPLATE_LIST_VIEW] ${msg}`, 'color: orange; font-weight: bold', ...data);
+  } else {
+    console.log(`%c[TEMPLATE_LIST_VIEW] ${msg}`, 'color: orange; font-weight: bold');
+  }
+}
+
 export class TemplateListView {
   private templateList: HTMLElement;
   private newTemplateBtn: HTMLElement;
@@ -10,22 +19,52 @@ export class TemplateListView {
   private onEditNameCallback: ((templateId: string, newName: string) => void) | null = null;
   
   constructor(templateListId: string, newTemplateBtnId: string) {
+    debug('Initializing TemplateListView');
+    
     this.templateList = document.getElementById(templateListId) as HTMLElement;
+    if (!this.templateList) {
+      debug('Error: Template list element not found with ID:', templateListId);
+    }
+    
     this.newTemplateBtn = document.getElementById(newTemplateBtnId) as HTMLElement;
+    if (!this.newTemplateBtn) {
+      debug('Error: New template button element not found with ID:', newTemplateBtnId);
+    }
     
     // Add event listener for new template button
-    this.newTemplateBtn.addEventListener('click', () => {
-      if (this.onNewTemplateCallback) {
-        this.onNewTemplateCallback();
-      }
-    });
+    if (this.newTemplateBtn) {
+      this.newTemplateBtn.addEventListener('click', () => {
+        debug('New template button clicked');
+        if (this.onNewTemplateCallback) {
+          this.onNewTemplateCallback();
+        }
+      });
+    }
   }
   
   // Render the template list
   render(templates: Template[], selectedTemplateId: string | null): void {
+    debug('Rendering template list');
+    
+    if (!this.templateList) {
+      debug('Error: Cannot render, template list element is null');
+      return;
+    }
+    
     this.templateList.innerHTML = '';
+    debug('Templates count:', templates?.length);
+    
+    if (!templates || templates.length === 0) {
+      debug('No templates to render');
+      const emptyMessage = document.createElement('div');
+      emptyMessage.className = 'empty-templates';
+      emptyMessage.textContent = 'No templates found';
+      this.templateList.appendChild(emptyMessage);
+      return;
+    }
     
     templates.forEach(template => {
+      debug('Rendering template:', template.id, template.name);
       const templateItem = document.createElement('div');
       templateItem.className = 'template-item';
       templateItem.dataset.templateId = template.id;

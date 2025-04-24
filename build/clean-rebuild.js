@@ -8,8 +8,9 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Path to dist directory
-const distDir = path.join(__dirname, 'dist');
+// Paths
+const rootDir = path.join(__dirname, '..');
+const distDir = path.join(rootDir, 'dist');
 
 // Ensure clean rebuild with properly preserved images
 async function cleanRebuild() {
@@ -32,18 +33,18 @@ async function cleanRebuild() {
   // Run icon generation first
   console.log('Generating icons...');
   try {
-    execSync('node generate-icons.js', { stdio: 'inherit' });
+    execSync('node ' + path.join(__dirname, 'generate-icons.js'), { stdio: 'inherit' });
   } catch (error) {
     console.error('Error generating icons:', error);
     process.exit(1);
   }
 
-  // Then run webpack build
-  console.log('Running webpack build...');
+  // Then run esbuild in production mode
+  console.log('Running esbuild in production mode...');
   try {
-    execSync('webpack --config webpack.config.js', { stdio: 'inherit' });
+    execSync('NODE_ENV=production node ' + path.join(__dirname, 'esbuild.config.js'), { stdio: 'inherit' });
   } catch (error) {
-    console.error('Error during webpack build:', error);
+    console.error('Error during esbuild build:', error);
     process.exit(1);
   }
 

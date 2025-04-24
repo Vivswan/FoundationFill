@@ -1,5 +1,14 @@
 import { Template, Settings } from '../types';
 
+// Debug function to help with troubleshooting
+function debug(msg: string, ...data: any[]) {
+  if (data.length > 0) {
+    console.log(`%c[DEBUG] ${msg}`, 'color: blue; font-weight: bold', ...data);
+  } else {
+    console.log(`%c[DEBUG] ${msg}`, 'color: blue; font-weight: bold');
+  }
+}
+
 // Default values
 const DEFAULT_TEMPLATE: Template = {
   id: 'default',
@@ -22,56 +31,128 @@ const DEFAULT_SETTINGS: Settings = {
 
 // Save templates to Chrome storage
 export const saveTemplates = (templates: Template[]): Promise<void> => {
+  debug('Saving templates to storage:', templates);
+  
   return new Promise((resolve) => {
-    chrome.storage.sync.set({ templates }, () => {
-      resolve();
-    });
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        debug('Chrome storage is available, saving templates');
+        chrome.storage.sync.set({ templates }, () => {
+          debug('Templates saved successfully');
+          resolve();
+        });
+      } else {
+        debug('Chrome storage not available, cannot save templates');
+        resolve(); // Resolve anyway to prevent UI from hanging
+      }
+    } catch (error) {
+      debug('Error saving templates:', error);
+      resolve(); // Resolve anyway to prevent UI from hanging
+    }
   });
 };
 
 // Get templates from Chrome storage
 export const getTemplates = (): Promise<Template[]> => {
+  debug('Getting templates from storage');
+  
+  // Create a promise to handle Chrome storage retrieval
   return new Promise((resolve) => {
-    chrome.storage.sync.get(['templates'], (result) => {
-      const templates = result.templates || [];
+    // Always provide a default template first to prevent UI issues
+    const defaultTemplates = [DEFAULT_TEMPLATE];
+    
+    try {
+      debug('Checking if chrome.storage is available');
       
-      if (templates.length === 0) {
-        // Initialize with default template if none exist
-        saveTemplates([DEFAULT_TEMPLATE]);
-        resolve([DEFAULT_TEMPLATE]);
+      // Check if Chrome storage is available
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        debug('Chrome storage is available, getting templates');
+        
+        // Try to get templates from Chrome storage
+        chrome.storage.sync.get(['templates'], (result) => {
+          debug('Chrome storage result:', result);
+          
+          // Check if templates exist and are not empty
+          if (result && result.templates && result.templates.length > 0) {
+            debug('Found templates in storage:', result.templates);
+            resolve(result.templates);
+          } else {
+            // No templates found, use default and save it
+            debug('No templates found in storage, creating default template');
+            saveTemplates(defaultTemplates);
+            resolve(defaultTemplates);
+          }
+        });
       } else {
-        resolve(templates);
+        // Chrome storage not available, use default templates
+        debug('Chrome storage not available, using default templates');
+        resolve(defaultTemplates);
       }
-    });
+    } catch (error) {
+      // Error occurred, use default templates
+      debug('Error in getTemplates:', error);
+      resolve(defaultTemplates);
+    }
   });
 };
 
 // Save settings to Chrome storage
 export const saveSettings = (settings: Settings): Promise<void> => {
+  debug('Saving settings to storage');
+  
   return new Promise((resolve) => {
-    chrome.storage.sync.set(settings, () => {
-      resolve();
-    });
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        debug('Chrome storage is available, saving settings');
+        chrome.storage.sync.set(settings, () => {
+          debug('Settings saved successfully');
+          resolve();
+        });
+      } else {
+        debug('Chrome storage not available, cannot save settings');
+        resolve(); // Resolve anyway to prevent UI from hanging
+      }
+    } catch (error) {
+      debug('Error saving settings:', error);
+      resolve(); // Resolve anyway to prevent UI from hanging
+    }
   });
 };
 
 // Get settings from Chrome storage
 export const getSettings = (): Promise<Settings> => {
+  debug('Getting settings from storage');
+  
   return new Promise((resolve) => {
-    chrome.storage.sync.get(['apiKey', 'baseUrl', 'model', 'theme'], (result) => {
-      const settings: Settings = {
-        apiKey: result.apiKey || DEFAULT_SETTINGS.apiKey,
-        baseUrl: result.baseUrl || DEFAULT_SETTINGS.baseUrl,
-        model: result.model || DEFAULT_SETTINGS.model,
-        theme: result.theme || DEFAULT_SETTINGS.theme,
-      };
-      
-      // Initialize default settings if they don't exist
-      if (!result.apiKey && !result.baseUrl && !result.model && !result.theme) {
-        saveSettings(settings);
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        debug('Chrome storage is available, getting settings');
+        
+        chrome.storage.sync.get(['apiKey', 'baseUrl', 'model', 'theme'], (result) => {
+          debug('Settings from storage:', result);
+          
+          const settings: Settings = {
+            apiKey: (result && result.apiKey) || DEFAULT_SETTINGS.apiKey,
+            baseUrl: (result && result.baseUrl) || DEFAULT_SETTINGS.baseUrl,
+            model: (result && result.model) || DEFAULT_SETTINGS.model,
+            theme: (result && result.theme) || DEFAULT_SETTINGS.theme,
+          };
+          
+          // Initialize default settings if they don't exist
+          if (!result || (!result.apiKey && !result.baseUrl && !result.model && !result.theme)) {
+            debug('No settings found, saving defaults');
+            saveSettings(settings);
+          }
+          
+          resolve(settings);
+        });
+      } else {
+        debug('Chrome storage not available, using default settings');
+        resolve(DEFAULT_SETTINGS);
       }
-      
-      resolve(settings);
-    });
+    } catch (error) {
+      debug('Error getting settings:', error);
+      resolve(DEFAULT_SETTINGS);
+    }
   });
 };

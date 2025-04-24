@@ -16,6 +16,10 @@ A Chrome extension for filling text fields with predefined system prompt templat
 
 ```
 foundation-fill/
+├── build/             # Build scripts and configuration
+│   ├── clean-rebuild.js  # Clean build script
+│   ├── esbuild.config.js # ESBuild configuration
+│   └── generate-icons.js # Script to generate PNG icons from SVG
 ├── dist/              # Build output directory
 ├── src/               # Source code
 │   ├── assets/        # Static assets
@@ -31,9 +35,7 @@ foundation-fill/
 │   ├── types/         # TypeScript type definitions
 │   └── utils/         # Utility functions
 ├── manifest.json      # Extension manifest
-├── generate-icons.js  # Script to generate PNG icons from SVG
-├── tsconfig.json      # TypeScript configuration
-└── webpack.config.js  # Webpack configuration
+└── tsconfig.json      # TypeScript configuration
 ```
 
 ## Development
@@ -64,11 +66,21 @@ npm run build
 
 ### Commands
 
-- `npm run build` - Build the extension
-- `npm run dev` - Build with watch mode for development
+- `npm run build` - Build the extension using ESBuild
+- `npm run clean-build` - Clean and rebuild the entire extension (production build)
+- `npm run dev` - Start development mode with file watching
 - `npm run lint` - Run linting
 - `npm run typecheck` - Run TypeScript type checking
 - `npm run generate-icons` - Generate PNG icons from SVG source
+
+### Build System
+
+Foundation Fill uses ESBuild for fast, efficient builds:
+
+- **Fast Builds**: ESBuild compiles TypeScript much faster than webpack
+- **Development Mode**: `npm run dev` watches for file changes and rebuilds automatically
+- **Production Mode**: `npm run clean-build` creates optimized production builds
+- **Automatic Asset Handling**: CSS and images are automatically copied to the dist folder
 
 ## Architecture
 

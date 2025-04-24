@@ -3,8 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 // Paths
-const svgPath = path.join(__dirname, 'src/assets/images/icon.svg');
-const distOutputDir = path.join(__dirname, 'dist/images');
+const rootDir = path.join(__dirname, '..');
+const svgPath = path.join(rootDir, 'src/assets/images/icon.svg');
+const distOutputDir = path.join(rootDir, 'dist/images');
 
 // Icon sizes to generate
 const sizes = [16, 48, 128];
@@ -28,8 +29,8 @@ async function generateIcons() {
   console.log('Generating PNG icons from SVG...');
   
   // Make sure the dist directory exists
-  if (!fs.existsSync(path.join(__dirname, 'dist'))) {
-    fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
+  if (!fs.existsSync(path.join(rootDir, 'dist'))) {
+    fs.mkdirSync(path.join(rootDir, 'dist'), { recursive: true });
   }
   
   // Make sure the images directory exists

@@ -5,6 +5,15 @@ import { TemplateListView } from '../views/TemplateListView';
 import { TemplateEditorView } from '../views/TemplateEditorView';
 import { SettingsView } from '../views/SettingsView';
 
+// Local debug function
+function debug(msg: string, ...data: any[]) {
+  if (data.length > 0) {
+    console.log(`%c[POPUP_CONTROLLER] ${msg}`, 'color: purple; font-weight: bold', ...data);
+  } else {
+    console.log(`%c[POPUP_CONTROLLER] ${msg}`, 'color: purple; font-weight: bold');
+  }
+}
+
 export class PopupController {
   private templateModel: TemplateModel;
   private settingsModel: SettingsModel;
@@ -31,17 +40,27 @@ export class PopupController {
   
   // Initialize the controller
   async initialize(): Promise<void> {
-    // Get the current domain from the active tab
-    await this.getCurrentDomain();
+    debug('Initializing');
     
-    // Load templates and settings
-    await this.templateModel.loadTemplates();
-    await this.settingsModel.loadSettings();
-    
-    // Update views
-    this.updateTemplateListView();
-    this.updateSelectedTemplateView();
-    this.updateSettingsView();
+    try {
+      // Get the current domain from the active tab
+      await this.getCurrentDomain();
+      
+      // Load templates and settings
+      debug('Loading templates and settings');
+      await this.templateModel.loadTemplates();
+      await this.settingsModel.loadSettings();
+      
+      // Update views
+      debug('Updating views');
+      this.updateTemplateListView();
+      this.updateSelectedTemplateView();
+      this.updateSettingsView();
+      
+      debug('Initialization complete');
+    } catch (error) {
+      debug('Error during initialization:', error);
+    }
   }
   
   // Get the current domain from the active tab
@@ -104,7 +123,9 @@ export class PopupController {
   // Update the template list view
   private updateTemplateListView(): void {
     const templates = this.templateModel.getTemplates();
+    debug('Templates to render:', templates);
     const selectedTemplateId = this.templateModel.getSelectedTemplateId();
+    debug('Selected template ID:', selectedTemplateId);
     this.templateListView.render(templates, selectedTemplateId);
   }
   
