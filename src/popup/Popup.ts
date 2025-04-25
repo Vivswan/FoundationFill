@@ -4,6 +4,7 @@ import {SettingsModel} from './models/Settings';
 import {TemplateListView} from './views/TemplateList';
 import {TemplateEditorView} from './views/TemplateEditor';
 import {SettingsView} from './views/Settings';
+import {ImportExportView} from './views/ImportExport';
 import {createLogger} from '../utils/logging';
 import {ThemeService} from "./views/Theme";
 
@@ -14,6 +15,7 @@ export class PopupController {
     private settingsModel: SettingsModel;
     private themeService: ThemeService;
     private settingsView: SettingsView;
+    private importExportView: ImportExportView;
 
     private templateModel: TemplateModel;
     private templateListView: TemplateListView;
@@ -29,6 +31,9 @@ export class PopupController {
         this.templateModel = new TemplateModel();
         this.templateListView = new TemplateListView(this.templateModel);
         this.templateEditorView = new TemplateEditorView(this.templateModel);
+
+        // Initialize import/export functionality
+        this.importExportView = new ImportExportView(this.settingsModel, this.templateModel);
 
         // Initialize DOM elements
         this.settingsBtn = document.getElementById('settings-btn') as HTMLElement;

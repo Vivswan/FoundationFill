@@ -47,6 +47,18 @@ export class SettingsModel {
     }
 
     /**
+     * Import settings from an external source
+     */
+    async importSettings(importedSettings: Settings): Promise<void> {
+        this.settings = {
+            ...DEFAULT_SETTINGS,
+            ...importedSettings,
+            theme: this.validateTheme(importedSettings.theme) || DEFAULT_SETTINGS.theme
+        };
+        await this.saveSettings();
+    }
+
+    /**
      * Update a single setting
      */
     async updateSetting(key: keyof Settings, value: string): Promise<void> {
@@ -105,7 +117,6 @@ export class SettingsModel {
                 logger.error('Error in settings change listener:', error);
             }
         });
-
     }
 
     /**
@@ -117,5 +128,15 @@ export class SettingsModel {
             ...DEFAULT_SETTINGS,
             ...settingsObj,
         };
+    }
+
+    /**
+     * Validate theme value
+     */
+    private validateTheme(theme: string | undefined): ThemeMode | undefined {
+        if (theme && ['light', 'dark', 'system'].includes(theme)) {
+            return theme as ThemeMode;
+        }
+        return undefined;
     }
 }

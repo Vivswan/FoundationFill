@@ -121,6 +121,49 @@ export class TemplateModel {
     }
 
     /**
+     * Import templates from an external source
+     */
+    async importTemplates(importedTemplates: Template[]): Promise<void> {
+        logger.debug('Importing templates:', importedTemplates);
+
+        // Make sure default template exists
+        const hasDefaultInImport = importedTemplates.some(t => t.id === DEFAULT_TEMPLATE.id);
+
+        // If default doesn't exist in import, preserve current default
+        let defaultTemplate: Template = DEFAULT_TEMPLATE;
+        if (hasDefaultInImport) {
+            defaultTemplate = importedTemplates.find(t => t.id === DEFAULT_TEMPLATE.id) || DEFAULT_TEMPLATE;
+        } else {
+            defaultTemplate = this.templates.find(t => t.id === DEFAULT_TEMPLATE.id) || DEFAULT_TEMPLATE;
+        }
+
+        // Filter out any malformed templates and ensure each has required properties
+        const validTemplates = importedTemplates
+            .filter(this.validateTemplate)
+            .filter(template => template.id !== DEFAULT_TEMPLATE.id)
+            .map(template => ({
+                id: template.id,
+                enabled: template.enabled ?? true,
+                name: template.name || 'Unnamed Template',
+                systemPrompt: template.systemPrompt || '',
+                userPrompt: template.userPrompt || '',
+                includePageContent: template.includePageContent ?? false,
+                associatedDomain: template.associatedDomain,
+            }));
+
+        validTemplates.unshift(defaultTemplate);
+        // Update templates and save
+        this.templates = validTemplates;
+
+        // If active template no longer exists, set to default
+        if (!this.templates.some(t => t.id === this.activeTemplateId)) {
+            this.activeTemplateId = DEFAULT_TEMPLATE.id;
+        }
+
+        await this.saveTemplates();
+    }
+
+    /**
      * Get all templates
      */
     getTemplates(): Template[] {
@@ -174,6 +217,18 @@ export class TemplateModel {
         return () => {
             this.changeListeners = this.changeListeners.filter(listener => listener !== callback);
         };
+    }
+
+    /**
+     * Validate template data
+     */
+    private validateTemplate(template: any): template is Template {
+        if (!template || typeof template !== 'object') return false;
+        if (!('id' in template && 'name' in template &&
+            'systemPrompt' in template && 'userPrompt' in template)) {
+            return false;
+        }
+        return true;
     }
 
     /**

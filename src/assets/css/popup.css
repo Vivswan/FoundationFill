@@ -386,7 +386,9 @@ body {
     margin-top: 8px;
     margin-bottom: 16px;
     height: 16px;
-    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    font-weight: 500;
 }
 
 .theme-dark .settings-status {
@@ -402,7 +404,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: inherit;
-    appearance: menulist;
+    appearance: menulist-button;
 }
 
 .theme-selector:focus {
@@ -426,4 +428,21 @@ body {
 
 .theme-dark .separator {
     background-color: #1e293b;
+}
+
+/* Import/Export section */
+.import-export-group h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.import-export-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.import-export-buttons button {
+    flex: 1;
 }
