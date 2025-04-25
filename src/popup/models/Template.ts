@@ -14,7 +14,9 @@ const logger = createLogger('TEMPLATE');
  */
 export class TemplateModel {
     private templates: Template[] = [];
+    private activeTemplateId: string = DEFAULT_TEMPLATE.id;
     private storageService: StorageService;
+    private changeListeners: ((activeId: string, templates: Template[]) => void)[] = [];
 
     constructor() {
         this.storageService = new StorageService();
@@ -29,6 +31,23 @@ export class TemplateModel {
 
         const hasDefault = this.templates.some(t => t.id === DEFAULT_TEMPLATE.id);
         if (!hasDefault) this.templates.unshift(DEFAULT_TEMPLATE);
+
+        // Notify listeners on initialization
+        this.notifyListeners();
+    }
+
+    setActiveTemplateId(id: string): void {
+        const template = this.templates.find((t) => t.id === id);
+        if (template) {
+            this.activeTemplateId = id;
+            this.notifyListeners();
+        } else {
+            logger.error(`Template with ID ${id} not found`);
+        }
+    }
+
+    getActiveTemplateId(): string {
+        return this.activeTemplateId;
     }
 
     /**
@@ -49,15 +68,18 @@ export class TemplateModel {
     /**
      * Update the template
      */
-    async updateTemplate(id: string, updates: Partial<Template>): Promise<Template | null> {
-        const templateIndex = this.templates.findIndex(template => template.id === id);
+    async updateTemplate(updateId: string, updates: Partial<Template>): Promise<Template | null> {
+        const templateIndex = this.templates.findIndex(template => template.id === updateId);
         if (templateIndex === -1) return null;
 
         const template = this.templates[templateIndex];
         this.templates[templateIndex] = {
             ...template,
             ...updates,
+            id: updateId,
         }
+
+        if (updateId == DEFAULT_TEMPLATE.id) this.templates[templateIndex].domain = null;
 
         await this.saveTemplates();
         return JSON.parse(JSON.stringify(template));
@@ -69,6 +91,12 @@ export class TemplateModel {
     async deleteTemplate(id: string): Promise<void> {
         if (!id) return;
         if (id == DEFAULT_TEMPLATE.id) return;
+
+        const templateIndex = this.templates.findIndex(template => template.id === id);
+        if (templateIndex === -1) return;
+        if (this.templates[templateIndex].id === this.activeTemplateId) {
+            this.activeTemplateId = this.templates[templateIndex - 1].id;
+        }
 
         this.templates = this.templates.filter(t => t.id !== id);
         await this.saveTemplates();
@@ -105,9 +133,38 @@ export class TemplateModel {
         try {
             await this.storageService.setItem('templates', this.templates);
             await sendMessageToBackground({action: 'templatesUpdated'});
+
+            // Notify all listeners
+            this.notifyListeners();
         } catch (error) {
             logger.error('Error saving templates:', error);
         }
+    }
+
+    /**
+     * Add a listener for template changes
+     * @returns Function to remove the listener
+     */
+    onChange(callback: (activeId: string, templates: Template[]) => void): () => void {
+        this.changeListeners.push(callback);
+
+        // Return a function to remove this listener
+        return () => {
+            this.changeListeners = this.changeListeners.filter(listener => listener !== callback);
+        };
+    }
+
+    /**
+     * Notify all listeners of template changes
+     */
+    private notifyListeners(): void {
+        this.changeListeners.forEach(listener => {
+            try {
+                listener(this.activeTemplateId, JSON.parse(JSON.stringify(this.templates)));
+            } catch (error) {
+                logger.error('Error in template change listener:', error);
+            }
+        });
     }
 
     /**

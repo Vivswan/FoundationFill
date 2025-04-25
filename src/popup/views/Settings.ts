@@ -56,9 +56,9 @@ export class SettingsView {
     // Update the settings inputs
     update(): void {
         const settings = this.settings.getSettings()
-        this.apiKeyInput.value = settings.apiKey || '';
-        this.baseUrlInput.value = settings.baseUrl || '';
-        this.modelInput.value = settings.model || '';
+        this.apiKeyInput.value = settings.apiKey;
+        this.baseUrlInput.value = settings.baseUrl;
+        this.modelInput.value = settings.model;
 
         // Update theme radio buttons
         switch (settings.theme) {

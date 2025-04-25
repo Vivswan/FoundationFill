@@ -21,9 +21,10 @@ export class SettingsModel {
     /**
      * Load settings from storage
      */
-    async initialize(): Promise<void> {
+    async initialize(): Promise<SettingsModel> {
         this.settings = await this.getSettingsFromStorage();
         logger.debug('Settings loaded:', this.settings);
+        return this
     }
 
     getSetting(key: keyof Settings): Settings[keyof Settings] {

@@ -25,52 +25,11 @@ interface ElementEvents {
 /**
  * DOM Service class that combines functionality from dom-utils.ts and dom-service.ts
  */
-export class DOMService {
+export class DOMUtils {
     /**
-     * Creates an element with options and event handlers
-     */
-    static createElement<T extends HTMLElement>(
-        tagName: string,
-        options: ElementOptions = {},
-        events: Record<string, EventHandler> = {}
-    ): T {
-        const element = document.createElement(tagName) as T;
-
-        // Apply options
-        if (options.id) element.id = options.id;
-        if (options.className) element.className = options.className;
-        if (options.textContent) element.textContent = options.textContent;
-        if (options.innerHTML) element.innerHTML = options.innerHTML;
-
-        // Handle style
-        if (options.style) {
-            if (typeof options.style === 'string') {
-                element.setAttribute('style', options.style);
-            } else {
-                Object.assign(element.style, options.style);
-            }
-        }
-
-        // Apply attributes
-        if (options.attributes) {
-            Object.entries(options.attributes).forEach(([key, value]) => {
-                element.setAttribute(key, value);
-            });
-        }
-
-        // Add event listeners
-        Object.entries(events).forEach(([eventName, handler]) => {
-            element.addEventListener(eventName, handler);
-        });
-
-        return element;
-    }
-
-    /**
-     * Legacy method for compatibility with old code
      * Creates an element with attributes, events, and children
      */
-    static createElementLegacy<T extends HTMLElement>(
+    static createElement<T extends HTMLElement>(
         tag: string,
         attributes: ElementAttributes = {},
         events: ElementEvents = {},
@@ -188,14 +147,15 @@ export class DOMService {
     ): void {
         elements.forEach(element => element.addEventListener(eventType, handler));
     }
-}
 
-/**
- * Export legacy functions for backward compatibility
- */
-export const getElementById = DOMService.getElementById;
-export const querySelector = DOMService.querySelector;
-export const querySelectorAll = DOMService.querySelectorAll;
-export const createElement = DOMService.createElementLegacy;
-export const toggleElementVisibility = DOMService.toggleVisibility;
-export const addEventListenerToAll = DOMService.addEventListenerToAll;
+
+    static isTextInput(element: HTMLElement | null): boolean {
+        if (!element) return false;
+
+        return (
+            element.tagName === 'TEXTAREA' ||
+            (element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'text') ||
+            element.getAttribute('contenteditable') === 'true'
+        );
+    }
+}

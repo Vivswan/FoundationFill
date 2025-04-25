@@ -1,78 +1,80 @@
 import {Template} from '../../types';
 import {getCurrentDomain} from "../../utils/chrome-api-utils";
+import {TemplateModel} from "../models/Template";
+import {DEFAULT_TEMPLATE} from "../../defaults";
 
 export class TemplateEditorView {
+    private template: TemplateModel;
+
     // DOM elements
-    private templateEditor: HTMLElement = document.getElementById('template-editor') as HTMLElement;
-    private systemPromptInput: HTMLTextAreaElement = document.getElementById('system-prompt') as HTMLTextAreaElement;
-    private userPromptInput: HTMLTextAreaElement = document.getElementById('user-prompt') as HTMLTextAreaElement;
-    private templateEnabledCheckbox: HTMLInputElement = document.getElementById('template-enabled') as HTMLInputElement;
-    private includePageContentCheckbox: HTMLInputElement = document.getElementById('include-page-content') as HTMLInputElement;
-    private domainSpecificCheckbox: HTMLInputElement = document.getElementById('domain-specific') as HTMLInputElement;
-    private templateDomainSpan: HTMLElement = document.getElementById('template-domain') as HTMLElement
-    private deleteTemplateBtn: HTMLButtonElement = document.getElementById('delete-template-btn') as HTMLButtonElement;
-    private generateBtn: HTMLButtonElement = document.getElementById('generate-btn') as HTMLButtonElement;
-    private generatedTextArea: HTMLTextAreaElement = document.getElementById('generated-text') as HTMLTextAreaElement;
+    private templateEditor: HTMLElement;
+    private systemPromptInput: HTMLTextAreaElement;
+    private userPromptInput: HTMLTextAreaElement;
+    private templateEnabledCheckbox: HTMLInputElement;
+    private includePageContentCheckbox: HTMLInputElement;
+    private domainSpecificCheckbox: HTMLInputElement;
+    private templateDomainSpan: HTMLElement;
+    private deleteTemplateBtn: HTMLButtonElement;
+    private generateBtn: HTMLButtonElement;
+    private generatedTextArea: HTMLTextAreaElement;
 
     // Event callbacks
     private onDeleteCallback: (() => void) | null = null;
     private onGenerateCallback: (() => void) | null = null;
     private onInputChangeCallback: ((template: Partial<Template>) => void) | null = null;
 
-    constructor() {
+    constructor(template: TemplateModel) {
+        this.template = template;
+
+        // Initialize DOM elements
+        this.templateEditor = document.getElementById('template-editor') as HTMLElement;
+        this.systemPromptInput = document.getElementById('system-prompt') as HTMLTextAreaElement;
+        this.userPromptInput = document.getElementById('user-prompt') as HTMLTextAreaElement;
+        this.templateEnabledCheckbox = document.getElementById('template-enabled') as HTMLInputElement;
+        this.includePageContentCheckbox = document.getElementById('include-page-content') as HTMLInputElement;
+        this.domainSpecificCheckbox = document.getElementById('domain-specific') as HTMLInputElement;
+        this.templateDomainSpan = document.getElementById('template-domain') as HTMLElement
+        this.deleteTemplateBtn = document.getElementById('delete-template-btn') as HTMLButtonElement;
+        this.generateBtn = document.getElementById('generate-btn') as HTMLButtonElement;
+        this.generatedTextArea = document.getElementById('generated-text') as HTMLTextAreaElement;
+
+        // Update
+        this.update(this.template.getActiveTemplateId(), this.template.getTemplates());
+        this.template.onChange(this.update.bind(this));
+
         // Add event listeners
-        this.deleteTemplateBtn.addEventListener('click', () => {
-            if (this.onDeleteCallback) {
-                this.onDeleteCallback();
-            }
+        this.deleteTemplateBtn.addEventListener('click', async () => {
+            await this.template.deleteTemplate(this.template.getActiveTemplateId());
         });
-
-        this.generateBtn.addEventListener('click', () => {
-            if (this.onGenerateCallback) {
-                this.onGenerateCallback();
-            }
-        });
-
 
         // Auto-save template on input changes
-        this.systemPromptInput.addEventListener('input', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback({
-                    systemPrompt: this.systemPromptInput.value,
-                } as Partial<Template>);
-            }
+        this.systemPromptInput.addEventListener('input', async () => {
+            await this.template.updateTemplate(this.template.getActiveTemplateId(), {
+                systemPrompt: this.systemPromptInput.value,
+            } as Partial<Template>);
         });
-        this.userPromptInput.addEventListener('input', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback({
-                    userPrompt: this.userPromptInput.value,
-                } as Partial<Template>);
-            }
+        this.userPromptInput.addEventListener('input', async () => {
+            await this.template.updateTemplate(this.template.getActiveTemplateId(), {
+                userPrompt: this.userPromptInput.value,
+            } as Partial<Template>);
         });
-        this.templateEnabledCheckbox.addEventListener('change', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback({
-                    enabled: this.templateEnabledCheckbox.checked,
-                } as Partial<Template>);
-            }
+        this.templateEnabledCheckbox.addEventListener('change', async () => {
+            await this.template.updateTemplate(this.template.getActiveTemplateId(), {
+                enabled: this.templateEnabledCheckbox.checked,
+            } as Partial<Template>);
         });
-        this.includePageContentCheckbox.addEventListener('change', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback({
-                    includePageContent: this.includePageContentCheckbox.checked,
-                } as Partial<Template>);
-            }
+        this.includePageContentCheckbox.addEventListener('change', async () => {
+            await this.template.updateTemplate(this.template.getActiveTemplateId(), {
+                includePageContent: this.includePageContentCheckbox.checked,
+            } as Partial<Template>);
         });
 
-        this.domainSpecificCheckbox.addEventListener('change', () => {
-            this.setTemplateDomain();
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback({
-                    domainSpecific: this.domainSpecificCheckbox.checked,
-                    domain: this.domainSpecificCheckbox.checked ? getCurrentDomain() : '',
-                } as Partial<Template>);
-            }
+        this.domainSpecificCheckbox.addEventListener('change', async () => {
+            await this.template.updateTemplate(this.template.getActiveTemplateId(), {
+                domain: this.domainSpecificCheckbox.checked ? await getCurrentDomain() : null,
+            } as Partial<Template>);
         });
+        this.generateBtn.addEventListener('click', this.generate.bind(this));
     }
 
     // Show the template editor
@@ -85,27 +87,23 @@ export class TemplateEditorView {
         this.templateEditor.classList.add('hidden');
     }
 
-    // Set the template domain display
-    setTemplateDomain(): void {
-        if (this.domainSpecificCheckbox.checked) {
-            this.templateDomainSpan.style.display = 'inline';
-        } else {
-            this.templateDomainSpan.style.display = 'none';
-        }
-    }
-
     // Update the editor with template data
-    update(template: Template, isDefault: boolean): void {
-        this.systemPromptInput.value = template.systemPrompt || '';
-        this.userPromptInput.value = template.userPrompt || '';
+    update(activeId: string, templates: Template[]): void {
+        const template = templates.find(t => t.id === activeId);
+        if (!template) return;
+
+        this.systemPromptInput.value = template.systemPrompt;
+        this.userPromptInput.value = template.userPrompt;
         this.templateEnabledCheckbox.checked = template.enabled;
         this.includePageContentCheckbox.checked = template.includePageContent;
         this.generatedTextArea.value = '';
-        this.templateDomainSpan.textContent = '';
+        this.domainSpecificCheckbox.checked = template.domain !== null;
+
         this.templateDomainSpan.style.display = 'none';
+        this.templateDomainSpan.textContent = template.domain || '';
 
         // Hide/show delete button based on default template status
-        if (isDefault) {
+        if (activeId === DEFAULT_TEMPLATE.id) {
             this.deleteTemplateBtn.style.visibility = 'hidden';
             this.deleteTemplateBtn.disabled = true;
             this.deleteTemplateBtn.title = 'Default template cannot be deleted';
@@ -116,55 +114,12 @@ export class TemplateEditorView {
             this.deleteTemplateBtn.title = 'Delete this template';
             (this.domainSpecificCheckbox.parentElement as HTMLElement).style.display = 'flex';
 
-            // Set domain-specific checkbox and update domain display
-            this.domainSpecificCheckbox.checked = template.domainSpecific;
-
-            if (template.domainSpecific && template.domain) {
-                this.templateDomainSpan.textContent = template.domain;
+            if (template.domain !== null) {
                 this.templateDomainSpan.style.display = 'inline';
             }
         }
     }
 
-    // Set the generated text
-    setGeneratedText(text: string): void {
-        this.generatedTextArea.value = text;
-    }
-
-    // Clear the generated text
-    clearGeneratedText(): void {
-        this.generatedTextArea.value = '';
-    }
-
-    // Set loading state for generate button
-    setGenerateLoading(isLoading: boolean): void {
-        this.generateBtn.disabled = isLoading;
-        this.generatedTextArea.value = isLoading ? 'Generating...' : this.generatedTextArea.value;
-    }
-
-    // Get the current template data from the editor
-    getEditorFormData(): Partial<Template> {
-        return {
-            systemPrompt: this.systemPromptInput.value,
-            userPrompt: this.userPromptInput.value,
-            enabled: this.templateEnabledCheckbox.checked,
-            includePageContent: this.includePageContentCheckbox.checked,
-            domainSpecific: this.domainSpecificCheckbox.checked
-        };
-    }
-
-    // Set the onDelete callback
-    onDelete(callback: () => void): void {
-        this.onDeleteCallback = callback;
-    }
-
-    // Set the onGenerate callback
-    onGenerate(callback: () => void): void {
-        this.onGenerateCallback = callback;
-    }
-
-    // Set the onInputChange callback
-    onTemplateFieldChange(callback: (template: Partial<Template>) => void): void {
-        this.onInputChangeCallback = callback;
+    generate(): void {
     }
 }

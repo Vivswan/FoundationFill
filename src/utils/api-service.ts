@@ -29,8 +29,7 @@ interface APIResponse {
 export const generateChatCompletion = async (options: APIRequestOptions): Promise<APIResponse> => {
     try {
         // Create an instance of SettingsModel to get settings
-        const settingsModel = new SettingsModel();
-        const settings = await settingsModel.loadSettings();
+        const settings = (await new SettingsModel().initialize()).getSettings();
 
         // Validate API key
         if (!settings.apiKey) {
