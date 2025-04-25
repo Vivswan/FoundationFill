@@ -15,20 +15,33 @@
       </div>
       <div class="template-list" id="template-list"></div>
       <div class="sidebar-footer">
+        <button class="button-small" id="github-link">GitHub</button>
         <button class="button-small" id="settings-btn">Settings</button>
       </div>
     </div>
 
     <div class="main-content">
       <div class="template-editor hidden" id="template-editor">
+        <div class="template-editor-header">
+          <h3 id="template-title">Edit</h3>
+          <button class="delete-btn" id="delete-template-btn" title="Delete template">✕</button>
+        </div>
+
         <div class="form-group">
           <label for="system-prompt">System Prompt</label>
-          <textarea id="system-prompt" placeholder="Enter your system prompt here..." rows="2"></textarea>
+          <textarea id="system-prompt" placeholder="Enter your system prompt here..." rows="3"></textarea>
         </div>
 
         <div class="form-group">
           <label for="user-prompt">User Prompt</label>
           <textarea id="user-prompt" placeholder="Enter your user prompt here..." rows="4"></textarea>
+        </div>
+
+        <hr class="separator">
+
+        <div class="form-group generate-btn-group">
+          <textarea id="generated-text" placeholder="Generated text will appear here..." readonly
+                    rows="5"></textarea>
         </div>
 
         <div class="form-group checkbox-group">
@@ -39,25 +52,16 @@
 
           <div class="checkbox-item">
             <input id="include-page-content" type="checkbox">
-            <label for="include-page-content">Include page content</label>
+            <label for="include-page-content">Web Content</label>
           </div>
 
           <div class="checkbox-item">
             <input id="domain-specific" type="checkbox">
-            <label for="domain-specific">Domain specific</label>
+            <label for="domain-specific">Linked</label>
             <span class="domain-text" id="template-domain"></span>
           </div>
-        </div>
 
-        <div class="action-buttons">
-          <button class="button-danger" id="delete-template-btn">Delete</button>
-          <button class="button-primary" id="generate-btn">Generate</button>
-        </div>
-
-        <div class="form-group">
-          <label for="generated-text">Generated Text</label>
-          <textarea id="generated-text" placeholder="Generated text will appear here..." readonly
-                    rows="5"></textarea>
+          <button class="button-primary" id="generate-btn">Test Prompt</button>
         </div>
       </div>
 
@@ -84,21 +88,12 @@
         </div>
 
         <div class="form-group">
-          <label>Theme</label>
-          <div class="theme-selector">
-            <div class="theme-option">
-              <input id="theme-light" name="theme" type="radio" value="light">
-              <label for="theme-light">Light</label>
-            </div>
-            <div class="theme-option">
-              <input id="theme-dark" name="theme" type="radio" value="dark">
-              <label for="theme-dark">Dark</label>
-            </div>
-            <div class="theme-option">
-              <input checked id="theme-system" name="theme" type="radio" value="system">
-              <label for="theme-system">System</label>
-            </div>
-          </div>
+          <label for="theme-select">Theme</label>
+          <select class="theme-selector" id="theme-select">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option selected value="system">System</option>
+          </select>
         </div>
 
       </div>

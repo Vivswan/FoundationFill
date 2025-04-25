@@ -5,7 +5,7 @@ import {Settings, Template} from './types';
 export const DEFAULT_TEMPLATE: Template = {
     id: 'default',
     enabled: true,
-    name: 'Default Template',
+    name: 'Base',
     systemPrompt: 'You are a helpful assistant.',
     userPrompt: '',
     domain: null,

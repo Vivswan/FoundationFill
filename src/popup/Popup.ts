@@ -1,4 +1,4 @@
-import {GenerateTextResponse, Settings, Template} from '../types';
+import {GenerateTextResponse, Panel} from '../types';
 import {TemplateModel} from './models/Template';
 import {SettingsModel} from './models/Settings';
 import {TemplateListView} from './views/TemplateList';
@@ -6,166 +6,70 @@ import {TemplateEditorView} from './views/TemplateEditor';
 import {SettingsView} from './views/Settings';
 import {createLogger} from '../utils/logging';
 import {executeScriptInTab, getCurrentTab, sendMessageToBackground} from '../utils/chrome-api-utils';
-import {ThemeService} from "../utils/theme";
+import {ThemeService} from "./views/Theme";
 
 // Create a logger instance for this component
 const logger = createLogger('POPUP_CONTROLLER');
 
 export class PopupController {
-    private templateModel: TemplateModel;
     private settingsModel: SettingsModel;
     private themeService: ThemeService;
-    private templateListView: TemplateListView;
-    private templateEditorView: TemplateEditorView;
     private settingsView: SettingsView;
 
+    private templateModel: TemplateModel;
+    private templateListView: TemplateListView;
+    private templateEditorView: TemplateEditorView;
+
+    private settingsBtn: HTMLElement;
+
     constructor() {
-        this.templateModel = new TemplateModel();
         this.settingsModel = new SettingsModel();
         this.themeService = new ThemeService();
-        this.templateListView = new TemplateListView();
-        this.templateEditorView = new TemplateEditorView();
-        this.settingsView = new SettingsView();
+        this.settingsView = new SettingsView(this.settingsModel);
 
-        // Set up event listeners
-        this.setupEventListeners();
+        this.templateModel = new TemplateModel();
+        this.templateListView = new TemplateListView(this.templateModel);
+        this.templateEditorView = new TemplateEditorView(this.templateModel);
+
+        // Initialize DOM elements
+        this.settingsBtn = document.getElementById('settings-btn') as HTMLElement;
     }
 
     // Initialize the controller
     async initialize(): Promise<void> {
         logger.debug('Initializing');
 
-        try {
-            // Load templates and settings
-            logger.debug('Loading templates and settings');
-            await this.templateModel.loadTemplates();
-            await this.settingsModel.loadSettings();
+        // Load templates and settings
+        logger.debug('Loading templates and settings');
+        await this.settingsModel.initialize();
+        await this.templateModel.initialize();
 
-            // Set the initial theme
-            this.themeService.setTheme(await this.settingsModel.getTheme());
-            this.settingsModel.onChange((updatedSettings) => this.themeService.setTheme(updatedSettings.theme));
+        // Set the initial theme
+        this.themeService.setTheme(await this.settingsModel.getTheme());
+        this.settingsModel.onChange((updatedSettings) => this.themeService.setTheme(updatedSettings.theme));
 
-            // Update views
-            logger.debug('Updating views');
-            this.updateTemplateListView();
-            this.updateSelectedTemplateView();
-            this.updateSettingsView();
+        this.settingsBtn.addEventListener('click', this.show.bind(this, 'setting'));
+        this.templateListView.onShowCallback = this.show.bind(this, 'template');
+        this.show("template");
+    }
 
-            logger.debug('Initialization complete');
-        } catch (error) {
-            logger.error('Error during initialization:', error);
+    private show(panel: Panel): void {
+        // Hide all panels
+        this.templateEditorView.hide();
+        this.settingsView.hide();
+
+        switch (panel) {
+            case "template":
+                this.templateEditorView.show();
+                break;
+            case "setting":
+                this.settingsView.show();
+                break;
+            default:
+                logger.error('Unknown panel:', panel);
         }
     }
 
-    // Set up event listeners
-    private setupEventListeners(): void {
-        // Template list events
-        this.templateListView.onSelect((templateId) => {
-            this.handleSelectTemplate(templateId);
-        });
-
-        this.templateListView.onNewTemplate(() => {
-            this.handleNewTemplate();
-        });
-
-        this.templateListView.onTemplateNameEdit((templateId, newName) => {
-            this.handleEditTemplateName(templateId, newName);
-        });
-
-        // Template editor events
-        this.templateEditorView.onDelete(() => {
-            this.handleDeleteTemplate();
-        });
-
-        this.templateEditorView.onGenerate(() => {
-            this.handleGenerateButtonClick();
-        });
-
-        this.templateEditorView.onTemplateFieldChange((templateData) => {
-            this.handleTemplateEditorInputChange(templateData);
-        });
-
-        // Settings events
-        this.settingsView.onShow(() => {
-            this.handleShowSettings();
-        });
-
-        this.settingsView.onSettingChange((key, value) => {
-            this.handleSettingValueChange(key, value);
-        });
-    }
-
-    // Update the template list view
-    private updateTemplateListView(): void {
-        const templates = this.templateModel.getTemplates();
-        logger.debug('Templates to render:', templates);
-        const selectedTemplateId = this.templateModel.getSelectedTemplateId();
-        logger.debug('Selected template ID:', selectedTemplateId);
-        this.templateListView.render(templates, selectedTemplateId);
-    }
-
-    // Update the selected template view
-    private updateSelectedTemplateView(): void {
-        const selectedTemplate = this.templateModel.getSelectedTemplate();
-
-        if (selectedTemplate) {
-            const isDefault = this.templateModel.isDefaultTemplate(selectedTemplate.id);
-            this.templateEditorView.update(selectedTemplate, isDefault);
-
-            if (selectedTemplate.domainSpecific && selectedTemplate.domain) {
-                this.templateEditorView.setTemplateDomain(selectedTemplate.domain);
-            } else {
-                const currentDomain = this.templateModel.getCurrentDomain();
-                this.templateEditorView.setTemplateDomain(currentDomain);
-            }
-
-            this.templateEditorView.show();
-            this.settingsView.hide();
-        } else {
-            this.templateEditorView.hide();
-        }
-    }
-
-    // Update the settings view
-    private updateSettingsView(): void {
-        const settings = this.settingsModel.getSettings();
-        this.settingsView.update(settings);
-    }
-
-    // Handle selecting a template
-    private handleSelectTemplate(templateId: string): void {
-        this.templateModel.selectTemplate(templateId);
-        this.updateSelectedTemplateView();
-        this.updateTemplateListView();
-    }
-
-    // Handle creating a new template
-    private handleNewTemplate(): void {
-        this.templateModel.createNewTemplate();
-        this.updateTemplateListView();
-        this.updateSelectedTemplateView();
-    }
-
-    // Handle editing a template name
-    private handleEditTemplateName(templateId: string, newName: string): void {
-        this.templateModel.updateTemplateName(templateId, newName);
-        this.updateTemplateListView();
-    }
-
-    // Handle deleting a template
-    private handleDeleteTemplate(): void {
-        if (confirm('Are you sure you want to delete this template?')) {
-            const success = this.templateModel.deleteSelectedTemplate();
-
-            if (!success) {
-                alert('The default template cannot be deleted.');
-                return;
-            }
-
-            this.updateTemplateListView();
-            this.updateSelectedTemplateView();
-        }
-    }
 
     // Handle generating text
     private async handleGenerateButtonClick(): Promise<void> {
@@ -223,35 +127,5 @@ export class PopupController {
             // Reset loading state
             this.templateEditorView.setGenerateLoading(false);
         }
-    }
-
-    // Handle template input changes
-    private handleTemplateEditorInputChange(templateData: Partial<Template>): void {
-        const updatedTemplate = this.templateModel.updateSelectedTemplate(templateData);
-
-        // If domain-specific was just checked, update the domain display immediately
-        if (updatedTemplate && templateData.domainSpecific !== undefined) {
-            if (templateData.domainSpecific) {
-                this.templateEditorView.setTemplateDomain();
-            }
-        }
-    }
-
-    // Handle showing settings
-    private handleShowSettings(): void {
-        this.templateEditorView.hide();
-        this.settingsView.show();
-    }
-
-    // Handle hiding settings
-    private handleHideSettings(): void {
-        this.settingsView.hide();
-        this.templateEditorView.show();
-    }
-
-    // Handle settings input changes
-    private async handleSettingValueChange(key: keyof Settings, value: string): Promise<void> {
-        await this.settingsModel.updateSetting(key, value);
-        this.settingsView.showStatus('Settings saved!');
     }
 }

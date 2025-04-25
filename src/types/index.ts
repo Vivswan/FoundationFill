@@ -12,6 +12,9 @@ export interface Template {
 // Theme options
 export type ThemeMode = 'light' | 'dark' | 'system';
 
+// Panel options
+export type Panel = 'setting' | 'template';
+
 // Settings interface
 export interface Settings {
   apiKey: string;
@@ -62,22 +65,10 @@ export interface GetPageContentMessage extends Message {
   action: 'getPageContent';
 }
 
-export interface GetPageContentResponse {
-  content: string;
-}
-
 export interface GenerateTextResponse {
   success: boolean;
   text?: string;
   error?: string;
-}
-
-export interface PingResponse {
-  status: 'ready';
-}
-
-export interface SuccessResponse {
-  success: boolean;
 }
 
 // Union type for all possible messages

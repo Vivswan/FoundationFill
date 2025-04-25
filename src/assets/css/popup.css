@@ -116,6 +116,25 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     flex-grow: 1;
+    user-select: none;
+}
+
+.default-badge {
+    user-select: none;
+}
+
+.template-name-edit {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    background: none;
+    border: none;
+    color: inherit;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    width: 100%;
 }
 
 .default-badge {
@@ -127,14 +146,19 @@ body {
 }
 
 .sidebar-footer {
-    padding: 16px;
+    display: flex;
+    padding: 8px;
     border-top: 1px solid var(--border-color);
     text-align: center;
 }
 
+#settings-btn {
+    margin-left: auto;
+}
+
 .main-content {
     flex: 1;
-    padding: 16px;
+    padding: 8px 16px 16px 16px;
     overflow-y: auto;
 }
 
@@ -145,12 +169,15 @@ body {
 }
 
 .form-group {
-    margin-bottom: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 4px;
     font-weight: 500;
 }
 
@@ -164,7 +191,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: inherit;
-    resize: none;
+    resize: vertical;
 }
 
 .theme-dark .form-group input[type="text"],
@@ -193,6 +220,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+    padding-left: 8px;
+    margin-top: 0;
 }
 
 .checkbox-item {
@@ -210,19 +239,49 @@ body {
     color: var(--primary-color);
 }
 
-.action-buttons {
+.template-editor-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 16px;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+#generate-btn {
+    margin-left: auto;
+}
+
+.generate-btn-group {
+    justify-content: flex-end;
+}
+
+.delete-btn {
+    color: white;
+    background-color: var(--danger-color);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: var(--danger-hover);
+}
+
+.delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* For when delete button is hidden */
-.action-buttons button[style*="visibility: hidden"] {
+.delete-btn[style*="visibility: hidden"] {
     visibility: hidden !important;
-    width: 0;
-    margin: 0;
-    padding: 0;
-    border: none;
 }
 
 .button-primary,
@@ -336,26 +395,35 @@ body {
 
 /* Theme selector styling */
 .theme-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 12px;
-    background-color: var(--highlight-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: inherit;
+    appearance: menulist;
 }
 
-.theme-option {
-    display: flex;
-    align-items: center;
-}
-
-.theme-option input[type="radio"] {
-    margin-right: 8px;
+.theme-selector:focus {
+    outline: none;
+    border-color: var(--primary-color);
 }
 
 /* Specific dark mode overrides */
 .theme-dark .theme-selector {
+    background-color: #0f172a;
+    border-color: #1e293b;
+}
+
+/* Separator */
+.separator {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 12px 0 16px 0;
+}
+
+.theme-dark .separator {
     background-color: #1e293b;
-    border-color: #334155;
 }

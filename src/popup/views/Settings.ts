@@ -9,9 +9,7 @@ export class SettingsView {
     private apiKeyInput: HTMLInputElement;
     private baseUrlInput: HTMLInputElement;
     private modelInput: HTMLInputElement;
-    private themeLightInput: HTMLInputElement;
-    private themeDarkInput: HTMLInputElement;
-    private themeSystemInput: HTMLInputElement;
+    private themeSelect: HTMLSelectElement;
     private settingsStatus: HTMLElement;
 
     // Status timeout
@@ -23,9 +21,7 @@ export class SettingsView {
         this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
         this.baseUrlInput = document.getElementById('base-url') as HTMLInputElement;
         this.modelInput = document.getElementById('model') as HTMLInputElement;
-        this.themeLightInput = document.getElementById('theme-light') as HTMLInputElement;
-        this.themeDarkInput = document.getElementById('theme-dark') as HTMLInputElement;
-        this.themeSystemInput = document.getElementById('theme-system') as HTMLInputElement;
+        this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
         this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
 
         // Update the settings panel visibility based on the current state
@@ -37,10 +33,8 @@ export class SettingsView {
         this.baseUrlInput.addEventListener('input', this.handleValueChange.bind(this, 'baseUrl'));
         this.modelInput.addEventListener('input', this.handleValueChange.bind(this, 'model'));
 
-        // Theme option change handlers
-        this.themeLightInput.addEventListener('change', this.handleCheckboxChange.bind(this, 'theme', 'light'));
-        this.themeDarkInput.addEventListener('change', this.handleCheckboxChange.bind(this, 'theme', 'dark'));
-        this.themeSystemInput.addEventListener('change', this.handleCheckboxChange.bind(this, 'theme', 'system'));
+        // Theme dropdown change handler
+        this.themeSelect.addEventListener('change', this.handleThemeChange.bind(this));
     }
 
     // Show the settings panel
@@ -60,19 +54,8 @@ export class SettingsView {
         this.baseUrlInput.value = settings.baseUrl;
         this.modelInput.value = settings.model;
 
-        // Update theme radio buttons
-        switch (settings.theme) {
-            case 'light':
-                this.themeLightInput.checked = true;
-                break;
-            case 'dark':
-                this.themeDarkInput.checked = true;
-                break;
-            case 'system':
-            default:
-                this.themeSystemInput.checked = true;
-                break;
-        }
+        // Update theme dropdown
+        this.themeSelect.value = settings.theme;
     }
 
     // Show a status message
@@ -97,9 +80,9 @@ export class SettingsView {
         this.showStatus('Settings saved!');
     }
 
-    private async handleCheckboxChange(key: keyof Settings, value: string, e: Event): Promise<void> {
-        if (!(e.target as HTMLInputElement).checked) return;
-        await this.settings.updateSetting(key, value);
+    private async handleThemeChange(e: Event): Promise<void> {
+        const value = (e.target as HTMLSelectElement).value;
+        await this.settings.updateSetting('theme', value);
         this.showStatus('Settings saved!');
     }
 }

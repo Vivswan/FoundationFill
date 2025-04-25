@@ -2,12 +2,15 @@ import {Template} from '../../types';
 import {getCurrentDomain} from "../../utils/chrome-api-utils";
 import {TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
+import {generatingAnimation} from "../../utils/generatingAnimation";
 
 export class TemplateEditorView {
     private template: TemplateModel;
+    private lastTemplateId: string = DEFAULT_TEMPLATE.id;
 
     // DOM elements
     private templateEditor: HTMLElement;
+    private templateTitle: HTMLElement;
     private systemPromptInput: HTMLTextAreaElement;
     private userPromptInput: HTMLTextAreaElement;
     private templateEnabledCheckbox: HTMLInputElement;
@@ -18,16 +21,12 @@ export class TemplateEditorView {
     private generateBtn: HTMLButtonElement;
     private generatedTextArea: HTMLTextAreaElement;
 
-    // Event callbacks
-    private onDeleteCallback: (() => void) | null = null;
-    private onGenerateCallback: (() => void) | null = null;
-    private onInputChangeCallback: ((template: Partial<Template>) => void) | null = null;
-
     constructor(template: TemplateModel) {
         this.template = template;
 
         // Initialize DOM elements
         this.templateEditor = document.getElementById('template-editor') as HTMLElement;
+        this.templateTitle = document.getElementById('template-title') as HTMLElement;
         this.systemPromptInput = document.getElementById('system-prompt') as HTMLTextAreaElement;
         this.userPromptInput = document.getElementById('user-prompt') as HTMLTextAreaElement;
         this.templateEnabledCheckbox = document.getElementById('template-enabled') as HTMLInputElement;
@@ -92,12 +91,17 @@ export class TemplateEditorView {
         const template = templates.find(t => t.id === activeId);
         if (!template) return;
 
+        this.templateTitle.innerHTML = "Edit (" + template.name + ")";
         this.systemPromptInput.value = template.systemPrompt;
         this.userPromptInput.value = template.userPrompt;
         this.templateEnabledCheckbox.checked = template.enabled;
         this.includePageContentCheckbox.checked = template.includePageContent;
-        this.generatedTextArea.value = '';
         this.domainSpecificCheckbox.checked = template.domain !== null;
+
+        if (this.lastTemplateId !== activeId) {
+            this.generatedTextArea.value = '';
+            this.lastTemplateId = activeId;
+        }
 
         this.templateDomainSpan.style.display = 'none';
         this.templateDomainSpan.textContent = template.domain || '';
@@ -121,5 +125,6 @@ export class TemplateEditorView {
     }
 
     generate(): void {
+        generatingAnimation(this.generatedTextArea);
     }
 }
