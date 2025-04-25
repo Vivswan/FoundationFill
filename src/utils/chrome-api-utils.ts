@@ -4,7 +4,6 @@
  * Provides error handling and logging for Chrome API operations
  */
 import {createLogger} from './logging';
-import {extractDomainFromUrl} from '../defaults';
 
 const logger = createLogger('CHROME_API');
 
@@ -19,22 +18,6 @@ export const getCurrentTab = async (): Promise<chrome.tabs.Tab | null> => {
     } catch (error) {
         logger.error('Error getting current tab:', error);
         return null;
-    }
-};
-
-/**
- * Get the domain of the current active tab
- */
-export const getCurrentDomain = async (): Promise<string> => {
-    try {
-        const tab = await getCurrentTab();
-        if (tab?.url) {
-            return extractDomainFromUrl(tab.url);
-        }
-        return '';
-    } catch (error) {
-        logger.error('Error getting current domain:', error);
-        return '';
     }
 };
 

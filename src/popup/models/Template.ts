@@ -7,6 +7,7 @@ import {DEFAULT_TEMPLATE} from '../../defaults';
 import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {sendMessageToBackground} from '../../utils/chrome-api-utils';
+import {validateDomain} from "../../utils/associatedDomain";
 
 /**
  * Interface representing a template for text generation
@@ -18,7 +19,7 @@ export interface Template {
     systemPrompt: string;
     userPrompt: string;
     includePageContent: boolean;
-    domain: string | null;
+    associatedDomain: string | null;
 }
 
 // Create a logger for this component
@@ -96,7 +97,7 @@ export class TemplateModel {
             id: updateId,
         }
 
-        if (updateId == DEFAULT_TEMPLATE.id) this.templates[templateIndex].domain = null;
+        if (updateId == DEFAULT_TEMPLATE.id) this.templates[templateIndex].associatedDomain = null;
 
         await this.saveTemplates();
         return JSON.parse(JSON.stringify(template));
@@ -135,8 +136,8 @@ export class TemplateModel {
      */
     getTemplatesForDomain(domain: string): Template[] {
         return this.templates.filter(template => {
-            if (template.domain === null) return true;
-            return template.domain === domain;
+            if (template.associatedDomain === null) return true;
+            return validateDomain(template.associatedDomain, domain);
         });
     }
 

@@ -4,10 +4,10 @@
  */
 import {FillTemplateMessage, GenerateTextMessage, MessageTypes,} from './utils/types';
 import {createLogger} from './utils/logging';
-import {extractDomainFromUrl} from './defaults';
 import {getCurrentTab, sendMessageToTab} from './utils/chrome-api-utils';
 import {handleGenerateText} from "./generate/api-service";
 import {TemplateModel} from "./popup/models/Template";
+import {extractDomainFromUrl} from "./utils/associatedDomain";
 
 // Create a logger instance for this component
 const logger = createLogger('BACKGROUND');

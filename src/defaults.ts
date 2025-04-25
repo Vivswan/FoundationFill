@@ -16,7 +16,7 @@ export const DEFAULT_TEMPLATE: Template = {
     name: 'Base',
     systemPrompt: 'You are a helpful assistant.',
     userPrompt: '',
-    domain: null,
+    associatedDomain: null,
     includePageContent: false,
 };
 
@@ -38,12 +38,3 @@ export const UI_CONSTANTS = {
     SETTINGS_PANEL_ID: 'settings-panel'
 };
 
-// Domain utility functions
-export const extractDomainFromUrl = (url: string): string => {
-    try {
-        const urlObj = new URL(url);
-        return urlObj.hostname + (urlObj.port ? ':' + urlObj.port : '');
-    } catch (error) {
-        return '';
-    }
-};

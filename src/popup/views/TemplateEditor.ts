@@ -1,7 +1,8 @@
-import {getCurrentDomain, getCurrentPageContent} from "../../utils/chrome-api-utils";
+import {getCurrentPageContent} from "../../utils/chrome-api-utils";
 import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
 import {generateTextWithAnimation} from "../../generate/toElement";
+import {getCurrentDomain} from "../../utils/associatedDomain";
 
 export class TemplateEditorView {
     private template: TemplateModel;
@@ -69,7 +70,7 @@ export class TemplateEditorView {
 
         this.domainSpecificCheckbox.addEventListener('change', async () => {
             await this.template.updateTemplate(this.template.getActiveTemplateId(), {
-                domain: this.domainSpecificCheckbox.checked ? await getCurrentDomain() : null,
+                associatedDomain: this.domainSpecificCheckbox.checked ? await getCurrentDomain() : null,
             } as Partial<Template>);
         });
         this.generateBtn.addEventListener('click', this.generate.bind(this));
@@ -95,7 +96,7 @@ export class TemplateEditorView {
         this.userPromptInput.value = template.userPrompt;
         this.templateEnabledCheckbox.checked = template.enabled;
         this.includePageContentCheckbox.checked = template.includePageContent;
-        this.domainSpecificCheckbox.checked = template.domain !== null;
+        this.domainSpecificCheckbox.checked = template.associatedDomain !== null;
 
         if (this.lastTemplateId !== activeId) {
             this.generatedTextArea.value = '';
@@ -103,7 +104,7 @@ export class TemplateEditorView {
         }
 
         this.templateDomainSpan.style.display = 'none';
-        this.templateDomainSpan.textContent = template.domain || '';
+        this.templateDomainSpan.textContent = template.associatedDomain || '';
 
         // Hide/show delete button based on default template status
         if (activeId === DEFAULT_TEMPLATE.id) {
@@ -117,7 +118,7 @@ export class TemplateEditorView {
             this.deleteTemplateBtn.title = 'Delete this template';
             (this.domainSpecificCheckbox.parentElement as HTMLElement).style.display = 'flex';
 
-            if (template.domain !== null) {
+            if (template.associatedDomain !== null) {
                 this.templateDomainSpan.style.display = 'inline';
             }
         }
