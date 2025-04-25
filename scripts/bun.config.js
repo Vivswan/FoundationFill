@@ -101,7 +101,7 @@ async function build() {
         const entryPoints = {
             'index': path.join(rootDir, 'src/index.ts'),
             'background': path.join(rootDir, 'src/background.ts'),
-            'content': path.join(rootDir, 'src/popup/content.ts'),
+            'content': path.join(rootDir, 'src/content.ts'),
             'init': path.join(rootDir, 'src/assets/js/init.js')
         };
 

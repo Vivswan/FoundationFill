@@ -6,8 +6,8 @@ export class SettingsView {
 
     // DOM elements
     private settingsPanel: HTMLElement;
-    private apiKeyInput: HTMLInputElement;
     private baseUrlInput: HTMLInputElement;
+    private apiKeyInput: HTMLInputElement;
     private modelInput: HTMLInputElement;
     private themeSelect: HTMLSelectElement;
     private settingsStatus: HTMLElement;
@@ -18,8 +18,8 @@ export class SettingsView {
     constructor(settings: SettingsModel) {
         this.settings = settings;
         this.settingsPanel = document.getElementById('settings-panel') as HTMLElement;
-        this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
         this.baseUrlInput = document.getElementById('base-url') as HTMLInputElement;
+        this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
         this.modelInput = document.getElementById('model') as HTMLInputElement;
         this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
         this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
@@ -29,8 +29,8 @@ export class SettingsView {
         this.settings.onChange(this.update.bind(this));
 
         // Auto-save settings on input changes
-        this.apiKeyInput.addEventListener('input', this.handleValueChange.bind(this, 'apiKey'));
         this.baseUrlInput.addEventListener('input', this.handleValueChange.bind(this, 'baseUrl'));
+        this.apiKeyInput.addEventListener('input', this.handleValueChange.bind(this, 'apiKey'));
         this.modelInput.addEventListener('input', this.handleValueChange.bind(this, 'model'));
 
         // Theme dropdown change handler
@@ -50,8 +50,8 @@ export class SettingsView {
     // Update the settings inputs
     update(): void {
         const settings = this.settings.getSettings()
-        this.apiKeyInput.value = settings.apiKey;
         this.baseUrlInput.value = settings.baseUrl;
+        this.apiKeyInput.value = settings.apiKey;
         this.modelInput.value = settings.model;
 
         // Update theme dropdown

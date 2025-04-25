@@ -23,6 +23,7 @@ export class SettingsModel {
      */
     async initialize(): Promise<SettingsModel> {
         this.settings = await this.getSettingsFromStorage();
+        this.notifyListeners();
         logger.debug('Settings loaded:', this.settings);
         return this
     }
@@ -86,7 +87,10 @@ export class SettingsModel {
      */
     private async saveSettings(): Promise<void> {
         await this.storageService.setItem('settings', this.settings);
+        this.notifyListeners();
+    }
 
+    private notifyListeners(): void {
         this.changeListeners.forEach(listener => {
             try {
                 listener(JSON.parse(JSON.stringify(this.settings)));
@@ -94,6 +98,7 @@ export class SettingsModel {
                 logger.error('Error in settings change listener:', error);
             }
         });
+
     }
 
     /**
