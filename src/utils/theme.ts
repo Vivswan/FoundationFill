@@ -4,73 +4,96 @@ import {createLogger} from './logging';
 const logger = createLogger('THEME');
 
 /**
- * Apply the selected theme to the document/extension
- * @param theme Theme mode (light, dark, or system)
+ * A service for managing and applying themes
  */
-export const applyTheme = (theme: ThemeMode): void => {
-  // Get the html element
-  const html = document.documentElement;
+export class ThemeService {
+    private currentTheme: ThemeMode = 'system';
+    private listeners: ((theme: ThemeMode) => void)[] = [];
 
-  logger.debug(`Applying theme: ${theme}`);
-
-  // Remove any existing theme classes
-  html.classList.remove('theme-light', 'theme-dark');
-
-  if (theme === 'system') {
-    // Use system preference
-    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const appliedTheme = prefersDarkMode ? 'theme-dark' : 'theme-light';
-    html.classList.add(appliedTheme);
-    logger.debug(`Using system preference: ${appliedTheme}`);
-  } else {
-    // Use selected theme
-    const themeClass = `theme-${theme}`;
-    html.classList.add(themeClass);
-    logger.debug(`Applied explicit theme: ${themeClass}`);
-  }
-};
-
-/**
- * Listen for system theme changes
- * @param theme The current theme mode
- * @param callback Callback to run when theme changes
- */
-export const listenForThemeChanges = (theme: ThemeMode, callback: () => void): void => {
-  if (theme === 'system') {
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    logger.debug('Setting up system theme listener');
-
-    try {
-      // Standard approach
-      darkModeMediaQuery.addEventListener('change', callback);
-      logger.debug('Using standard event listener for theme changes');
-    } catch (error) {
-      // Fallback for older browsers
-      logger.warn('Fallback to legacy event listener for theme changes');
-      try {
-        darkModeMediaQuery.addListener(callback);
-      } catch (error) {
-        logger.error('Failed to set up theme change listener:', error);
-      }
+    constructor(initialTheme: ThemeMode = 'system') {
+        this.currentTheme = initialTheme;
+        this.applyTheme();
+        this.setupSystemThemeListener();
     }
-  }
-};
 
-/**
- * Get theme label for display
- * @param theme Theme mode
- * @returns Human-readable theme label
- */
-export const getThemeLabel = (theme: ThemeMode): string => {
-  switch (theme) {
-    case 'light':
-      return 'Light Mode';
-    case 'dark':
-      return 'Dark Mode';
-    case 'system':
-      return 'Use System Setting';
-    default:
-      return 'Unknown';
-  }
-};
+    /**
+     * Set the current theme and apply it
+     */
+    setTheme(theme: ThemeMode): void {
+        this.currentTheme = theme;
+        this.applyTheme();
+        this.notifyListeners();
+    }
+
+    /**
+     * Get the current theme mode
+     */
+    getTheme(): ThemeMode {
+        return this.currentTheme;
+    }
+
+    /**
+     * Add a listener that will be called when the theme changes
+     */
+    addListener(listener: (theme: ThemeMode) => void): void {
+        this.listeners.push(listener);
+    }
+
+    /**
+     * Apply the current theme to the document
+     */
+    private applyTheme(): void {
+        // Get the html element
+        const html = document.documentElement;
+
+        logger.debug(`Applying theme: ${this.currentTheme}`);
+
+        // Remove any existing theme classes
+        html.classList.remove('theme-light', 'theme-dark');
+
+        if (this.currentTheme === 'system') {
+            // Use system preference
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const appliedTheme = prefersDarkMode ? 'theme-dark' : 'theme-light';
+            html.classList.add(appliedTheme);
+            logger.debug(`Using system preference: ${appliedTheme}`);
+        } else {
+            // Use selected theme
+            const themeClass = `theme-${this.currentTheme}`;
+            html.classList.add(themeClass);
+            logger.debug(`Applied explicit theme: ${themeClass}`);
+        }
+    }
+
+    /**
+     * Set up a listener for system theme changes
+     */
+    private setupSystemThemeListener(): void {
+        if (this.currentTheme === 'system') {
+            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            logger.debug('Setting up system theme listener');
+
+            try {
+                // Standard approach
+                darkModeMediaQuery.addEventListener('change', () => this.applyTheme());
+                logger.debug('Using standard event listener for theme changes');
+            } catch (error) {
+                // Fallback for older browsers
+                logger.warn('Fallback to legacy event listener for theme changes');
+                try {
+                    darkModeMediaQuery.addListener(() => this.applyTheme());
+                } catch (error) {
+                    logger.error('Failed to set up theme change listener:', error);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notify all listeners about a theme change
+     */
+    private notifyListeners(): void {
+        this.listeners.forEach(listener => listener(this.currentTheme));
+    }
+}

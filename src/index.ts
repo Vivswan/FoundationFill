@@ -7,7 +7,7 @@ import {SettingsView} from './popup/views/Settings';
 import {PopupController} from './popup/Popup';
 
 // Import the theme service and logger
-import {ThemeService} from './utils/theme-service';
+import {ThemeService} from './utils/theme';
 import {createLogger} from './utils/logging';
 
 // Create a logger for the popup
