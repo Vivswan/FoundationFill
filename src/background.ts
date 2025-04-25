@@ -5,7 +5,7 @@ import {createLogger} from './utils/logging';
 import {generateChatCompletion} from './utils/api-service';
 import {API_TIMEOUT, extractDomainFromUrl} from './defaults';
 import {getCurrentTab, markTabReady, sendMessageToTab} from './utils/chrome-api-utils';
-import {filterTemplatesByDomain, getEnabledTemplates} from './utils/template-utils';
+import {filterTemplatesByDomain, getEnabledTemplates} from './popup/models/Template';
 
 // Create a logger instance for this component
 const logger = createLogger('BACKGROUND');

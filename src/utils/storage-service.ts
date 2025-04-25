@@ -1,7 +1,5 @@
 // Combined storage service for Chrome extension
-import {Template} from '../types';
 import {createLogger} from './logging';
-import {DEFAULT_TEMPLATE} from '../defaults';
 
 const logger = createLogger('STORAGE_SERVICE');
 
@@ -101,39 +99,6 @@ export class StorageService {
         }
     }
 
-    /**
-     * Get all templates with default fallback
-     */
-    async getTemplates(): Promise<Template[]> {
-        const templates = await this.getItem<Template[]>('templates', [DEFAULT_TEMPLATE]);
-
-        // Ensure we always have at least one template
-        if (!templates || templates.length === 0) {
-            return [DEFAULT_TEMPLATE];
-        }
-
-        // Make sure the default template exists
-        const hasDefault = templates.some(t => t.isDefault || t.id === 'default');
-        if (!hasDefault) {
-            templates.unshift(DEFAULT_TEMPLATE);
-        }
-
-        return templates;
-    }
-
-    /**
-     * Save templates and notify background script
-     */
-    async saveTemplates(templates: Template[]): Promise<void> {
-        await this.setItem('templates', templates);
-
-        // Notify background script that templates were updated
-        try {
-            chrome.runtime.sendMessage({action: 'templatesUpdated'});
-        } catch (error) {
-            logger.error('Failed to notify background script of template update:', error);
-        }
-    }
 
     /**
      * Checks if Chrome storage API is available

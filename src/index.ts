@@ -1,4 +1,3 @@
-import './utils/chrome-api-debug'; // Import first to initialize debug helpers
 import {PopupController} from './popup/Popup';
 import {createLogger} from './utils/logging';
 
