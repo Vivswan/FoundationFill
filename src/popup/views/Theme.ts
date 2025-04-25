@@ -1,6 +1,6 @@
-import {ThemeMode} from '../../types';
 import {createLogger} from '../../utils/logging';
 
+export type ThemeMode = 'light' | 'dark' | 'system';
 const logger = createLogger('THEME');
 
 /**

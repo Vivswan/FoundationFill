@@ -2,11 +2,19 @@ import {DEFAULT_TEMPLATE} from '../../defaults';
 import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {sendMessageToBackground} from '../../utils/chrome-api-utils';
-import {Template} from '../../types';
+
+export interface Template {
+    id: string;
+    enabled: boolean;
+    name: string;
+    systemPrompt: string;
+    userPrompt: string;
+    includePageContent: boolean;
+    domain: string | null;
+}
 
 // Create a logger for this component
 const logger = createLogger('TEMPLATE');
-
 
 /**
  * Template model that manages templates and provides methods to

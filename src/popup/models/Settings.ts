@@ -1,7 +1,8 @@
-import {Settings, ThemeMode} from '../../types';
 import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {DEFAULT_SETTINGS} from '../../defaults';
+import {Settings} from "../views/Settings";
+import {ThemeMode} from "../views/Theme";
 
 // Create a logger for this component
 const logger = createLogger('SETTINGS_MODEL');

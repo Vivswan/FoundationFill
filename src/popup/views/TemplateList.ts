@@ -1,7 +1,5 @@
-import {Template} from '../../types';
-
 import {createLogger} from '../../utils/logging';
-import {TemplateModel} from "../models/Template";
+import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
 
 // Create a logger for this component

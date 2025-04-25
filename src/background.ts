@@ -1,6 +1,6 @@
 import {GenerateTextMessage, MessageTypes,} from './types';
 import {createLogger} from './utils/logging';
-import {generateChatCompletion} from './utils/api-service';
+import {generateChatCompletion} from './generate/api-service';
 import {API_TIMEOUT} from './defaults';
 
 // Create a logger instance for this component

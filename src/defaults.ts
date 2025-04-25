@@ -1,5 +1,5 @@
-// Central location for default values and constants
-import {Settings, Template} from './types';
+import {Settings} from "./popup/views/Settings";
+import {Template} from "./popup/models/Template";
 
 // Default template that's always present
 export const DEFAULT_TEMPLATE: Template = {
@@ -28,12 +28,6 @@ export const ANIMATION_TIMEOUT = 30000; // 30 seconds
 export const UI_CONSTANTS = {
     TEMPLATE_EDITOR_ID: 'template-editor',
     SETTINGS_PANEL_ID: 'settings-panel'
-};
-
-// Check if a template ID is the default one
-// Note: The full functionality is in the Template.ts module
-export const isDefaultTemplate = (templateId: string): boolean => {
-    return templateId === 'default';
 };
 
 // Domain utility functions

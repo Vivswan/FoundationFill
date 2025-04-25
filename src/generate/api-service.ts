@@ -1,5 +1,5 @@
 // API service for making consistent API requests
-import {createLogger} from './logging';
+import {createLogger} from '../utils/logging';
 import {SettingsModel} from '../popup/models/Settings';
 import {API_TIMEOUT} from '../defaults';
 import {GenerateTextResponse} from "../types";

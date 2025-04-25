@@ -1,5 +1,4 @@
-import {DOMUtils} from "./dom-utils";
-
+import {DOMUtils} from "../utils/dom-utils";
 
 /**
  * Start generating animation in the given DOM element
@@ -32,7 +31,7 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
 
         // Initialize loading text
         loadingDots = '';
-        updateLoadingText(element);
+        DOMUtils.updateText(element, `Generating${loadingDots}`);
 
         // Set up animation interval
         loadingAnimationInterval = window.setInterval(() => {
@@ -41,27 +40,13 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
             if (loadingDots.length > 3) {
                 loadingDots = '.';
             }
-            updateLoadingText(element);
+            DOMUtils.updateText(element, `Generating${loadingDots}`);
         }, 500);
 
         // Auto-stop the animation after ANIMATION_TIMEOUT
         autoStopTimeout = window.setTimeout(() => {
             stopLoadingAnimation();
         }, timeout);
-    }
-
-    // Update the loading text in the element
-    function updateLoadingText(element: HTMLElement): void {
-        const loadingText = `Generating${loadingDots}`;
-
-        if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
-            const inputElement = element as HTMLInputElement | HTMLTextAreaElement;
-            inputElement.value = loadingText;
-            inputElement.dispatchEvent(new Event('input', {bubbles: true}));
-        } else if (element.getAttribute('contenteditable') === 'true') {
-            element.textContent = loadingText;
-            element.dispatchEvent(new Event('input', {bubbles: true}));
-        }
     }
 
     // Start the loading animation

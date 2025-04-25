@@ -1,5 +1,13 @@
-import {Settings} from '../../types';
 import {SettingsModel} from "../models/Settings";
+import {ThemeMode} from "./Theme";
+
+// Settings interface
+export interface Settings {
+    apiKey: string;
+    baseUrl: string;
+    model: string;
+    theme: ThemeMode;
+}
 
 export class SettingsView {
     private settings: SettingsModel;
