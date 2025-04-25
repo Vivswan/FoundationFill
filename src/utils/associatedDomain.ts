@@ -13,8 +13,46 @@ export const extractDomainFromUrl = (url: string): string => {
     }
 };
 
-export const validateDomain = (trueDomain: string, checkDomain: string): boolean => {
-    return trueDomain === checkDomain;
+/**
+ * Validate if a domain matches a pattern with support for wildcards
+ * @param pattern The domain pattern (possibly with wildcards) to match against
+ * @param domain The actual domain to check
+ * @returns True if the domain matches the pattern, false otherwise
+ */
+export const validateDomain = (pattern: string, domain: string): boolean => {
+    // Handle empty cases
+    if (!pattern || !domain) {
+        return false;
+    }
+
+    // Clean and normalize domains for comparison
+    pattern = pattern.trim().toLowerCase();
+    domain = domain.trim().toLowerCase();
+
+    // Exact match check
+    if (pattern === domain) return true;
+
+    // Wildcard pattern handling
+    if (pattern.startsWith('*.')) {
+        const patternBase = pattern.substring(2); // Remove the *. prefix
+
+        // Case 1: Direct domain match
+        if (patternBase === domain) return true;
+
+        // Case 2: Subdomain match
+        // Ensure it's a proper subdomain by checking if domain ends with .patternBase
+        // This prevents *.example.com from matching "badexample.com"
+        if (domain.endsWith('.' + patternBase)) {
+            // Verify there's at least one subdomain character before the dot
+            const subdomainPart = domain.slice(0, domain.length - patternBase.length - 1);
+            if (subdomainPart && subdomainPart.length > 0) {
+                logger.debug(`Domain match (wildcard subdomain): ${domain} matches pattern ${pattern}`);
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 /**

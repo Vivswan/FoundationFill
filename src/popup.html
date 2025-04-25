@@ -55,10 +55,9 @@
             <label for="include-page-content">Web Content</label>
           </div>
 
-          <div class="checkbox-item">
-            <input id="domain-specific" type="checkbox">
-            <label for="domain-specific">Linked</label>
-            <span class="domain-text" id="template-domain"></span>
+          <div class="checkbox-item domains-group">
+            <button class="button-small" id="manage-domains-btn"> Domains <span class="domain-count"
+                                                                                id="domain-count-badge"></span></button>
           </div>
 
           <button class="button-primary" id="generate-btn">Test Prompt</button>
@@ -108,6 +107,36 @@
         </div>
       </div>
     </div>
+</div>
+<!-- Domain Management Dialog -->
+<div class="dialog hidden" id="domain-dialog">
+  <div class="dialog-content">
+    <div class="dialog-header">
+      <h3>Manage Domains</h3>
+      <button class="close-btn" id="close-domain-dialog">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <p class="dialog-info">Add domains to link this template to specific websites. Use * for wildcards (e.g.,
+        *.example.com).</p>
+
+      <div class="domain-list" id="domain-list">
+        <!-- Domains will be populated here -->
+      </div>
+
+      <div class="domain-input-group">
+        <input id="new-domain-input" placeholder="Enter domain (e.g., example.com or *.example.com)" type="text">
+        <button class="button-primary" id="add-domain-btn">Add</button>
+      </div>
+
+      <div class="current-domain-info">
+        <p>Current page domain: <span id="current-page-domain"></span></p>
+        <button class="button-secondary" id="add-current-domain-btn">Add Current Domain</button>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="button-primary" id="save-domains-btn">Save</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>

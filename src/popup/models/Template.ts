@@ -19,7 +19,7 @@ export interface Template {
     systemPrompt: string;
     userPrompt: string;
     includePageContent: boolean;
-    associatedDomain: string | null;
+    associatedDomains: string[];
 }
 
 // Create a logger for this component
@@ -68,6 +68,11 @@ export class TemplateModel {
         return this.activeTemplateId;
     }
 
+    getActiveTemplate(): Template | null {
+        const template = this.templates.find((t) => t.id === this.activeTemplateId);
+        return template ? JSON.parse(JSON.stringify(template)) : null;
+    }
+
     /**
      * Create a new template
      */
@@ -97,7 +102,7 @@ export class TemplateModel {
             id: updateId,
         }
 
-        if (updateId == DEFAULT_TEMPLATE.id) this.templates[templateIndex].associatedDomain = null;
+        if (updateId == DEFAULT_TEMPLATE.id) this.templates[templateIndex].associatedDomains = [];
 
         await this.saveTemplates();
         return JSON.parse(JSON.stringify(template));
@@ -148,8 +153,8 @@ export class TemplateModel {
                 systemPrompt: template.systemPrompt || '',
                 userPrompt: template.userPrompt || '',
                 includePageContent: template.includePageContent ?? false,
-                associatedDomain: template.associatedDomain,
-            }));
+                associatedDomains: template.associatedDomains || [],
+            } as Template));
 
         validTemplates.unshift(defaultTemplate);
         // Update templates and save
@@ -179,8 +184,8 @@ export class TemplateModel {
      */
     getTemplatesForDomain(domain: string): Template[] {
         return this.templates.filter(template => {
-            if (template.associatedDomain === null) return true;
-            return validateDomain(template.associatedDomain, domain);
+            if (!template.associatedDomains || template.associatedDomains.length === 0) return true;
+            return template.associatedDomains.some(pattern => validateDomain(pattern, domain));
         });
     }
 
