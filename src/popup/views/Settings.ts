@@ -2,36 +2,24 @@ import {Settings} from '../../types';
 
 export class SettingsView {
   // DOM elements
-  private settingsPanel: HTMLElement;
-  private apiKeyInput: HTMLInputElement;
-  private baseUrlInput: HTMLInputElement;
-  private modelInput: HTMLInputElement;
-  private themeLightInput: HTMLInputElement;
-  private themeDarkInput: HTMLInputElement;
-  private themeSystemInput: HTMLInputElement;
-  private settingsStatus: HTMLElement;
-  private settingsBtn: HTMLElement;
+  private readonly settingsPanel: HTMLElement = document.getElementById('settings-panel') as HTMLElement;
+  private readonly apiKeyInput: HTMLInputElement = document.getElementById('api-key') as HTMLInputElement;
+  private readonly baseUrlInput: HTMLInputElement = document.getElementById('base-url') as HTMLInputElement;
+  private readonly modelInput: HTMLInputElement = document.getElementById('model') as HTMLInputElement;
+  private readonly themeLightInput: HTMLInputElement = document.getElementById('theme-light') as HTMLInputElement;
+  private readonly themeDarkInput: HTMLInputElement = document.getElementById('theme-dark') as HTMLInputElement;
+  private readonly themeSystemInput: HTMLInputElement = document.getElementById('theme-system') as HTMLInputElement;
+  private readonly settingsStatus: HTMLElement = document.getElementById('settings-status') as HTMLElement;
+  private readonly settingsBtn: HTMLElement = document.getElementById('settings-btn') as HTMLElement;
 
   // Status timeout
   private statusTimeout: number | null = null;
 
   // Event callbacks
   private onInputChangeCallback: ((key: keyof Settings, value: string) => void) | null = null;
-  private onDoneCallback: (() => void) | null = null;
   private onShowCallback: (() => void) | null = null;
 
   constructor() {
-    // Get DOM elements
-    this.settingsPanel = document.getElementById('settings-panel') as HTMLElement;
-    this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
-    this.baseUrlInput = document.getElementById('base-url') as HTMLInputElement;
-    this.modelInput = document.getElementById('model') as HTMLInputElement;
-    this.themeLightInput = document.getElementById('theme-light') as HTMLInputElement;
-    this.themeDarkInput = document.getElementById('theme-dark') as HTMLInputElement;
-    this.themeSystemInput = document.getElementById('theme-system') as HTMLInputElement;
-    this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
-    this.settingsBtn = document.getElementById('settings-btn') as HTMLElement;
-
     // Add event listeners
     this.settingsBtn.addEventListener('click', () => {
       if (this.onShowCallback) {
@@ -122,17 +110,12 @@ export class SettingsView {
     this.statusTimeout = setTimeout(() => {
       this.settingsStatus.textContent = '';
       this.statusTimeout = null;
-    }, 2000);
+    }, 1000);
   }
 
   // Set the onInputChange callback
   onSettingChange(callback: (key: keyof Settings, value: string) => void): void {
     this.onInputChangeCallback = callback;
-  }
-
-  // Set the onDone callback
-  onDone(callback: () => void): void {
-    this.onDoneCallback = callback;
   }
 
   // Set the onShow callback

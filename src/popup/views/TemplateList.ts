@@ -6,25 +6,21 @@ import {createLogger} from '../../utils/logging';
 const logger = createLogger('TEMPLATE_LIST_VIEW');
 
 export class TemplateListView {
-    private templateList: HTMLElement;
-    private newTemplateBtn: HTMLElement;
+    private readonly templateList: HTMLElement = document.getElementById('template-list') as HTMLElement;
+    private readonly newTemplateBtn: HTMLElement = document.getElementById('new-template-btn') as HTMLElement;
 
     // Event callbacks
     private onSelectCallback: ((templateId: string) => void) | null = null;
     private onNewTemplateCallback: (() => void) | null = null;
     private onEditNameCallback: ((templateId: string, newName: string) => void) | null = null;
 
-    constructor(templateListId: string, newTemplateBtnId: string) {
+    constructor() {
         logger.debug('Initializing TemplateListView');
-
-        this.templateList = document.getElementById(templateListId) as HTMLElement;
         if (!this.templateList) {
-            logger.error('Template list element not found with ID:', templateListId);
+            logger.error('Template list element not found');
         }
-
-        this.newTemplateBtn = document.getElementById(newTemplateBtnId) as HTMLElement;
         if (!this.newTemplateBtn) {
-            logger.error('New template button element not found with ID:', newTemplateBtnId);
+            logger.error('New template button element not found');
         }
 
         // Add event listener for new template button

@@ -105,10 +105,6 @@ export class PopupController {
       this.handleShowSettings();
     });
 
-    this.settingsView.onDone(() => {
-      this.handleHideSettings();
-    });
-
     this.settingsView.onSettingChange((key, value) => {
       this.handleSettingValueChange(key, value);
     });

@@ -6,43 +6,44 @@ import {TemplateEditorView} from './popup/views/TemplateEditor';
 import {SettingsView} from './popup/views/Settings';
 import {PopupController} from './popup/Popup';
 
-// Import the theme service
+// Import the theme service and logger
 import {ThemeService} from './utils/theme-service';
+import {createLogger} from './utils/logging';
+
+// Create a logger for the popup
+const logger = createLogger('Popup');
 
 // Initialize popup
-console.log("[Popup] Starting main initialization");
+logger.info("Starting main initialization");
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    console.log("[Popup] DOM content loaded, initializing components");
+    logger.info("DOM content loaded, initializing components");
 
     // Initialize models
     const templateModel = new TemplateModel();
     const settingsModel = new SettingsModel();
 
-    console.log("[Popup] Models initialized");
+    logger.info("Models initialized");
 
     // Load settings to get theme
     const settings = await settingsModel.loadSettings();
-
-    console.log("[Popup] Settings loaded:", settings);
-
-    // Initialize theme service
     const themeService = new ThemeService(settings.theme);
+
+    logger.debug("Settings loaded", settings);
 
     // Set up a theme listener on the settings model
     settingsModel.onChange((updatedSettings) => {
       themeService.setTheme(updatedSettings.theme);
     });
 
-    console.log("[Popup] Theme setup complete");
+    logger.info("Theme setup complete");
 
     // Initialize views
-    console.log("[Popup] Initializing views");
+    logger.info("Initializing views");
 
-    const templateListView = new TemplateListView('template-list', 'new-template-btn');
-
+    const templateListView = new TemplateListView();
     const templateEditorView = new TemplateEditorView(
         'template-editor',
         'system-prompt',
@@ -58,10 +59,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const settingsView = new SettingsView();
 
-    console.log("[Popup] Views initialized");
+    logger.info("Views initialized");
 
     // Initialize controller
-    console.log("[Popup] Creating controller");
+    logger.info("Creating controller");
     const popupController = new PopupController(
         templateModel,
         settingsModel,
@@ -71,11 +72,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 
     // Initialize the application
-    console.log("[Popup] Initializing application");
+    logger.info("Initializing application");
     await popupController.initialize();
-    console.log("[Popup] Application initialized");
+    logger.info("Application initialized");
 
   } catch (error) {
-    console.error("[Popup] Error in initialization:", error);
+    logger.error("Error in initialization", error);
   }
 });
