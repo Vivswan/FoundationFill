@@ -1,4 +1,5 @@
 import {Template} from '../../types';
+import {getCurrentDomain} from "../../utils/chrome-api-utils";
 
 export class TemplateEditorView {
     // DOM elements
@@ -32,22 +33,46 @@ export class TemplateEditorView {
             }
         });
 
-        // Domain-specific checkbox handler for immediate UI updates
-        this.domainSpecificCheckbox.addEventListener('change', () => {
-            // Update domain display immediately on checkbox change
-            if (this.domainSpecificCheckbox.checked) {
-                this.templateDomainSpan.style.display = 'inline';
-            } else {
-                this.templateDomainSpan.style.display = 'none';
-            }
-            this.handleInputChange();
-        });
 
         // Auto-save template on input changes
-        this.systemPromptInput.addEventListener('input', () => this.handleInputChange());
-        this.userPromptInput.addEventListener('input', () => this.handleInputChange());
-        this.templateEnabledCheckbox.addEventListener('change', () => this.handleInputChange());
-        this.includePageContentCheckbox.addEventListener('change', () => this.handleInputChange());
+        this.systemPromptInput.addEventListener('input', () => {
+            if (this.onInputChangeCallback) {
+                this.onInputChangeCallback({
+                    systemPrompt: this.systemPromptInput.value,
+                } as Partial<Template>);
+            }
+        });
+        this.userPromptInput.addEventListener('input', () => {
+            if (this.onInputChangeCallback) {
+                this.onInputChangeCallback({
+                    userPrompt: this.userPromptInput.value,
+                } as Partial<Template>);
+            }
+        });
+        this.templateEnabledCheckbox.addEventListener('change', () => {
+            if (this.onInputChangeCallback) {
+                this.onInputChangeCallback({
+                    enabled: this.templateEnabledCheckbox.checked,
+                } as Partial<Template>);
+            }
+        });
+        this.includePageContentCheckbox.addEventListener('change', () => {
+            if (this.onInputChangeCallback) {
+                this.onInputChangeCallback({
+                    includePageContent: this.includePageContentCheckbox.checked,
+                } as Partial<Template>);
+            }
+        });
+
+        this.domainSpecificCheckbox.addEventListener('change', () => {
+            this.setTemplateDomain();
+            if (this.onInputChangeCallback) {
+                this.onInputChangeCallback({
+                    domainSpecific: this.domainSpecificCheckbox.checked,
+                    domain: this.domainSpecificCheckbox.checked ? getCurrentDomain() : '',
+                } as Partial<Template>);
+            }
+        });
     }
 
     // Show the template editor
@@ -61,9 +86,8 @@ export class TemplateEditorView {
     }
 
     // Set the template domain display
-    setTemplateDomain(domain: string): void {
+    setTemplateDomain(): void {
         if (this.domainSpecificCheckbox.checked) {
-            this.templateDomainSpan.textContent = domain;
             this.templateDomainSpan.style.display = 'inline';
         } else {
             this.templateDomainSpan.style.display = 'none';
@@ -77,28 +101,20 @@ export class TemplateEditorView {
         this.templateEnabledCheckbox.checked = template.enabled;
         this.includePageContentCheckbox.checked = template.includePageContent;
         this.generatedTextArea.value = '';
+        this.templateDomainSpan.textContent = '';
+        this.templateDomainSpan.style.display = 'none';
 
         // Hide/show delete button based on default template status
         if (isDefault) {
             this.deleteTemplateBtn.style.visibility = 'hidden';
             this.deleteTemplateBtn.disabled = true;
             this.deleteTemplateBtn.title = 'Default template cannot be deleted';
-
-            // Hide domain-specific UI for default template
-            const domainSpecificContainer = this.domainSpecificCheckbox.closest('.checkbox-item');
-            if (domainSpecificContainer instanceof HTMLElement) {
-                domainSpecificContainer.style.display = 'none';
-            }
+            (this.domainSpecificCheckbox.parentElement as HTMLElement).style.display = 'none';
         } else {
             this.deleteTemplateBtn.style.visibility = 'visible';
             this.deleteTemplateBtn.disabled = false;
             this.deleteTemplateBtn.title = 'Delete this template';
-
-            // Show domain-specific UI for non-default templates
-            const domainSpecificContainer = this.domainSpecificCheckbox.closest('.checkbox-item');
-            if (domainSpecificContainer instanceof HTMLElement) {
-                domainSpecificContainer.style.display = 'flex';
-            }
+            (this.domainSpecificCheckbox.parentElement as HTMLElement).style.display = 'flex';
 
             // Set domain-specific checkbox and update domain display
             this.domainSpecificCheckbox.checked = template.domainSpecific;
@@ -106,8 +122,6 @@ export class TemplateEditorView {
             if (template.domainSpecific && template.domain) {
                 this.templateDomainSpan.textContent = template.domain;
                 this.templateDomainSpan.style.display = 'inline';
-            } else {
-                this.templateDomainSpan.style.display = 'none';
             }
         }
     }
@@ -152,18 +166,5 @@ export class TemplateEditorView {
     // Set the onInputChange callback
     onTemplateFieldChange(callback: (template: Partial<Template>) => void): void {
         this.onInputChangeCallback = callback;
-    }
-
-    // Handle input changes
-    private handleInputChange(): void {
-        if (this.onInputChangeCallback) {
-            this.onInputChangeCallback({
-                systemPrompt: this.systemPromptInput.value,
-                userPrompt: this.userPromptInput.value,
-                enabled: this.templateEnabledCheckbox.checked,
-                includePageContent: this.includePageContentCheckbox.checked,
-                domainSpecific: this.domainSpecificCheckbox.checked
-            });
-        }
     }
 }
