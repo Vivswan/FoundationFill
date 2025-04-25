@@ -4,14 +4,12 @@ import {Settings, Template} from './types';
 // Default template that's always present
 export const DEFAULT_TEMPLATE: Template = {
     id: 'default',
+    enabled: true,
     name: 'Default Template',
     systemPrompt: 'You are a helpful assistant.',
     userPrompt: '',
-    enabled: true,
+    domain: null,
     includePageContent: false,
-    domainSpecific: false,
-    domain: '',
-    isDefault: true
 };
 
 // Default settings for the extension
@@ -31,7 +29,8 @@ export const UI_CONSTANTS = {
     SETTINGS_PANEL_ID: 'settings-panel'
 };
 
-// Template utility functions
+// Check if a template ID is the default one
+// Note: The full functionality is in the Template.ts module
 export const isDefaultTemplate = (templateId: string): boolean => {
     return templateId === 'default';
 };

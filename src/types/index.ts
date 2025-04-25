@@ -1,14 +1,12 @@
 // Template interface
 export interface Template {
   id: string;
+  enabled: boolean;
   name: string;
   systemPrompt: string;
   userPrompt: string;
-  enabled: boolean;
   includePageContent: boolean;
-  domainSpecific: boolean;
-  domain: string;
-  isDefault?: boolean;
+  domain: string | null;
 }
 
 // Theme options
