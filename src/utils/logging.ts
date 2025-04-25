@@ -1,4 +1,8 @@
-// Central logging utility for consistent logging across the extension
+/**
+ * Logging Utility
+ * Provides centralized, color-coded logging for the extension
+ * Creates component-specific loggers with consistent formatting
+ */
 
 // Different log types with associated colors for better visibility
 const LOG_COLORS = {

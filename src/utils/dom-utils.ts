@@ -1,6 +1,12 @@
+/**
+ * DOM Utilities
+ * Provides helper functions for working with DOM elements
+ * Handles cross-browser compatibility for text input manipulation
+ */
 
 /**
- * DOM Service class that combines functionality from dom-utils.ts and dom-service.ts
+ * DOM Service class that provides utilities for DOM manipulation
+ * Handles different types of text inputs (textarea, input, contenteditable)
  */
 export class DOMUtils {
     static isTextInput(element: HTMLElement | null): boolean {

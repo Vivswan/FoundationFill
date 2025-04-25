@@ -1,3 +1,8 @@
+/**
+ * Settings Model
+ * Manages user settings for the extension, including API configuration and theme
+ * Provides methods for getting and updating settings with storage persistence
+ */
 import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {DEFAULT_SETTINGS} from '../../defaults';
@@ -9,6 +14,7 @@ const logger = createLogger('SETTINGS_MODEL');
 
 /**
  * Settings model that handles retrieving and saving user settings
+ * Provides observability through change listeners
  */
 export class SettingsModel {
     private settings: Settings = DEFAULT_SETTINGS;

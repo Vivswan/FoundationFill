@@ -1,11 +1,17 @@
-// API service for making consistent API requests
+/**
+ * API Service - Handles communication with external LLM APIs
+ * Provides consistent interface for text generation requests
+ */
 import {createLogger} from '../utils/logging';
 import {SettingsModel} from '../popup/models/Settings';
 import {API_TIMEOUT} from '../defaults';
-import {GenerateTextResponse} from "../types";
+import {GenerateTextMessage} from "../utils/types";
 
 const logger = createLogger('API');
 
+/**
+ * Interface representing a chat message in the API request format
+ */
 interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
     content: string;
@@ -16,6 +22,36 @@ interface APIRequestOptions {
     userPrompt: string;
     pageContent?: string;
     timeout?: number;
+}
+
+export interface GenerateTextResponse {
+    success: boolean;
+    text?: string;
+    error?: string;
+}
+
+// Handle generate text action
+export async function handleGenerateText(
+    request: GenerateTextMessage,
+    sendResponse: (response?: GenerateTextResponse) => void
+): Promise<void> {
+    logger.debug('Handling generate text request');
+
+    // Use the api-service utility to generate text
+    const response = await generateChatCompletion({
+        systemPrompt: request.systemPrompt,
+        userPrompt: request.userPrompt,
+        pageContent: request.pageContent,
+        timeout: API_TIMEOUT
+    });
+
+    // Return the response
+    logger.debug(`Generation ${response.success ? 'succeeded' : 'failed'}`);
+    if (!response.success) {
+        logger.error(`API error: ${response.error}`);
+    }
+
+    sendResponse(response);
 }
 
 /**

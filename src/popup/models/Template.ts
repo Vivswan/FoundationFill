@@ -1,8 +1,16 @@
+/**
+ * Template Model
+ * Manages the templates data, including creation, updates, and storage
+ * Provides methods for filtering templates by domain and enabled status
+ */
 import {DEFAULT_TEMPLATE} from '../../defaults';
 import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {sendMessageToBackground} from '../../utils/chrome-api-utils';
 
+/**
+ * Interface representing a template for text generation
+ */
 export interface Template {
     id: string;
     enabled: boolean;
@@ -33,7 +41,7 @@ export class TemplateModel {
     /**
      * Initialize the model by loading templates from storage
      */
-    async initialize(): Promise<void> {
+    async initialize(): Promise<TemplateModel> {
         logger.debug('Loading templates');
         this.templates = await this.storageService.getItem<Template[]>('templates', [DEFAULT_TEMPLATE]);
 
@@ -42,6 +50,7 @@ export class TemplateModel {
 
         // Notify listeners on initialization
         this.notifyListeners();
+        return this;
     }
 
     setActiveTemplateId(id: string): void {
@@ -117,12 +126,16 @@ export class TemplateModel {
         return JSON.parse(JSON.stringify(this.templates));
     }
 
+    getEnabledTemplates() {
+        return this.templates.filter(template => template.enabled);
+    }
+
     /**
      * Get templates that apply to a specific domain
      */
     getTemplatesForDomain(domain: string): Template[] {
         return this.templates.filter(template => {
-            if (template.domain !== null) return true;
+            if (template.domain === null) return true;
             return template.domain === domain;
         });
     }
@@ -173,12 +186,5 @@ export class TemplateModel {
                 logger.error('Error in template change listener:', error);
             }
         });
-    }
-
-    /**
-     * Check if a template is the default template
-     */
-    isDefaultTemplate(templateId: string): boolean {
-        return templateId === DEFAULT_TEMPLATE.id;
     }
 }

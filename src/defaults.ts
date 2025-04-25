@@ -1,7 +1,15 @@
+/**
+ * Default Values and Constants
+ * Central location for application defaults and constant values
+ * Includes defaults for templates, settings, and other configuration
+ */
 import {Settings} from "./popup/views/Settings";
 import {Template} from "./popup/models/Template";
 
-// Default template that's always present
+/**
+ * Default template that's always present in the system
+ * Serves as a base template and cannot be deleted
+ */
 export const DEFAULT_TEMPLATE: Template = {
     id: 'default',
     enabled: true,

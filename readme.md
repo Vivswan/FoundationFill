@@ -1,38 +1,64 @@
 # Foundation Fill
 
-A Chrome extension for filling text fields with predefined system prompt templates.
+A Chrome extension for filling text fields with predefined system prompt templates and generating text using LLM APIs.
+
+## Overview
+
+Foundation Fill helps you quickly populate text fields with custom templates. It's especially useful for:
+
+- Software engineers creating boilerplate code snippets
+- Writers using consistent prompts for AI tools
+- Support teams using standardized response templates
+- Researchers using specific instructions for AI assistants
 
 ## Features
 
-- Create, edit, and manage templates for text field filling
+- Create, edit, and manage reusable templates
 - Customize system prompts and user prompts
-- Domain-specific templates
-- Include page content in prompt generation
-- Context menu integration for quick access
-- Light/dark/system theme support
-- Generate text with API integration
+- Domain-specific templates (only appear on specific websites)
+- Include page content in prompt generation for contextual responses
+- Context menu integration for quick access to templates
+- Light/dark/system theme support to match your browser
+- Text generation via customizable API integration
+- Animation during text generation for better user feedback
+
+## Installation
+
+### From Chrome Web Store (Recommended)
+
+1. Visit the [Chrome Web Store page](https://chrome.google.com/webstore/detail/foundation-fill/TBD)
+2. Click "Add to Chrome"
+3. Accept the permissions
+
+### Manual Installation (Development)
+
+1. Clone the repository or download the source code
+2. Follow the development setup instructions below
+3. Load the extension in Chrome's developer mode
+
+## Usage
+
+1. **Create Templates**: Open the extension popup and create templates with system prompts and user prompts
+2. **Use Templates**: Right-click on any text field while browsing and select your template from the context menu
+3. **Domain-Specific Templates**: Set templates to only appear on specific websites
+4. **Generate Text**: Configure API settings to use an LLM for generating content based on your templates
 
 ## Project Structure
 
 ```
 foundation-fill/
 ├── scripts/           # Build scripts and configuration
-│   ├── clean-rebuild.js  # Clean build script
-│   ├── esbuild.config.js # ESBuild configuration
+│   ├── bun.config.js  # Bun build configuration
 │   └── generate-icons.js # Script to generate PNG icons from SVG
-├── dist/              # Build output directory
 ├── src/               # Source code
-│   ├── assets/        # Static assets
-│   │   ├── css/       # Stylesheets
-│   │   └── images/    # Icons and images
-│   ├── background/    # Background script
-│   ├── content/       # Content script
-│   ├── controllers/   # Controllers for application components
-│   ├── popup/         # Popup UI
+│   ├── assets/        # Static assets (CSS, images, js)
+│   ├── background.ts  # Background service worker
+│   ├── content.ts     # Content script for web page interaction
+│   ├── defaults.ts    # Default settings and templates
+│   ├── generate/      # Text generation functionality
+│   ├── popup/         # Popup UI components
 │   │   ├── models/    # Data models
-│   │   ├── views/     # UI components
-│   │   └── popup.html # Popup HTML template
-│   ├── types/         # TypeScript type definitions
+│   │   └── views/     # UI components
 │   └── utils/         # Utility functions and services
 ├── manifest.json      # Extension manifest
 └── tsconfig.json      # TypeScript configuration
@@ -42,75 +68,70 @@ foundation-fill/
 
 ### Prerequisites
 
-- Node.js and npm
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [Bun](https://bun.sh/) for faster builds
+- Chrome/Chromium browser
 
 ### Setup
 
 1. Clone the repository
-2. Install dependencies:
+   ```bash
+   git clone https://github.com/yourusername/foundation-fill.git
+   cd foundation-fill
+   ```
 
-```bash
-npm install
-```
+2. Install dependencies
+   ```bash
+   npm install
+   ```
 
-3. Build the extension:
-
-```bash
-npm run build
-```
+3. Build the extension
+   ```bash
+   npm run build
+   ```
 
 4. Load the unpacked extension from the `dist` directory in Chrome:
-    - Go to `chrome://extensions/`
-    - Enable Developer mode
-    - Click "Load unpacked" and select the `dist` directory
+   - Go to `chrome://extensions/`
+   - Enable Developer mode
+   - Click "Load unpacked" and select the `dist` directory
 
 ### Commands
 
-- `npm run build` - Build the extension using ESBuild
-- `npm run clean-build` - Clean and rebuild the entire extension (production build)
+- `npm run build` - Build the extension using Bun
 - `npm run dev` - Start development mode with file watching
-- `npm run lint` - Run linting
+- `npm run lint` - Run ESLint linting
 - `npm run typecheck` - Run TypeScript type checking
 - `npm run generate-icons` - Generate PNG icons from SVG source
 
 ### Build System
 
-Foundation Fill uses ESBuild for fast, efficient builds:
+Foundation Fill uses Bun for fast, efficient builds:
 
-- **Fast Builds**: ESBuild compiles TypeScript much faster than webpack
+- **Fast Builds**: Bun compiles TypeScript much faster than traditional bundlers
 - **Development Mode**: `npm run dev` watches for file changes and rebuilds automatically
-- **Production Mode**: `npm run clean-build` creates optimized production builds
 - **Automatic Asset Handling**: CSS and images are automatically copied to the dist folder
+- **Icon Generation**: SVG icons are automatically converted to PNG in multiple resolutions
 
 ## Architecture
 
-The project follows a simplified Model-View-Controller (MVC) architecture with service-oriented components:
+The project follows a Model-View architecture with service-oriented components. See [architecture.md](architecture.md)
+for a detailed diagram and explanation.
 
-- **Models**: Handle data and business logic
-    - `Template`: Manages templates data
-    - `Settings`: Manages extension settings
-
+- **Models**: Handle data and business logic (Template, Settings)
 - **Views**: Render the UI and handle user interactions
-    - `TemplateList`: Renders the template list
-    - `TemplateEditor`: Renders the template editor
-    - `Settings`: Renders the settings panel
-
-- **Controllers**: Connect models and views
-    - `Popup`: Orchestrates popup UI interactions
-
-- **Services**: Provide reusable functionality
-    - `StorageService`: Centralized storage access
-    - `TemplateService`: Template operations and validation
-    - `ThemeService`: Theme management
-    - `MessageService`: Cross-component communication
-    - `DOMService`: DOM manipulation utilities
-
-## Extension Components
-
+- **Services**: Provide reusable functionality (Storage, API, Theme)
 - **Background Script**: Handles context menu, API calls, and messaging
-- **Content Script**: Fills text fields and shows template selector
-- **Popup**: Main UI for managing templates and settings
-- **Utils**: Common utilities for storage, API access, and Chrome integration
+- **Content Script**: Fills text fields and manages text insertion
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 

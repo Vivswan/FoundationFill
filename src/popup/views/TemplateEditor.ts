@@ -1,7 +1,6 @@
-import {getCurrentDomain,} from "../../utils/chrome-api-utils";
+import {getCurrentDomain, getCurrentPageContent} from "../../utils/chrome-api-utils";
 import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
-
 import {generateTextWithAnimation} from "../../generate/toElement";
 
 export class TemplateEditorView {
@@ -127,6 +126,8 @@ export class TemplateEditorView {
     async generate(): Promise<void> {
         const templateData = this.template.getTemplates()
             .find(t => t.id === this.template.getActiveTemplateId());
-        return generateTextWithAnimation(this.generatedTextArea, templateData);
+
+        if (!templateData) return;
+        return generateTextWithAnimation(this.generatedTextArea, templateData, await getCurrentPageContent());
     }
 }

@@ -1,14 +1,25 @@
-import {GenerateTextMessage, GenerateTextResponse} from "../types";
+/**
+ * Text Generation UI Handler
+ * Manages the process of generating text and displaying it in the DOM with animation
+ */
+import {GenerateTextMessage} from "../utils/types";
 import {generatingAnimation} from "./animation";
-import {executeScriptInTab, getCurrentTab, sendMessageToBackground} from "../utils/chrome-api-utils";
+import {sendMessageToBackground} from "../utils/chrome-api-utils";
 import {ANIMATION_TIMEOUT} from "../defaults";
 import {createLogger} from "../utils/logging";
 import {DOMUtils} from "../utils/dom-utils";
 import {Template} from "../popup/models/Template";
+import {GenerateTextResponse} from "./api-service";
 
 const logger = createLogger('GENERATE_TEXT');
 
-export const generateTextWithAnimation = async (element: HTMLElement, templateData: Template | undefined | null): Promise<void> => {
+/**
+ * Generates text using API and inserts it into the specified element with animation
+ * @param element - The DOM element to insert text into
+ * @param templateData - The template data containing prompts
+ * @param pageContent - The current page content for context
+ */
+export const generateTextWithAnimation = async (element: HTMLElement, templateData: Template | undefined | null, pageContent: string): Promise<void> => {
     if (!templateData) {
         logger.error('Error: Template not found');
         DOMUtils.updateText(element, 'Error: Template not found');
@@ -18,18 +29,6 @@ export const generateTextWithAnimation = async (element: HTMLElement, templateDa
         logger.error('Error: User prompt is empty');
         DOMUtils.updateText(element, 'Error: User prompt is empty');
         return;
-    }
-
-    let pageContent = '';
-    try {
-        if (templateData.includePageContent) {
-            const tab = await getCurrentTab();
-            if (tab?.id) {
-                pageContent = await executeScriptInTab(tab.id, () => document.body.innerText) || '';
-            }
-        }
-    } catch (error) {
-        logger.error('Error getting page content:', error);
     }
 
     const stopCallback = generatingAnimation(element, ANIMATION_TIMEOUT);

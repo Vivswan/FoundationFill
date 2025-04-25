@@ -1,7 +1,15 @@
+/**
+ * Animation Service
+ * Provides loading animation while text is being generated
+ * Handles timeouts and cleanup of animation intervals
+ */
 import {DOMUtils} from "../utils/dom-utils";
 
 /**
- * Start generating animation in the given DOM element
+ * Starts a "Generating..." animation in the given DOM element
+ * @param domElement - The DOM element to show animation in (usually a text field)
+ * @param timeout - Maximum time to show animation before auto-stopping (ms)
+ * @returns Function to stop the animation manually
  */
 export function generatingAnimation(domElement: HTMLElement, timeout: number): () => void {
     if (!DOMUtils.isTextInput(domElement)) return () => {

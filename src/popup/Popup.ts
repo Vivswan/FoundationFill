@@ -1,4 +1,4 @@
-import {Panel} from '../types';
+import {Panel} from '../utils/types';
 import {TemplateModel} from './models/Template';
 import {SettingsModel} from './models/Settings';
 import {TemplateListView} from './views/TemplateList';

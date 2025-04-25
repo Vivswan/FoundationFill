@@ -1,11 +1,16 @@
-// Combined storage service for Chrome extension
+/**
+ * Storage Service
+ * Provides a unified interface for Chrome extension storage operations
+ * Handles error cases, logging, and type safety for stored data
+ */
 import {createLogger} from './logging';
 
 const logger = createLogger('STORAGE_SERVICE');
 
 /**
  * Storage service that handles all storage operations for the extension
- * Combines functionality from chrome-storage.ts and storage-service.ts
+ * Provides methods for getting, setting, and removing items with proper typing
+ * Includes fallbacks and error handling for all operations
  */
 export class StorageService {
     /**
