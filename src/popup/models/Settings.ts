@@ -12,8 +12,6 @@ const logger = createLogger('SETTINGS_MODEL');
 export class SettingsModel {
     private settings: Settings = DEFAULT_SETTINGS;
     private storageService: StorageService;
-
-    // Callbacks for settings changes
     private changeListeners: ((settings: Settings) => void)[] = [];
 
     constructor() {
@@ -23,24 +21,26 @@ export class SettingsModel {
     /**
      * Load settings from storage
      */
-    async loadSettings(): Promise<Settings> {
-        logger.debug('Loading settings');
+    async initialize(): Promise<void> {
         this.settings = await this.getSettingsFromStorage();
         logger.debug('Settings loaded:', this.settings);
-        return this.settings;
+    }
+
+    getSetting(key: keyof Settings): Settings[keyof Settings] {
+        return this.settings[key] as Settings[keyof Settings];
     }
 
     /**
      * Get the current settings
      */
     getSettings(): Settings {
-        return this.settings;
+        return JSON.parse(JSON.stringify(this.settings));
     }
 
     /**
      * Update a single setting
      */
-    async updateSetting(key: keyof Settings, value: string): Promise<Settings> {
+    async updateSetting(key: keyof Settings, value: string): Promise<void> {
         logger.debug(`Updating setting ${key} to:`, value);
         if (key === 'theme') {
             // Make sure theme is valid
@@ -49,22 +49,6 @@ export class SettingsModel {
             this.settings[key] = value;
         }
         await this.saveSettings();
-        return this.settings;
-    }
-
-    /**
-     * Update partial settings
-     */
-    async updateSettings(partialSettings: Partial<Settings>): Promise<Settings> {
-        const currentSettings = await this.getSettingsFromStorage();
-        const updatedSettings = {...currentSettings, ...partialSettings};
-        await this.saveSettingsToStorage(updatedSettings);
-        this.settings = updatedSettings;
-
-        // Notify all listeners
-        this.notifyListeners();
-
-        return updatedSettings;
     }
 
     /**
@@ -89,7 +73,7 @@ export class SettingsModel {
      */
     onChange(callback: (settings: Settings) => void): () => void {
         this.changeListeners.push(callback);
-        
+
         // Return a function to remove this listener
         return () => {
             this.changeListeners = this.changeListeners.filter(listener => listener !== callback);
@@ -100,22 +84,11 @@ export class SettingsModel {
      * Save settings to storage
      */
     private async saveSettings(): Promise<void> {
-        logger.debug('Saving settings');
-        await this.saveSettingsToStorage(this.settings);
-        logger.debug('Settings saved successfully');
+        await this.storageService.setItem('settings', this.settings);
 
-        // Notify all listeners
-        this.notifyListeners();
-    }
-
-    /**
-     * Notify all listeners of settings changes
-     */
-    private notifyListeners(): void {
-        logger.debug('Notifying settings change listeners');
         this.changeListeners.forEach(listener => {
             try {
-                listener(this.settings);
+                listener(JSON.parse(JSON.stringify(this.settings)));
             } catch (error) {
                 logger.error('Error in settings change listener:', error);
             }
@@ -126,28 +99,10 @@ export class SettingsModel {
      * Retrieve settings from storage
      */
     private async getSettingsFromStorage(): Promise<Settings> {
-        try {
-            // Use the generic item getter for non-essential operations
-            const settingsObj: Settings = await this.storageService.getItem<Settings>('settings', DEFAULT_SETTINGS);
-
-            // Ensure all required settings exist
-            for (const setting of Object.keys(DEFAULT_SETTINGS)) {
-                if (setting in settingsObj) continue;
-                // @ts-expect-error: TypeScript doesn't know that settingsObj is of type Settings
-                settingsObj[setting] = DEFAULT_SETTINGS[setting] as string;
-            }
-
-            return settingsObj;
-        } catch (error) {
-            logger.error('Error getting settings:', error);
-            return DEFAULT_SETTINGS;
-        }
-    }
-
-    /**
-     * Save settings to storage
-     */
-    private async saveSettingsToStorage(settings: Settings): Promise<void> {
-        return this.storageService.setItem('settings', settings);
+        const settingsObj: Settings = await this.storageService.getItem<Settings>('settings', DEFAULT_SETTINGS);
+        return {
+            ...DEFAULT_SETTINGS,
+            ...settingsObj,
+        };
     }
 }
