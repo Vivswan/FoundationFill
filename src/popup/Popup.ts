@@ -42,10 +42,10 @@ export class PopupController {
             // Load templates and settings
             logger.debug('Loading templates and settings');
             await this.templateModel.loadTemplates();
-            const settings = await this.settingsModel.loadSettings();
+            await this.settingsModel.loadSettings();
 
             // Set the initial theme
-            this.themeService.setTheme(settings.theme);
+            this.themeService.setTheme(await this.settingsModel.getTheme());
             this.settingsModel.onChange((updatedSettings) => this.themeService.setTheme(updatedSettings.theme));
 
             // Update views

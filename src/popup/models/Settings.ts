@@ -13,8 +13,8 @@ export class SettingsModel {
     private settings: Settings = DEFAULT_SETTINGS;
     private storageService: StorageService;
 
-    // Callback for settings changes
-    private onChangeCallback: ((settings: Settings) => void) | null = null;
+    // Callbacks for settings changes
+    private changeListeners: ((settings: Settings) => void)[] = [];
 
     constructor() {
         this.storageService = new StorageService();
@@ -61,10 +61,8 @@ export class SettingsModel {
         await this.saveSettingsToStorage(updatedSettings);
         this.settings = updatedSettings;
 
-        // Call the onChange callback if it exists
-        if (this.onChangeCallback) {
-            this.onChangeCallback(this.settings);
-        }
+        // Notify all listeners
+        this.notifyListeners();
 
         return updatedSettings;
     }
@@ -86,10 +84,16 @@ export class SettingsModel {
     }
 
     /**
-     * Set a callback for settings changes
+     * Add a listener for settings changes
+     * @returns Function to remove the listener
      */
-    onChange(callback: (settings: Settings) => void): void {
-        this.onChangeCallback = callback;
+    onChange(callback: (settings: Settings) => void): () => void {
+        this.changeListeners.push(callback);
+        
+        // Return a function to remove this listener
+        return () => {
+            this.changeListeners = this.changeListeners.filter(listener => listener !== callback);
+        };
     }
 
     /**
@@ -100,10 +104,22 @@ export class SettingsModel {
         await this.saveSettingsToStorage(this.settings);
         logger.debug('Settings saved successfully');
 
-        // Call the onChange callback if it exists
-        if (this.onChangeCallback) {
-            this.onChangeCallback(this.settings);
-        }
+        // Notify all listeners
+        this.notifyListeners();
+    }
+
+    /**
+     * Notify all listeners of settings changes
+     */
+    private notifyListeners(): void {
+        logger.debug('Notifying settings change listeners');
+        this.changeListeners.forEach(listener => {
+            try {
+                listener(this.settings);
+            } catch (error) {
+                logger.error('Error in settings change listener:', error);
+            }
+        });
     }
 
     /**
