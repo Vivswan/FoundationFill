@@ -11,7 +11,7 @@ import {generateTextWithAnimation} from "./generate/toElement";
 const logger = createLogger('CONTENT');
 
 // Notify the background script that the content script is loaded
-logger.debug('Content script loaded, notifying background script for: ' + chrome.devtools.inspectedWindow.tabId);
+logger.debug('Content script loaded, notifying background script');
 
 /**
  * Message listener for communication with background script
