@@ -1,69 +1,46 @@
 import {Settings} from '../../types';
+import {SettingsModel} from "../models/Settings";
 
 export class SettingsView {
+    private settings: SettingsModel;
+
     // DOM elements
-    private readonly settingsPanel: HTMLElement = document.getElementById('settings-panel') as HTMLElement;
-    private readonly apiKeyInput: HTMLInputElement = document.getElementById('api-key') as HTMLInputElement;
-    private readonly baseUrlInput: HTMLInputElement = document.getElementById('base-url') as HTMLInputElement;
-    private readonly modelInput: HTMLInputElement = document.getElementById('model') as HTMLInputElement;
-    private readonly themeLightInput: HTMLInputElement = document.getElementById('theme-light') as HTMLInputElement;
-    private readonly themeDarkInput: HTMLInputElement = document.getElementById('theme-dark') as HTMLInputElement;
-    private readonly themeSystemInput: HTMLInputElement = document.getElementById('theme-system') as HTMLInputElement;
-    private readonly settingsStatus: HTMLElement = document.getElementById('settings-status') as HTMLElement;
-    private readonly settingsBtn: HTMLElement = document.getElementById('settings-btn') as HTMLElement;
+    private settingsPanel: HTMLElement;
+    private apiKeyInput: HTMLInputElement;
+    private baseUrlInput: HTMLInputElement;
+    private modelInput: HTMLInputElement;
+    private themeLightInput: HTMLInputElement;
+    private themeDarkInput: HTMLInputElement;
+    private themeSystemInput: HTMLInputElement;
+    private settingsStatus: HTMLElement;
 
     // Status timeout
     private statusTimeout: number | null = null;
 
-    // Event callbacks
-    private onInputChangeCallback: ((key: keyof Settings, value: string) => void) | null = null;
-    private onShowCallback: (() => void) | null = null;
+    constructor(settings: SettingsModel) {
+        this.settings = settings;
+        this.settingsPanel = document.getElementById('settings-panel') as HTMLElement;
+        this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
+        this.baseUrlInput = document.getElementById('base-url') as HTMLInputElement;
+        this.modelInput = document.getElementById('model') as HTMLInputElement;
+        this.themeLightInput = document.getElementById('theme-light') as HTMLInputElement;
+        this.themeDarkInput = document.getElementById('theme-dark') as HTMLInputElement;
+        this.themeSystemInput = document.getElementById('theme-system') as HTMLInputElement;
+        this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
 
-    constructor() {
-        // Add event listeners
-        this.settingsBtn.addEventListener('click', () => {
-            if (this.onShowCallback) {
-                this.onShowCallback();
-            }
-        });
+        // Update the settings panel visibility based on the current state
+        this.update()
+        this.settings.onChange(this.update.bind(this));
 
         // Auto-save settings on input changes
-        this.apiKeyInput.addEventListener('input', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback('apiKey', this.apiKeyInput.value);
-            }
-        });
-
-        this.baseUrlInput.addEventListener('input', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback('baseUrl', this.baseUrlInput.value);
-            }
-        });
-
-        this.modelInput.addEventListener('input', () => {
-            if (this.onInputChangeCallback) {
-                this.onInputChangeCallback('model', this.modelInput.value);
-            }
-        });
+        this.apiKeyInput.addEventListener('input', this.handleValueChange.bind(this, 'apiKey'));
+        this.baseUrlInput.addEventListener('input', this.handleValueChange.bind(this, 'baseUrl'));
+        this.modelInput.addEventListener('input', this.handleValueChange.bind(this, 'model'));
 
         // Theme option change handlers
-        this.themeLightInput.addEventListener('change', () => {
-            if (this.themeLightInput.checked && this.onInputChangeCallback) {
-                this.onInputChangeCallback('theme', 'light');
-            }
-        });
-
-        this.themeDarkInput.addEventListener('change', () => {
-            if (this.themeDarkInput.checked && this.onInputChangeCallback) {
-                this.onInputChangeCallback('theme', 'dark');
-            }
-        });
-
-        this.themeSystemInput.addEventListener('change', () => {
-            if (this.themeSystemInput.checked && this.onInputChangeCallback) {
-                this.onInputChangeCallback('theme', 'system');
-            }
-        });
+        this.themeLightInput.addEventListener('change', this.handleCheckboxChange.bind(this, 'theme', 'light'));
+        this.themeDarkInput.addEventListener('change', this.handleCheckboxChange.bind(this, 'theme', 'dark'));
+        this.themeSystemInput.addEventListener('change', this.handleCheckboxChange.bind(this, 'theme', 'system'));
     }
 
     // Show the settings panel
@@ -77,7 +54,8 @@ export class SettingsView {
     }
 
     // Update the settings inputs
-    update(settings: Settings): void {
+    update(): void {
+        const settings = this.settings.getSettings()
         this.apiKeyInput.value = settings.apiKey || '';
         this.baseUrlInput.value = settings.baseUrl || '';
         this.modelInput.value = settings.model || '';
@@ -110,16 +88,18 @@ export class SettingsView {
         this.statusTimeout = setTimeout(() => {
             this.settingsStatus.textContent = '';
             this.statusTimeout = null;
-        }, 1000);
+        }, 500);
     }
 
-    // Set the onInputChange callback
-    onSettingChange(callback: (key: keyof Settings, value: string) => void): void {
-        this.onInputChangeCallback = callback;
+    private async handleValueChange(key: keyof Settings, e: Event): Promise<void> {
+        const value = (e.target as HTMLInputElement).value;
+        await this.settings.updateSetting(key, value);
+        this.showStatus('Settings saved!');
     }
 
-    // Set the onShow callback
-    onShow(callback: () => void): void {
-        this.onShowCallback = callback;
+    private async handleCheckboxChange(key: keyof Settings, value: string, e: Event): Promise<void> {
+        if (!(e.target as HTMLInputElement).checked) return;
+        await this.settings.updateSetting(key, value);
+        this.showStatus('Settings saved!');
     }
 }
