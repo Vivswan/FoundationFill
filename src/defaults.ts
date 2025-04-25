@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 // API request constants
 export const API_TIMEOUT = 30000; // 30 seconds
-export const ANIMATION_TIMEOUT = 5000; // 5 seconds
+export const ANIMATION_TIMEOUT = 30000; // 30 seconds
 
 // UI Constants
 export const UI_CONSTANTS = {

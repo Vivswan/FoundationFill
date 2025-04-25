@@ -2,6 +2,7 @@
 import {createLogger} from './logging';
 import {SettingsModel} from '../popup/models/Settings';
 import {API_TIMEOUT} from '../defaults';
+import {GenerateTextResponse} from "../types";
 
 const logger = createLogger('API');
 
@@ -17,16 +18,10 @@ interface APIRequestOptions {
     timeout?: number;
 }
 
-interface APIResponse {
-    success: boolean;
-    text?: string;
-    error?: string;
-}
-
 /**
  * Makes a request to the chat completions API
  */
-export const generateChatCompletion = async (options: APIRequestOptions): Promise<APIResponse> => {
+export const generateChatCompletion = async (options: APIRequestOptions): Promise<GenerateTextResponse> => {
     try {
         // Create an instance of SettingsModel to get settings
         const settings = (await new SettingsModel().initialize()).getSettings();
@@ -40,9 +35,11 @@ export const generateChatCompletion = async (options: APIRequestOptions): Promis
         }
 
         // Prepare messages
-        const messages: ChatMessage[] = [
-            {role: 'system', content: options.systemPrompt}
-        ];
+        const messages: ChatMessage[] = []
+
+        if (options.systemPrompt) {
+            messages.push({role: 'system', content: options.systemPrompt});
+        }
 
         // Add user prompt with page content if provided
         let userContent = options.userPrompt;

@@ -14,6 +14,10 @@ export class TemplateListView {
     private readonly templateList: HTMLElement;
     private readonly newTemplateBtn: HTMLElement;
 
+    // Callbacks
+    public onShowCallback: () => void = () => {
+    };
+
     constructor(template: TemplateModel) {
         this.template = template;
 

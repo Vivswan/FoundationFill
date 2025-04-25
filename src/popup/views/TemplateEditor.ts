@@ -1,7 +1,12 @@
-import {Template} from '../../types';
-import {getCurrentDomain} from "../../utils/chrome-api-utils";
+import {GenerateTextResponse, Template} from '../../types';
+import {
+    executeScriptInTab,
+    getCurrentDomain,
+    getCurrentTab,
+    sendMessageToBackground
+} from "../../utils/chrome-api-utils";
 import {TemplateModel} from "../models/Template";
-import {DEFAULT_TEMPLATE} from "../../defaults";
+import {ANIMATION_TIMEOUT, DEFAULT_TEMPLATE} from "../../defaults";
 import {generatingAnimation} from "../../utils/generatingAnimation";
 
 export class TemplateEditorView {
@@ -124,7 +129,50 @@ export class TemplateEditorView {
         }
     }
 
-    generate(): void {
-        generatingAnimation(this.generatedTextArea);
+    async generate(): Promise<void> {
+        const templateData = this.template.getTemplates()
+            .find(t => t.id === this.template.getActiveTemplateId());
+        if (!templateData) {
+            console.error('Error: Template not found');
+            this.generatedTextArea.value = 'Error: Template not found';
+            return;
+        }
+        if (!templateData.userPrompt) {
+            console.error('Error: User prompt is empty');
+            this.generatedTextArea.value = 'Error: User prompt is empty';
+            return;
+        }
+
+        let pageContent = '';
+        if (templateData.includePageContent) {
+            const tab = await getCurrentTab();
+            if (tab?.id) {
+                pageContent = await executeScriptInTab(tab.id, () => document.body.innerText) || '';
+            }
+        }
+
+        const stopCallback = generatingAnimation(this.generatedTextArea, ANIMATION_TIMEOUT);
+        try {
+            // Call the API using the api-service utility
+            const response = await sendMessageToBackground<GenerateTextResponse>({
+                action: 'generateText',
+                systemPrompt: templateData.systemPrompt,
+                userPrompt: templateData.userPrompt,
+                pageContent: pageContent
+            });
+
+            // Update UI based on response
+            stopCallback();
+            if (response && response.success) {
+                this.generatedTextArea.value = response.text || '';
+            } else {
+                this.generatedTextArea.value = 'Error: ' + (response?.error || 'Could not generate text. Check your API key and connection.');
+            }
+
+        } catch (error) {
+            console.error('Error during generation:', error);
+            stopCallback();
+            this.generatedTextArea.value = 'Error: ' + error;
+        }
     }
 }
