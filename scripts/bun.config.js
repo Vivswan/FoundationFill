@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const {watch} = require('fs');
+const generateIconsModule = require('./generate-icons');
 
 // Root and dist directories
 const rootDir = path.resolve(__dirname, '..');
@@ -10,6 +11,17 @@ const distDir = path.resolve(rootDir, 'dist');
 if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir, {recursive: true});
 }
+
+// Generate icons using the generate-icons.js module
+const generateIcons = async () => {
+    try {
+        console.log('Generating icons...');
+        await generateIconsModule();
+        console.log('Icons generated successfully');
+    } catch (error) {
+        console.error('Error generating icons:', error.message);
+    }
+};
 
 // HTML template processing
 const processHTML = () => {
@@ -74,6 +86,9 @@ const copyAssets = () => {
 
 // Run build process
 async function build() {
+    // Generate icons first
+    await generateIcons();
+    
     // Process HTML, manifest, and assets
     processHTML();
     copyManifest();

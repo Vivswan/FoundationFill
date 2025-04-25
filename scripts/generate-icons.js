@@ -10,23 +10,18 @@ const distOutputDir = path.join(rootDir, 'dist/images');
 // Icon sizes to generate
 const sizes = [16, 48, 128];
 
-// Check if SVG exists
-if (!fs.existsSync(svgPath)) {
-    console.error(`Error: SVG file not found at ${svgPath}`);
-    process.exit(1);
-}
-
-// Ensure output directory exists
-if (!fs.existsSync(distOutputDir)) {
-    fs.mkdirSync(distOutputDir, {recursive: true});
-}
-
-// Read the SVG file
-const svgBuffer = fs.readFileSync(svgPath);
-
 // Generate each size directly to dist
 async function generateIcons() {
     console.log('Generating PNG icons from SVG...');
+
+    // Check if SVG exists
+    if (!fs.existsSync(svgPath)) {
+        console.error(`Error: SVG file not found at ${svgPath}`);
+        throw new Error('SVG file not found');
+    }
+
+    // Read the SVG file
+    const svgBuffer = fs.readFileSync(svgPath);
 
     // Make sure the dist directory exists
     if (!fs.existsSync(path.join(rootDir, 'dist'))) {
@@ -61,8 +56,13 @@ async function generateIcons() {
     console.log('Icon generation complete!');
 }
 
-// Run the main function and handle any errors
-generateIcons().catch(err => {
-    console.error('Error generating icons:', err);
-    process.exit(1);
-});
+// If script is run directly
+if (require.main === module) {
+    generateIcons().catch(err => {
+        console.error('Error generating icons:', err);
+        process.exit(1);
+    });
+}
+
+// Export the function for use as a module
+module.exports = generateIcons;

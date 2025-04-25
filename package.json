@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A browser extension to fill text fields with predefined system prompt templates",
   "scripts": {
-    "prebuild": "node scripts/generate-icons.js",
     "build": "bun scripts/bun.config.js",
     "clean-build": "node scripts/clean-rebuild.js",
     "dev": "bun scripts/bun.config.js --watch",
