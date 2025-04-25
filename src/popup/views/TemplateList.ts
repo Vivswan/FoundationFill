@@ -98,6 +98,10 @@ export class TemplateListView {
         this.template.updateTemplate(templateId, {name: newName} as Partial<Template>);
     }
 
+    // Track click timer to distinguish between single and double clicks
+    private clickTimer: number | null = null;
+    private clickedTemplateId: string | null = null;
+
     private templateItemClick(e: Event) {
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;
@@ -107,10 +111,29 @@ export class TemplateListView {
 
         // Get the template ID from the clicked item
         const id = element.getAttribute('data-id');
-        if (id) {
-            this.template.setActiveTemplateId(id);
-            this.onShowCallback();
+        if (!id) return;
+
+        // If we're waiting for a potential double-click on the same element, do nothing
+        if (this.clickTimer !== null && this.clickedTemplateId === id) {
+            return;
         }
+
+        // Store the clicked template ID
+        this.clickedTemplateId = id;
+
+        // Clear any existing timer
+        if (this.clickTimer !== null) {
+            window.clearTimeout(this.clickTimer);
+            this.clickTimer = null;
+        }
+
+        // Set a timer to handle single click after a short delay
+        this.template.setActiveTemplateId(id);
+        this.onShowCallback();
+        this.clickTimer = window.setTimeout(() => {
+            this.clickTimer = null;
+            this.clickedTemplateId = null;
+        }, 250); // Short delay to wait for possible double-click
     }
 
     private templateItemDblClick(e: Event) {
@@ -119,6 +142,13 @@ export class TemplateListView {
         const id = element.getAttribute('data-id');
         if (!id) return;
         if (id == DEFAULT_TEMPLATE.id) return;
+
+        // Cancel any pending single-click timer to prevent both actions
+        if (this.clickTimer !== null) {
+            window.clearTimeout(this.clickTimer);
+            this.clickTimer = null;
+            this.clickedTemplateId = null;
+        }
 
         e.stopPropagation();
 
