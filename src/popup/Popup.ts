@@ -5,7 +5,7 @@ import {TemplateListView} from './views/TemplateList';
 import {TemplateEditorView} from './views/TemplateEditor';
 import {SettingsView} from './views/Settings';
 import {createLogger} from '../utils/logging';
-import {executeScriptInTab, getCurrentDomain, getCurrentTab, sendMessageToBackground} from '../utils/chrome-api-utils';
+import {executeScriptInTab, getCurrentTab, sendMessageToBackground} from '../utils/chrome-api-utils';
 import {ThemeService} from "../utils/theme";
 
 // Create a logger instance for this component
@@ -36,9 +36,6 @@ export class PopupController {
         logger.debug('Initializing');
 
         try {
-            // Get the current domain from the active tab
-            await this.fetchCurrentDomain();
-
             // Load templates and settings
             logger.debug('Loading templates and settings');
             await this.templateModel.loadTemplates();
@@ -57,19 +54,6 @@ export class PopupController {
             logger.debug('Initialization complete');
         } catch (error) {
             logger.error('Error during initialization:', error);
-        }
-    }
-
-    // Get the current domain from the active tab
-    private async fetchCurrentDomain(): Promise<void> {
-        try {
-            const domain = await getCurrentDomain();
-            if (domain) {
-                this.templateModel.setCurrentDomain(domain);
-                this.templateEditorView.setTemplateDomain(domain);
-            }
-        } catch (error) {
-            logger.error('Error getting current domain:', error);
         }
     }
 
@@ -247,9 +231,8 @@ export class PopupController {
 
         // If domain-specific was just checked, update the domain display immediately
         if (updatedTemplate && templateData.domainSpecific !== undefined) {
-            const currentDomain = this.templateModel.getCurrentDomain();
             if (templateData.domainSpecific) {
-                this.templateEditorView.setTemplateDomain(currentDomain);
+                this.templateEditorView.setTemplateDomain();
             }
         }
     }

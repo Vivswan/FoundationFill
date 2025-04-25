@@ -1,26 +1,40 @@
 import {Template} from '../../types';
 import {createLogger} from '../../utils/logging';
-import {TemplateService} from '../../utils/template-service';
+import {StorageService} from '../../utils/storage-service';
 import {sendMessageToBackground} from '../../utils/chrome-api-utils';
+import {createTemplate, isDefaultTemplate, updateTemplate as updateTemplateUtil} from '../../utils/template-utils';
 
 // Create a logger for this component
 const logger = createLogger('TEMPLATE');
 
+/**
+ * Template model that manages templates and provides methods to
+ * create, update, delete, and retrieve templates.
+ */
 export class TemplateModel {
     private templates: Template[] = [];
     private selectedTemplateId: string | null = null;
     private currentDomain: string = '';
-    private templateService: TemplateService;
-
+    private storageService: StorageService;
+    
     constructor() {
-        this.templateService = new TemplateService();
+        this.storageService = new StorageService();
     }
 
-    // Load templates from storage
-    async loadTemplates(): Promise<void> {
+    /**
+     * Initialize the model by loading templates from storage
+     */
+    async initialize(): Promise<void> {
+        await this.loadTemplates();
+    }
+
+    /**
+     * Load templates from storage
+     */
+    async loadTemplates(): Promise<Template[]> {
         logger.debug('Loading templates');
         try {
-            this.templates = await this.templateService.loadTemplates();
+            this.templates = await this.storageService.getTemplates();
             logger.debug('Templates loaded:', this.templates);
 
             // Select the first template by default if available
@@ -28,92 +42,143 @@ export class TemplateModel {
                 this.selectedTemplateId = this.templates[0].id;
                 logger.debug('Selected template ID:', this.selectedTemplateId);
             }
+
+            return this.templates;
         } catch (error) {
             logger.error('Error loading templates:', error);
             // Initialize with an empty array if there's an error
             this.templates = [];
+            return [];
         }
     }
 
-    // Set the current domain
+    /**
+     * Set the current domain for domain-specific templates
+     */
     setCurrentDomain(domain: string): void {
         this.currentDomain = domain;
     }
 
-    // Get the current domain
+    /**
+     * Get the current domain
+     */
     getCurrentDomain(): string {
         return this.currentDomain;
     }
 
-    // Get all templates
+    /**
+     * Get all templates
+     */
     getTemplates(): Template[] {
         logger.debug('Getting templates, count:', this.templates.length);
         return this.templates;
     }
 
-    // Get the selected template
+    /**
+     * Get only enabled templates
+     */
+    getEnabledTemplates(): Template[] {
+        return this.templates.filter(t => t.enabled);
+    }
+
+    /**
+     * Get templates that apply to a specific domain
+     */
+    getTemplatesForDomain(domain: string): Template[] {
+        return this.templates.filter(template => {
+            if (!template.domainSpecific) return true;
+            return template.domain === domain;
+        });
+    }
+
+    /**
+     * Get enabled templates for a specific domain
+     */
+    getEnabledTemplatesForDomain(domain: string): Template[] {
+        return this.getTemplatesForDomain(domain).filter(t => t.enabled);
+    }
+
+    /**
+     * Get a template by ID
+     */
+    getTemplateById(id: string): Template | undefined {
+        return this.templates.find(t => t.id === id);
+    }
+
+    /**
+     * Get the selected template
+     */
     getSelectedTemplate(): Template | null {
         if (!this.selectedTemplateId) return null;
         return this.templates.find(t => t.id === this.selectedTemplateId) || null;
     }
 
-    // Get the selected template ID
+    /**
+     * Get the selected template ID
+     */
     getSelectedTemplateId(): string | null {
         return this.selectedTemplateId;
     }
 
-    // Select a template by ID
+    /**
+     * Select a template by ID
+     */
     selectTemplate(templateId: string): Template | null {
         this.selectedTemplateId = templateId;
         return this.getSelectedTemplate();
     }
 
-    // Create a new template
+    /**
+     * Create a new template
+     */
     createNewTemplate(): Template {
         // Find the default template to copy content from
         const defaultTemplate = this.templates.find(t => t.isDefault) || this.templates[0];
 
-        // Use the template service to create a new template
-        const newTemplate = this.templateService.addTemplate('New Template');
-
+        // Create a new template
+        const newTemplate = createTemplate('New Template', this.currentDomain);
+        
         // Copy content from default template if available
         if (defaultTemplate) {
-            this.templateService.updateTemplate(newTemplate.id, {
-                systemPrompt: defaultTemplate.systemPrompt,
-                userPrompt: defaultTemplate.userPrompt
-            });
+            newTemplate.systemPrompt = defaultTemplate.systemPrompt;
+            newTemplate.userPrompt = defaultTemplate.userPrompt;
         }
 
-        // Update local cache
-        this.templates = this.templateService.getTemplates();
+        // Add to collection
+        this.templates.push(newTemplate);
         this.selectedTemplateId = newTemplate.id;
+
+        // Save to storage
+        this.saveTemplates();
+        
         return newTemplate;
     }
 
-    // Update the selected template
-    updateSelectedTemplate(updatedTemplate: Partial<Template>): Template | null {
+    /**
+     * Update the selected template
+     */
+    updateSelectedTemplate(updates: Partial<Template>): Template | null {
         if (!this.selectedTemplateId) return null;
 
         const templateIndex = this.templates.findIndex(t => t.id === this.selectedTemplateId);
         if (templateIndex === -1) return null;
 
-        // Use template service to handle the update with validation
         const currentTemplate = this.templates[templateIndex];
-        const updatedTemplateData = this.templateService.updateTemplate(
-            currentTemplate.id,
-            updatedTemplate
+
+        // Update the template with the utility function to ensure proper handling
+        this.templates[templateIndex] = updateTemplateUtil(
+            currentTemplate,
+            updates,
+            this.currentDomain
         );
 
-        if (updatedTemplateData) {
-            // Update the local cache
-            this.templates = this.templateService.getTemplates();
-        }
-
-        // No need to call saveTemplates() since the service handles it
+        this.saveTemplates();
         return this.templates[templateIndex];
     }
 
-    // Update a template name
+    /**
+     * Update a template name
+     */
     updateTemplateName(templateId: string, newName: string): Template | null {
         const templateIndex = this.templates.findIndex(t => t.id === templateId);
         if (templateIndex === -1) return null;
@@ -127,7 +192,29 @@ export class TemplateModel {
         return this.templates[templateIndex];
     }
 
-    // Delete the selected template
+    /**
+     * Update a template by ID
+     */
+    updateTemplate(id: string, updates: Partial<Template>): Template | null {
+        const index = this.templates.findIndex(t => t.id === id);
+        if (index === -1) return null;
+
+        const template = this.templates[index];
+
+        // Update the template with the utility function to ensure proper handling
+        this.templates[index] = updateTemplateUtil(
+            template,
+            updates,
+            this.currentDomain
+        );
+
+        this.saveTemplates();
+        return this.templates[index];
+    }
+
+    /**
+     * Delete the selected template
+     */
     deleteSelectedTemplate(): boolean {
         if (!this.selectedTemplateId) return false;
 
@@ -136,7 +223,7 @@ export class TemplateModel {
         if (!template) return false;
 
         // Don't allow deleting the default template
-        if (this.isDefaultTemplate(template.id)) {
+        if (isDefaultTemplate(template.id) || template.isDefault) {
             return false;
         }
 
@@ -154,17 +241,47 @@ export class TemplateModel {
         return true;
     }
 
-    // Check if a template is the default template
-    isDefaultTemplate(templateId: string): boolean {
-        return this.templateService.isDefaultTemplate(templateId);
+    /**
+     * Delete a template by ID
+     */
+    deleteTemplate(id: string): boolean {
+        // Don't delete default template
+        if (isDefaultTemplate(id)) return false;
+
+        const initialLength = this.templates.length;
+        this.templates = this.templates.filter(t => t.id !== id);
+
+        if (this.templates.length < initialLength) {
+            // If the deleted template was selected, select a different one
+            if (this.selectedTemplateId === id) {
+                if (this.templates.length > 0) {
+                    this.selectedTemplateId = this.templates[0].id;
+                } else {
+                    this.selectedTemplateId = null;
+                }
+            }
+
+            this.saveTemplates();
+            return true;
+        }
+
+        return false;
     }
 
-    // Save templates to storage
-    private async saveTemplates(): Promise<void> {
-        try {
-            await this.templateService.saveTemplates();
+    /**
+     * Check if a template is the default template
+     */
+    isDefaultTemplate(templateId: string): boolean {
+        const template = this.getTemplateById(templateId);
+        return template ? isDefaultTemplate(template.id) || !!template.isDefault : false;
+    }
 
-            // Notify the background script that templates were updated
+    /**
+     * Save templates to storage
+     */
+    async saveTemplates(): Promise<void> {
+        try {
+            await this.storageService.saveTemplates(this.templates);
             await sendMessageToBackground({action: 'templatesUpdated'});
         } catch (error) {
             logger.error('Error saving templates:', error);
