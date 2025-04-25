@@ -1,5 +1,5 @@
-import {ThemeMode} from '../types';
-import {createLogger} from './logging';
+import {ThemeMode} from '../../types';
+import {createLogger} from '../../utils/logging';
 
 const logger = createLogger('THEME');
 
@@ -8,12 +8,11 @@ const logger = createLogger('THEME');
  */
 export class ThemeService {
     private currentTheme: ThemeMode = 'system';
-    private listeners: ((theme: ThemeMode) => void)[] = [];
 
     constructor(initialTheme: ThemeMode = 'system') {
         this.currentTheme = initialTheme;
-        this.applyTheme();
         this.setupSystemThemeListener();
+        this.applyTheme();
     }
 
     /**
@@ -22,21 +21,6 @@ export class ThemeService {
     setTheme(theme: ThemeMode): void {
         this.currentTheme = theme;
         this.applyTheme();
-        this.notifyListeners();
-    }
-
-    /**
-     * Get the current theme mode
-     */
-    getTheme(): ThemeMode {
-        return this.currentTheme;
-    }
-
-    /**
-     * Add a listener that will be called when the theme changes
-     */
-    addListener(listener: (theme: ThemeMode) => void): void {
-        this.listeners.push(listener);
     }
 
     /**
@@ -69,31 +53,18 @@ export class ThemeService {
      * Set up a listener for system theme changes
      */
     private setupSystemThemeListener(): void {
-        if (this.currentTheme === 'system') {
-            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-            logger.debug('Setting up system theme listener');
-
+        try {
+            // Standard approach
+            darkModeMediaQuery.addEventListener('change', () => this.applyTheme());
+        } catch (error) {
+            // Fallback for older browsers
             try {
-                // Standard approach
-                darkModeMediaQuery.addEventListener('change', () => this.applyTheme());
-                logger.debug('Using standard event listener for theme changes');
+                darkModeMediaQuery.addListener(() => this.applyTheme());
             } catch (error) {
-                // Fallback for older browsers
-                logger.warn('Fallback to legacy event listener for theme changes');
-                try {
-                    darkModeMediaQuery.addListener(() => this.applyTheme());
-                } catch (error) {
-                    logger.error('Failed to set up theme change listener:', error);
-                }
+                logger.error('Failed to set up theme change listener:', error);
             }
         }
-    }
-
-    /**
-     * Notify all listeners about a theme change
-     */
-    private notifyListeners(): void {
-        this.listeners.forEach(listener => listener(this.currentTheme));
     }
 }
