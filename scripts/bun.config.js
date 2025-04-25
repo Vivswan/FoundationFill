@@ -43,8 +43,8 @@ const processHTML = () => {
 // Copy manifest file
 const copyManifest = () => {
     fs.copyFileSync(
-        path.resolve(rootDir, 'manifest.json'),
-        path.resolve(distDir, 'manifest.json')
+      path.resolve(rootDir, 'manifest.json'),
+      path.resolve(distDir, 'manifest.json')
     );
     console.log('Copied manifest.json to dist directory');
 };
@@ -67,8 +67,8 @@ const copyAssets = () => {
     const cssFiles = fs.readdirSync(path.join(rootDir, 'src/assets/css'));
     cssFiles.forEach(file => {
         fs.copyFileSync(
-            path.join(rootDir, 'src/assets/css', file),
-            path.join(cssDir, file)
+          path.join(rootDir, 'src/assets/css', file),
+          path.join(cssDir, file)
         );
     });
 
@@ -76,8 +76,8 @@ const copyAssets = () => {
     const imageFiles = fs.readdirSync(path.join(rootDir, 'src/assets/images'));
     imageFiles.forEach(file => {
         fs.copyFileSync(
-            path.join(rootDir, 'src/assets/images', file),
-            path.join(imagesDir, file)
+          path.join(rootDir, 'src/assets/images', file),
+          path.join(imagesDir, file)
         );
     });
 
@@ -88,7 +88,7 @@ const copyAssets = () => {
 async function build() {
     // Generate icons first
     await generateIcons();
-    
+
     // Process HTML, manifest, and assets
     processHTML();
     copyManifest();

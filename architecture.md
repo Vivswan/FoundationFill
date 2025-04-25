@@ -71,7 +71,7 @@ graph TD
 class Popup, Background, ContentScript, Browser component;
 class ThemeService,APIService, StorageService, MessageService, TemplateService service;
 class TemplateModel,SettingsModel model;
-class TemplateList,TemplateEditor, Settings view;
+class TemplateList, TemplateEditor, Settings view;
 class Storage,API external;
 ```
 
