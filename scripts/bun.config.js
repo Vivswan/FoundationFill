@@ -30,10 +30,10 @@ const processHTML = () => {
     // Add script tags to HTML before closing body tag
     htmlContent = htmlContent.replace('</body>', `
   <!-- Initialization script -->
-  <script src="popup-init.js"></script>
+  <script src="init.js"></script>
   
   <!-- Main script bundle -->
-  <script src="popup.js"></script>
+  <script src="index.js"></script>
 </body>`);
 
     fs.writeFileSync(path.join(distDir, 'popup.html'), htmlContent);
@@ -99,25 +99,30 @@ async function build() {
 
         // Define entry points
         const entryPoints = {
-            'popup': path.join(rootDir, 'src/index.ts'),
+            'index': path.join(rootDir, 'src/index.ts'),
             'background': path.join(rootDir, 'src/background.ts'),
             'content': path.join(rootDir, 'src/popup/content.ts'),
-            'popup-init': path.join(rootDir, 'src/assets/js/init.js')
+            'init': path.join(rootDir, 'src/assets/js/init.js')
         };
 
         // Build options
         const buildOptions = {
             entrypoints: [
-                entryPoints['popup'],
+                entryPoints['index'],
                 entryPoints['background'],
                 entryPoints['content'],
-                entryPoints['popup-init']
+                entryPoints['init']
             ],
             outdir: distDir,
             target: 'browser',
             format: 'esm',
             sourcemap: 'external',
             minify: process.env.NODE_ENV === 'production',
+            naming: {
+                // Prevent files from being put in subdirectories
+                // Use flat structure in root output directory
+                entry: "[name].js"
+            },
         };
 
         // Initial build

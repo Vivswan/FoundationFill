@@ -4,9 +4,7 @@
   "description": "A browser extension to fill text fields with predefined system prompt templates",
   "scripts": {
     "build": "bun scripts/bun.config.js",
-    "clean-build": "node scripts/clean-rebuild.js",
     "dev": "bun scripts/bun.config.js --watch",
-    "dev-clean-build": "node scripts/clean-rebuild.js --dev",
     "lint": "npx eslint .",
     "typecheck": "tsc --noEmit",
     "generate-icons": "node scripts/generate-icons.js"
