@@ -22,22 +22,22 @@ chrome.runtime.onMessage.addListener((
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: unknown) => void
 ) => {
-  logger.debug(`Received message with action: ${request.action}`);
+    logger.debug(`Received message with action: ${request.action}`);
 
-  try {
-    if (request.action === 'fillTemplate') {
-      const fillRequest = request as FillTemplateMessage;
-      fillTextArea(fillRequest.template);
-      sendResponse({success: true} as Response);
-      return true;
+    try {
+        if (request.action === 'fillTemplate') {
+            const fillRequest = request as FillTemplateMessage;
+            fillTextArea(fillRequest.template);
+            sendResponse({success: true} as Response);
+            return true;
+        }
+    } catch (error) {
+        logger.error('Error handling message:', error);
+        sendResponse({success: false, error: 'Error processing request'} as Response);
     }
-  } catch (error) {
-    logger.error('Error handling message:', error);
-    sendResponse({success: false, error: 'Error processing request'} as Response);
-  }
 
-  sendResponse({success: false, error: 'Unknown action'} as Response);
-  return true;
+    sendResponse({success: false, error: 'Unknown action'} as Response);
+    return true;
 });
 
 /**
@@ -46,8 +46,8 @@ chrome.runtime.onMessage.addListener((
  * @returns Promise that resolves when the text area is filled
  */
 async function fillTextArea(template: Template): Promise<void> {
-  const activeElement = document.activeElement as HTMLElement;
-  const pageContent = template.includePageContent ? document.body.innerText : '';
-  await generateTextWithAnimation(activeElement, template, pageContent);
+    const activeElement = document.activeElement as HTMLElement;
+    const pageContent = template.includePageContent ? document.body.innerText : '';
+    await generateTextWithAnimation(activeElement, template, pageContent);
 }
 

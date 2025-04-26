@@ -2,45 +2,45 @@
 <svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
     <!-- Popup window background -->
     <rect x="50" y="50" width="500" height="300" rx="8" ry="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="2"/>
-    
+
     <!-- Sidebar -->
     <rect x="50" y="50" width="150" height="300" rx="8" ry="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2"/>
-    
+
     <!-- Sidebar header -->
     <rect x="50" y="50" width="150" height="40" rx="8" ry="0" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
     <text x="70" y="75" font-family="sans-serif" font-size="14" font-weight="600" fill="#1f2937">Templates</text>
     <rect x="145" y="60" width="40" height="20" rx="4" ry="4" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/>
     <text x="155" y="75" font-family="sans-serif" font-size="12" fill="#1f2937">New</text>
-    
+
     <!-- Template list items -->
     <rect x="53" y="95" width="144" height="30" rx="0" ry="0" fill="#f3f4f6" stroke="none"/>
     <rect x="53" y="95" width="3" height="30" rx="0" ry="0" fill="#2563eb" stroke="none"/>
     <text x="70" y="115" font-family="sans-serif" font-size="12" fill="#1f2937">Default Template</text>
-    
+
     <rect x="53" y="130" width="144" height="30" rx="0" ry="0" fill="none" stroke="none"/>
     <text x="70" y="150" font-family="sans-serif" font-size="12" fill="#1f2937">Custom Template 1</text>
-    
+
     <rect x="53" y="165" width="144" height="30" rx="0" ry="0" fill="none" stroke="none"/>
     <text x="70" y="185" font-family="sans-serif" font-size="12" fill="#1f2937">Custom Template 2</text>
-    
+
     <!-- Sidebar footer -->
     <rect x="50" y="310" width="150" height="40" rx="0" ry="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
-    
+
     <!-- Main content area - Template editor -->
     <rect x="200" y="60" width="340" height="40" rx="0" ry="0" fill="none" stroke="none"/>
     <text x="210" y="85" font-family="sans-serif" font-size="16" font-weight="600" fill="#1f2937">Edit</text>
-    
+
     <!-- System prompt area -->
     <text x="210" y="115" font-family="sans-serif" font-size="12" font-weight="500" fill="#1f2937">System Prompt</text>
     <rect x="210" y="125" width="330" height="60" rx="4" ry="4" fill="white" stroke="#e5e7eb" stroke-width="1"/>
-    
+
     <!-- User prompt area -->
     <text x="210" y="205" font-family="sans-serif" font-size="12" font-weight="500" fill="#1f2937">User Prompt</text>
     <rect x="210" y="215" width="330" height="80" rx="4" ry="4" fill="white" stroke="#e5e7eb" stroke-width="1"/>
-    
+
     <!-- Separator -->
     <line x1="210" y1="310" x2="540" y2="310" stroke="#e5e7eb" stroke-width="1"/>
-    
+
     <!-- Buttons and checkboxes -->
     <rect x="460" y="325" width="80" height="30" rx="4" ry="4" fill="#2563eb" stroke="none"/>
     <text x="475" y="345" font-family="sans-serif" font-size="12" fill="white">Test Prompt</text>

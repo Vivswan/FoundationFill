@@ -1,181 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Foundation Fill</title>
-  <link href="assets/css/font-awesome.min.css" rel="stylesheet">
-  <link href="assets/css/popup.css" rel="stylesheet">
-  <link rel="icon" type="image/png" href="assets/images/icon128.png">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Foundation Fill</title>
+    <link href="assets/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/css/popup.css" rel="stylesheet">
+    <link href="assets/images/icon128.png" rel="icon" type="image/png">
 </head>
 <body>
 <div class="container">
     <div class="sidebar">
-      <div class="template-list-header">
-        <h2>Foundation Fill</h2>
-        <button class="button-small" id="new-template-btn"><i class="fa fa-plus"></i></button>
-      </div>
-      <div class="template-list" id="template-list"></div>
-      <div class="sidebar-footer">
-        <button class="button-small" id="vs-link"><img src="assets/images/vs_icon.svg" class="theme-icon"></button>
-        <button class="button-small" id="github-link"><i class="fa fa-github"></i></button>
-        <button class="button-small" id="help-btn" title="Help"><i class="fa fa-question-circle"></i></button>
-        <button class="button-small" id="settings-btn"><i class="fa fa-cog"></i></button>
-      </div>
+        <div class="template-list-header">
+            <h2>Foundation Fill</h2>
+            <button class="button-small" id="new-template-btn"><i class="fa fa-plus"></i></button>
+        </div>
+        <div class="template-list" id="template-list"></div>
+        <div class="sidebar-footer">
+            <button class="button-small" id="vs-link"><img class="theme-icon" src="assets/images/vs_icon.svg"></button>
+            <button class="button-small" id="github-link"><i class="fa fa-github"></i></button>
+            <button class="button-small" id="help-btn" title="Help"><i class="fa fa-question-circle"></i></button>
+            <button class="button-small" id="settings-btn"><i class="fa fa-cog"></i></button>
+        </div>
     </div>
 
     <div class="main-content">
-      <div class="template-editor hidden" id="template-editor">
-        <div class="template-editor-header">
-          <h3 id="template-title">Edit</h3>
-          <div class="template-actions">
-            <button class="action-btn duplicate-btn" id="duplicate-template-btn" title="Duplicate template"><i class="fa fa-copy"></i></button>
-            <button class="delete-btn" id="delete-template-btn" title="Delete template"><i class="fa fa-times"></i></button>
-          </div>
-        </div>
+        <div class="template-editor hidden" id="template-editor">
+            <div class="template-editor-header">
+                <h3 id="template-title">Edit</h3>
+                <div class="template-actions">
+                    <button class="action-btn duplicate-btn" id="duplicate-template-btn" title="Duplicate template"><i
+                            class="fa fa-copy"></i></button>
+                    <button class="delete-btn" id="delete-template-btn" title="Delete template"><i
+                            class="fa fa-times"></i></button>
+                </div>
+            </div>
 
-        <div class="form-group">
-          <label for="system-prompt">System Prompt</label>
-          <textarea id="system-prompt" placeholder="Enter your system prompt here..." rows="3"></textarea>
-        </div>
+            <div class="form-group">
+                <label for="system-prompt">System Prompt</label>
+                <textarea id="system-prompt" placeholder="Enter your system prompt here..." rows="3"></textarea>
+            </div>
 
-        <div class="form-group">
-          <label for="user-prompt">User Prompt</label>
-          <textarea id="user-prompt" placeholder="Enter your user prompt here..." rows="4"></textarea>
-        </div>
+            <div class="form-group">
+                <label for="user-prompt">User Prompt</label>
+                <textarea id="user-prompt" placeholder="Enter your user prompt here..." rows="4"></textarea>
+            </div>
 
-        <hr class="separator">
+            <hr class="separator">
 
-        <div class="form-group generate-btn-group">
+            <div class="form-group generate-btn-group">
           <textarea id="generated-text" placeholder="Generated text will appear here..." readonly
                     rows="5"></textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <div class="checkbox-item">
+                    <input checked id="template-enabled" type="checkbox">
+                    <label for="template-enabled">Enabled</label>
+                </div>
+
+                <div class="checkbox-item">
+                    <input id="include-page-content" type="checkbox">
+                    <label for="include-page-content">Web Content</label>
+                </div>
+
+                <div class="checkbox-item domains-group">
+                    <button class="button-small" id="manage-domains-btn"> Domains <span class="domain-count"
+                                                                                        id="domain-count-badge"></span>
+                    </button>
+                </div>
+
+                <button class="button-primary" id="generate-btn">Test Prompt</button>
+            </div>
         </div>
 
-        <div class="form-group checkbox-group">
-          <div class="checkbox-item">
-            <input checked id="template-enabled" type="checkbox">
-            <label for="template-enabled">Enabled</label>
-          </div>
+        <div class="settings-panel hidden" id="settings-panel">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <div class="settings-status" id="settings-status"></div>
+            </div>
+            <div class="form-group">
+                <label for="base-url">Base URL</label>
+                <input id="base-url" placeholder="Enter API base URL" type="text">
+            </div>
 
-          <div class="checkbox-item">
-            <input id="include-page-content" type="checkbox">
-            <label for="include-page-content">Web Content</label>
-          </div>
+            <div class="form-group">
+                <label for="api-key">API Key</label>
+                <div class="input-with-button">
+                    <input id="api-key" placeholder="Enter your API key" type="password">
+                    <button class="button-small" id="toggle-api-key" title="Show/Hide API Key" type="button">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+            </div>
 
-          <div class="checkbox-item domains-group">
-            <button class="button-small" id="manage-domains-btn"> Domains <span class="domain-count"
-                                                                                id="domain-count-badge"></span></button>
-          </div>
+            <div class="form-group">
+                <label for="model">Model</label>
+                <input id="model" placeholder="Enter model name" type="text">
+            </div>
 
-          <button class="button-primary" id="generate-btn">Test Prompt</button>
+            <div class="form-group">
+                <label for="theme-select">Theme</label>
+                <select class="theme-selector" id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option selected value="system">System</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="color-select">Accent Color</label>
+                <div class="color-selector-container">
+                    <select class="theme-selector" id="color-select">
+                        <option value="blue">Blue</option>
+                        <option value="red">Red</option>
+                        <option value="green">Green</option>
+                        <option value="purple">Purple</option>
+                        <option value="orange">Orange</option>
+                        <option value="pink">Pink</option>
+                    </select>
+                    <div class="color-preview" id="color-preview"></div>
+                </div>
+            </div>
+
+            <div class="form-group import-export-group">
+                <h3>Import/Export</h3>
+                <div class="import-export-buttons">
+                    <button class="button-primary" id="export-data-btn">Export All Data</button>
+                    <button class="button-primary" id="import-data-btn">Import Data</button>
+                </div>
+                <input accept=".json" id="import-file-input" style="display: none;" type="file">
+            </div>
         </div>
-      </div>
-
-      <div class="settings-panel hidden" id="settings-panel">
-        <div class="settings-header">
-          <h2>Settings</h2>
-          <div class="settings-status" id="settings-status"></div>
-        </div>
-        <div class="form-group">
-          <label for="base-url">Base URL</label>
-          <input id="base-url" placeholder="Enter API base URL" type="text">
-        </div>
-
-        <div class="form-group">
-          <label for="api-key">API Key</label>
-          <div class="input-with-button">
-            <input id="api-key" placeholder="Enter your API key" type="password">
-            <button class="button-small" id="toggle-api-key" type="button" title="Show/Hide API Key">
-              <i class="fa fa-eye"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="model">Model</label>
-          <input id="model" placeholder="Enter model name" type="text">
-        </div>
-
-        <div class="form-group">
-          <label for="theme-select">Theme</label>
-          <select class="theme-selector" id="theme-select">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            <option selected value="system">System</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="color-select">Accent Color</label>
-          <div class="color-selector-container">
-            <select class="theme-selector" id="color-select">
-              <option value="blue">Blue</option>
-              <option value="red">Red</option>
-              <option value="green">Green</option>
-              <option value="purple">Purple</option>
-              <option value="orange">Orange</option>
-              <option value="pink">Pink</option>
-            </select>
-            <div class="color-preview" id="color-preview"></div>
-          </div>
-        </div>
-
-        <div class="form-group import-export-group">
-          <h3>Import/Export</h3>
-          <div class="import-export-buttons">
-            <button class="button-primary" id="export-data-btn">Export All Data</button>
-            <button class="button-primary" id="import-data-btn">Import Data</button>
-          </div>
-          <input accept=".json" id="import-file-input" style="display: none;" type="file">
-        </div>
-      </div>
     </div>
 </div>
 <!-- Domain Management Dialog -->
 <div class="dialog hidden" id="domain-dialog">
-  <div class="dialog-content">
-    <div class="dialog-header">
-      <h3>Manage Domains</h3>
-      <button class="close-btn" id="close-domain-dialog"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="dialog-body">
-      <p class="dialog-info">Add domains to link this template to specific websites. Use * for wildcards (e.g.,
-        *.example.com).</p>
+    <div class="dialog-content">
+        <div class="dialog-header">
+            <h3>Manage Domains</h3>
+            <button class="close-btn" id="close-domain-dialog"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="dialog-body">
+            <p class="dialog-info">Add domains to link this template to specific websites. Use * for wildcards (e.g.,
+                *.example.com).</p>
 
-      <button class="button-secondary" id="add-current-domain-btn">Add Current Domain</button>
+            <button class="button-secondary" id="add-current-domain-btn">Add Current Domain</button>
 
-      <div class="domain-list" id="domain-list">
-        <!-- Domains will be populated here -->
-      </div>
+            <div class="domain-list" id="domain-list">
+                <!-- Domains will be populated here -->
+            </div>
 
-      <div class="domain-input-group">
-        <input id="new-domain-input" placeholder="Enter domain (e.g., example.com or *.example.com)" type="text">
-        <button class="button-primary" id="add-domain-btn">Add</button>
-      </div>
+            <div class="domain-input-group">
+                <input id="new-domain-input" placeholder="Enter domain (e.g., example.com or *.example.com)"
+                       type="text">
+                <button class="button-primary" id="add-domain-btn">Add</button>
+            </div>
+        </div>
+        <div class="dialog-footer">
+            <button class="button-primary" id="save-domains-btn">Save</button>
+        </div>
     </div>
-    <div class="dialog-footer">
-      <button class="button-primary" id="save-domains-btn">Save</button>
-    </div>
-  </div>
 </div>
 
 <!-- Template Variables Dialog -->
 <div class="dialog hidden" id="template-variables-dialog">
-  <div class="dialog-content">
-    <div class="dialog-header">
-      <h3>Template Variables</h3>
-      <button class="close-btn" id="close-variables-dialog"><i class="fa fa-times"></i></button>
+    <div class="dialog-content">
+        <div class="dialog-header">
+            <h3>Template Variables</h3>
+            <button class="close-btn" id="close-variables-dialog"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="dialog-body">
+            <p class="dialog-info">Customize the template variables below:</p>
+            <div id="template-variables-content">
+                <!-- Variable inputs will be populated here -->
+            </div>
+        </div>
+        <div class="dialog-footer">
+            <button class="button-primary" id="next-variables-btn">Next</button>
+        </div>
     </div>
-    <div class="dialog-body">
-      <p class="dialog-info">Customize the template variables below:</p>
-      <div id="template-variables-content">
-        <!-- Variable inputs will be populated here -->
-      </div>
-    </div>
-    <div class="dialog-footer">
-      <button class="button-primary" id="next-variables-btn">Next</button>
-    </div>
-  </div>
 </div>
 <div id="debug hidden"></div>
 </body>

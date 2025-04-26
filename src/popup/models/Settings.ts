@@ -106,6 +106,22 @@ export class SettingsModel {
     }
 
     /**
+     * Get just the color setting
+     */
+    async getColor(): Promise<ThemeColor> {
+        const settings = await this.getSettingsFromStorage();
+        return (settings.themeColor as ThemeColor) || DEFAULT_SETTINGS.themeColor as ThemeColor;
+    }
+
+    /**
+     * Update just the color setting
+     */
+    async setColor(color: ThemeColor): Promise<void> {
+        this.settings.themeColor = color;
+        return this.saveSettings();
+    }
+
+    /**
      * Save settings to storage
      */
     private async saveSettings(): Promise<void> {
@@ -142,22 +158,6 @@ export class SettingsModel {
             return theme as ThemeMode;
         }
         return undefined;
-    }
-
-    /**
-     * Get just the color setting
-     */
-    async getColor(): Promise<ThemeColor> {
-        const settings = await this.getSettingsFromStorage();
-        return (settings.themeColor as ThemeColor) || DEFAULT_SETTINGS.themeColor as ThemeColor;
-    }
-
-    /**
-     * Update just the color setting
-     */
-    async setColor(color: ThemeColor): Promise<void> {
-        this.settings.themeColor = color;
-        return this.saveSettings();
     }
 
     /**

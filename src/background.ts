@@ -42,7 +42,7 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
                 resolve();
             });
         });
-        
+
         // Create the parent menu
         chrome.contextMenus.create({
             id: 'foundationFill',
@@ -53,16 +53,16 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
         // Add each enabled template as a menu item
         // Use a Map to ensure no duplicate IDs
         const addedIds = new Set<string>();
-        
+
         for (const template of activeTemplates) {
             const menuId = `template-${template.id}`;
-            
+
             // Skip if we already added this template
             if (addedIds.has(menuId)) {
                 logger.debug(`Skipping duplicate menu item: ${menuId}`);
                 continue;
             }
-            
+
             try {
                 chrome.contextMenus.create({
                     id: menuId,
@@ -70,7 +70,7 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
                     parentId: 'foundationFill',
                     contexts: ['editable']
                 });
-                
+
                 // Track that we added this ID
                 addedIds.add(menuId);
             } catch (error) {
@@ -93,7 +93,7 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
             parentId: 'foundationFill',
             contexts: ['editable']
         });
-        
+
     } catch (error) {
         logger.error("Error loading templates into context menu:", error);
     }
@@ -116,7 +116,7 @@ chrome.tabs.onActivated.addListener(() => {
     if (tabActivationTimer !== null) {
         clearTimeout(tabActivationTimer);
     }
-    
+
     // Set a new timer to debounce the context menu refresh
     tabActivationTimer = setTimeout(() => {
         loadTemplatesIntoContextMenu();
@@ -141,7 +141,7 @@ chrome.storage.onChanged.addListener((changes: {
         if (storageChangeTimer !== null) {
             clearTimeout(storageChangeTimer);
         }
-        
+
         // Set a new timer to debounce the context menu refresh
         storageChangeTimer = setTimeout(() => {
             loadTemplatesIntoContextMenu();

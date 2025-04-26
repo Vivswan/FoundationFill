@@ -43,8 +43,16 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["help.html", "assets/images/*", "assets/css/*", "assets/js/*", "assets/images/screenshots/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "help.html",
+        "assets/images/*",
+        "assets/css/*",
+        "assets/js/*",
+        "assets/images/screenshots/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

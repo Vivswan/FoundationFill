@@ -30,8 +30,9 @@ export interface Response {
  * Provides common structure for all message types
  */
 export interface Message {
-  action: string;
-  [key: string]: unknown;
+    action: string;
+
+    [key: string]: unknown;
 }
 
 /**
@@ -39,8 +40,8 @@ export interface Message {
  * Sent from background script to content script
  */
 export interface FillTemplateMessage extends Message {
-  action: 'fillTemplate';
-  template: Template;
+    action: 'fillTemplate';
+    template: Template;
 }
 
 /**
@@ -48,10 +49,10 @@ export interface FillTemplateMessage extends Message {
  * Sent from content script to background script
  */
 export interface GenerateTextMessage extends Message {
-  action: 'generateText';
-  systemPrompt: string;
-  userPrompt: string;
-  pageContent?: string;
+    action: 'generateText';
+    systemPrompt: string;
+    userPrompt: string;
+    pageContent?: string;
 }
 
 /**

@@ -66,7 +66,7 @@ export class TemplateEditorView {
         this.deleteTemplateBtn.addEventListener('click', async () => {
             await this.template.deleteTemplate(this.template.getActiveTemplateId());
         });
-        
+
         this.duplicateTemplateBtn.addEventListener('click', async () => {
             const activeId = this.template.getActiveTemplateId();
             const duplicatedTemplate = await this.template.duplicateTemplate(activeId);
@@ -142,7 +142,7 @@ export class TemplateEditorView {
             this.deleteTemplateBtn.style.opacity = '0';
             this.deleteTemplateBtn.disabled = true;
             this.deleteTemplateBtn.title = 'Default template cannot be deleted';
-            
+
             // Show duplicate button for default template (can still duplicate it)
             this.duplicateTemplateBtn.style.visibility = 'visible';
             this.duplicateTemplateBtn.disabled = false;
@@ -152,7 +152,7 @@ export class TemplateEditorView {
             this.deleteTemplateBtn.style.opacity = '1';
             this.deleteTemplateBtn.disabled = false;
             this.deleteTemplateBtn.title = 'Delete this template';
-            
+
             this.duplicateTemplateBtn.style.visibility = 'visible';
             this.duplicateTemplateBtn.disabled = false;
             this.duplicateTemplateBtn.title = 'Duplicate this template';

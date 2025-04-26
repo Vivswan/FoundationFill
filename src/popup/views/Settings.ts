@@ -42,7 +42,7 @@ export class SettingsView {
 
     // Status timeout
     private statusTimeout: number | null = null;
-    
+
     // API key visibility state
     private isApiKeyVisible: boolean = false;
 
@@ -78,14 +78,14 @@ export class SettingsView {
 
         // Color dropdown change handler
         this.colorSelect.addEventListener('change', this.handleColorChange.bind(this));
-        
+
         // Toggle API key visibility handler
         this.toggleApiKeyBtn.addEventListener('click', this.toggleApiKeyVisibility.bind(this));
 
         // Update color preview when settings change
         this.updateColorPreview();
     }
-    
+
     /**
      * Toggles the visibility of the API key field
      * Switches between password and text input types
@@ -93,13 +93,13 @@ export class SettingsView {
     toggleApiKeyVisibility(): void {
         this.isApiKeyVisible = !this.isApiKeyVisible;
         this.apiKeyInput.type = this.isApiKeyVisible ? 'text' : 'password';
-        
+
         // Update the eye icon
         const eyeIcon = this.toggleApiKeyBtn.querySelector('i');
         if (eyeIcon) {
             eyeIcon.className = this.isApiKeyVisible ? 'fa fa-eye-slash' : 'fa fa-eye';
         }
-        
+
         // Set focus back to input
         this.apiKeyInput.focus();
     }

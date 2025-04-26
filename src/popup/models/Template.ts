@@ -87,29 +87,29 @@ export class TemplateModel {
         await this.saveTemplates();
         return newTemplate;
     }
-    
+
     /**
      * Duplicate an existing template
      * @param templateId - The ID of the template to duplicate
      */
     async duplicateTemplate(templateId: string): Promise<Template | null> {
         const sourceTemplate = this.templates.find(template => template.id === templateId);
-        
+
         if (!sourceTemplate) {
             logger.error(`Template with ID ${templateId} not found for duplication`);
             return null;
         }
-        
+
         const newTemplate = {
             ...JSON.parse(JSON.stringify(sourceTemplate)),
             id: crypto.randomUUID(),
             name: `${sourceTemplate.name} (Copy)`,
         };
-        
+
         // Insert after the source template
         const sourceIndex = this.templates.findIndex(t => t.id === templateId);
         this.templates.splice(sourceIndex + 1, 0, newTemplate);
-        
+
         await this.saveTemplates();
         return newTemplate;
     }

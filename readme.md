@@ -97,9 +97,9 @@ foundation-fill/
    ```
 
 4. Load the unpacked extension from the `dist` directory in Chrome:
-   - Go to `chrome://extensions/`
-   - Enable Developer mode
-   - Click "Load unpacked" and select the `dist` directory
+    - Go to `chrome://extensions/`
+    - Enable Developer mode
+    - Click "Load unpacked" and select the `dist` directory
 
 ### Commands
 

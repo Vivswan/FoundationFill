@@ -118,7 +118,7 @@ export class TemplateListView {
                 handle.className = 'template-handle default-handle';
                 handle.innerHTML = '&#x2630;'; // hamburger menu icon
                 handle.style.visibility = 'hidden'; // Hide the handle for default template
-                
+
                 const nameContainer = document.createElement('span');
                 nameContainer.className = 'template-name';
                 nameContainer.textContent = template.name;
@@ -135,7 +135,7 @@ export class TemplateListView {
                 const handle = document.createElement('span');
                 handle.className = 'template-handle';
                 handle.innerHTML = '&#x2630;'; // hamburger menu icon
-                
+
                 const nameContainer = document.createElement('span');
                 nameContainer.className = 'template-name';
                 nameContainer.textContent = template.name;
@@ -220,7 +220,7 @@ export class TemplateListView {
         if ((e.target as HTMLElement).closest('.template-handle')) {
             return;
         }
-        
+
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;
         if (element.querySelector('.template-name-edit')) return; // Ignore if editing
@@ -266,7 +266,7 @@ export class TemplateListView {
         if ((e.target as HTMLElement).closest('.template-handle')) {
             return;
         }
-        
+
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;
         const id = element.getAttribute('data-id');

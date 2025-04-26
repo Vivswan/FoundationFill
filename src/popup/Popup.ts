@@ -82,6 +82,20 @@ export class PopupController {
     }
 
     /**
+     * Processes template variables for a template
+     * Displays the template editor and processes any variables in the template
+     * Used when a template with variables is selected from the context menu
+     *
+     * @param template - The template containing variables to resolve
+     * @returns Promise resolving to the processed template with variable values
+     */
+    public async resolveTemplateVariables(template: Template): Promise<Template> {
+        this.show("template");
+        this.templateModel.setActiveTemplateId(template.id);
+        return await this.templateEditorView.processTemplateVariables(template);
+    }
+
+    /**
      * Shows a specific panel in the popup
      * Hides all other panels and displays the requested one
      *
@@ -103,19 +117,5 @@ export class PopupController {
             default:
                 logger.error('Unknown panel:', panel);
         }
-    }
-
-    /**
-     * Processes template variables for a template
-     * Displays the template editor and processes any variables in the template
-     * Used when a template with variables is selected from the context menu
-     *
-     * @param template - The template containing variables to resolve
-     * @returns Promise resolving to the processed template with variable values
-     */
-    public async resolveTemplateVariables(template: Template): Promise<Template> {
-        this.show("template");
-        this.templateModel.setActiveTemplateId(template.id);
-        return await this.templateEditorView.processTemplateVariables(template);
     }
 }
