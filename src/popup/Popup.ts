@@ -99,6 +99,14 @@ export class PopupController {
         }
     }
 
+    /**
+     * Processes template variables for a template
+     * Displays the template editor and processes any variables in the template
+     * Used when a template with variables is selected from the context menu
+     *
+     * @param template - The template containing variables to resolve
+     * @returns Promise resolving to the processed template with variable values
+     */
     public async resolveTemplateVariables(template: Template): Promise<Template> {
         this.show("template");
         this.templateModel.setActiveTemplateId(template.id);

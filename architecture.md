@@ -14,6 +14,7 @@ graph TD
     ContentScript[Content Script]
     Browser[Browser]
     Storage[Chrome Storage]
+   LocalStorage[Local Storage]
     API[External API]
 %% Models
     TemplateModel[Template Model]
@@ -41,10 +42,13 @@ graph TD
     Popup -->|Initializes| TemplateList
     Popup -->|Initializes| TemplateEditor
     Popup -->|Initializes| Settings
+   Popup -->|Initializes| TemplateVariable
 %% Data Flow
     TemplateModel <-->|Save/Load| StorageService
     SettingsModel <-->|Save/Load| StorageService
     StorageService <-->|CRUD Operations| Storage
+   Background <-->|Template Variables| LocalStorage
+   Popup <-->|Template Variables| LocalStorage
 %% Event Flow
     TemplateList -->|Template Selection| TemplateEditor
     TemplateEditor -->|Generate Text| Background
@@ -53,7 +57,10 @@ graph TD
     API -->|Response| APIService
     APIService -->|Generated Text| Background
     Background -->|Fill Text Area| ContentScript
-   ContentScript -->|Template Variables| TemplateVariable
+   Background -->|Detect Variables| TemplateVariable
+   Background -->|Store Template for Variables| LocalStorage
+   Popup -->|Read Template with Variables| LocalStorage
+   Popup -->|Process Variables| TemplateVariable
    TemplateVariable -->|Processed Template| ContentScript
     ContentScript -->|Fill Active Element| Browser
 %% Settings Flow
@@ -76,11 +83,11 @@ graph TD
    classDef external fill: #ddd, stroke: #333, stroke-width: 1px;
    classDef user fill: #fbb, stroke: #333, stroke-width: 2px;
     class User user;
-class Popup, Background, ContentScript, Browser component;
-class ThemeService,APIService, StorageService, MessageService, TemplateService service;
+class Popup,Background,ContentScript,Browser component;
+class ThemeService,APIService,StorageService,MessageService,TemplateService service;
 class TemplateModel,SettingsModel model;
-class TemplateList,TemplateEditor, TemplateVariable, Settings view;
-class Storage,API external;
+class TemplateList,TemplateEditor,TemplateVariable,Settings view;
+class Storage,LocalStorage,API external;
 ```
 
 ## Core Components
@@ -92,18 +99,20 @@ class Storage,API external;
    - Manages context menu creation and updates
    - Handles messages from the popup and content scripts
    - Coordinates API requests and responses
+   - Detects templates with variables and initiates variable resolution
 
 2. **Content Script (`content.ts`)**
    - Runs in the context of web pages
    - Interacts with the web page DOM
    - Fills text fields with template content
    - Manages text generation animation
-   - Processes template variables via TemplateVariableView
+   - Receives processed templates with resolved variables
 
 3. **Popup UI (`index.ts`, `Popup.ts`)**
    - User interface for managing templates and settings
    - Initializes models and views
    - Handles UI interactions and navigation
+   - Processes template variables when triggered by background script
 
 ### Models
 
@@ -130,6 +139,7 @@ class Storage,API external;
    - Provides interface for editing templates
    - Handles saving template changes
    - Manages domain-specific settings
+   - Integrates with template variable processing
 
 3. **Settings View (`popup/views/Settings.ts`)**
    - Interface for editing extension settings
@@ -141,6 +151,7 @@ class Storage,API external;
    - Provides UI for entering variable values
    - Replaces variables in templates with user input
    - Uses format `{{variable:default value}}` for template variables
+   - Maintains dialog UI for variable input collection
 
 ### Services
 
@@ -175,27 +186,40 @@ class Storage,API external;
    - User right-clicks on a text field
    - Context menu is displayed with available templates
    - User selects a template
-   - Background script receives the selection
-   - Template is sent to the content script
-   - Content script processes template variables if present
-   - User inputs values for template variables in dialog
-   - Content script fills the text field with the processed template
+   - Background script checks if template contains variables
+   - If no variables, template is sent directly to content script
+   - If variables present, popup is opened for variable resolution
 
 ### Template Variables Flow
 
-1. **Variable Processing**
-   - User selects a template with variables (e.g., `{{name:default}}`)
-   - Content script extracts variables using TemplateVariableView
-   - TemplateVariableView shows dialog for each variable
-   - User inputs values for each variable
-   - TemplateVariableView replaces variables with user input
-   - Processed template is used for text generation or insertion
+1. **Variable Detection**
+   - When user selects a template from context menu
+   - Background script scans system and user prompts for variable patterns
+   - Variables are identified using the pattern `{{name:default}}`
+   - If variables are found, a different process is triggered
+
+2. **Variable Resolution Process**
+   - Background stores template in Chrome local storage
+   - Background triggers popup to open
+   - Popup reads template from local storage
+   - Popup displays template editor UI
+   - TemplateVariableView extracts all variables
+   - TemplateVariableView shows dialog for each variable with default values
+   - User inputs custom values for variables
+   - Variables are replaced with user-provided values
+   - Processed template is sent to content script for insertion
+
+3. **Variable Format**
+   - Variables use format `{{variable_name:default_value}}`
+   - Default values are optional: `{{variable_name}}`
+   - Variables can be used in both system and user prompts
+   - Same variable name in multiple locations uses the same value
 
 ### Text Generation Flow
 
 1. **Text Generation Request**
    - User selects a template with API generation enabled
-   - Content script processes any template variables
+   - Variables are processed if present
    - Content script sends generation request to background
    - Background script uses APIService to make external request
    - Animation is displayed while waiting for response
@@ -231,6 +255,11 @@ class Storage,API external;
    - Communication errors between components are logged
    - Fallbacks exist for failed communication
 
+4. **Variable Processing Errors**
+   - Invalid variable formats are gracefully handled
+   - If variable dialog is closed, default values are used
+   - Template processing failures fall back to original template
+
 ## Performance Considerations
 
 1. **Context Menu Updates**
@@ -240,6 +269,7 @@ class Storage,API external;
 2. **Storage Usage**
    - Data is stored efficiently
    - Templates are serialized appropriately
+   - Local storage used for temporary variable resolution data
 
 3. **Animation**
    - Text generation includes animation for user feedback
@@ -254,6 +284,7 @@ class Storage,API external;
 2. **Content Security**
    - Content script follows proper isolation practices
    - No arbitrary code execution from templates
+   - Variables are safely processed without injection risks
 
 3. **Permission Usage**
    - Minimal permissions are requested

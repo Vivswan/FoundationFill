@@ -168,6 +168,13 @@ export class TemplateEditorView {
         );
     }
 
+    /**
+     * Processes variables in a template through the variable view
+     * Extracts and replaces variables with user-provided values
+     *
+     * @param template - The template containing variables to process
+     * @returns Promise resolving to the processed template with variable values substituted
+     */
     public async processTemplateVariables(template: Template): Promise<Template> {
         return await this.templateVariableView.process(template);
     }

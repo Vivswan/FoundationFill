@@ -11,6 +11,14 @@ import {Template} from "../popup/models/Template";
  */
 export type Panel = 'setting' | 'template';
 
+/**
+ * Response interface for API and operation results
+ * Provides a standardized structure for success/failure responses
+ *
+ * @property success - Whether the operation was successful
+ * @property text - Optional text result for successful operations
+ * @property error - Optional error message for failed operations
+ */
 export interface Response {
     success: boolean;
     text?: string;
@@ -46,7 +54,15 @@ export interface GenerateTextMessage extends Message {
   pageContent?: string;
 }
 
-
+/**
+ * Message to request variable resolution for a template
+ * Used to store template variables request in local storage
+ * Triggers the popup to open and process template variables
+ *
+ * @property action - Always 'resolveTemplateVariables'
+ * @property timestamp - Timestamp when the request was created (for deduplication)
+ * @property template - The template containing variables to be resolved
+ */
 export interface ResolveTemplateVariablesMessage extends Message {
     action: 'resolveTemplateVariables';
     timestamp: number;

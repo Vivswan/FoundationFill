@@ -131,17 +131,21 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
 
         if (!template) return;
 
+        // Check if template contains variables that need to be resolved
         const systemVars = TemplateVariableView.extractTemplateVariables(template.systemPrompt);
         const userVars = TemplateVariableView.extractTemplateVariables(template.userPrompt);
+
         if (systemVars.length === 0 && userVars.length === 0) {
+            // No variables, directly fill the template
             await sendMessageToTab(tab.id, {action: 'fillTemplate', template} as FillTemplateMessage);
         } else {
+            // Template has variables, open popup for resolution
             const templateMessage: ResolveTemplateVariablesMessage = {
                 action: 'resolveTemplateVariables',
                 timestamp: Date.now(),
                 template: template,
             };
-            console.log("Template message:", templateMessage);
+            // Store the template in local storage and open popup to collect variable values
             chrome.storage.local.set({"resolveTemplateVariables": templateMessage}, () => chrome.action.openPopup());
         }
     }
