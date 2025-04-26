@@ -336,6 +336,11 @@ body.template-dragging {
     margin-bottom: 4px;
 }
 
+.template-actions {
+    display: flex;
+    gap: 8px;
+}
+
 #generate-btn {
     margin-left: auto;
 }
@@ -344,9 +349,8 @@ body.template-dragging {
     justify-content: flex-end;
 }
 
+.action-btn,
 .delete-btn {
-    color: white;
-    background-color: var(--danger-color);
     border: none;
     border-radius: 50%;
     width: 24px;
@@ -358,6 +362,31 @@ body.template-dragging {
     font-weight: bold;
     transition: all 0.2s ease;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn {
+    color: white;
+    background-color: var(--primary-color);
+}
+
+.action-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:active,
+.action-btn:focus {
+    background-color: var(--primary-hover);
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    outline: 2px solid rgba(37, 99, 235, 0.3);
+    outline-offset: 1px;
+}
+
+.delete-btn {
+    color: white;
+    background-color: var(--danger-color);
 }
 
 .delete-btn:hover {

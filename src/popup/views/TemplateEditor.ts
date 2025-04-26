@@ -27,6 +27,7 @@ export class TemplateEditorView {
     private templateEnabledCheckbox: HTMLInputElement;
     private includePageContentCheckbox: HTMLInputElement;
     private deleteTemplateBtn: HTMLButtonElement;
+    private duplicateTemplateBtn: HTMLButtonElement;
     private generateBtn: HTMLButtonElement;
     private generatedTextArea: HTMLTextAreaElement;
 
@@ -53,6 +54,7 @@ export class TemplateEditorView {
         this.templateEnabledCheckbox = document.getElementById('template-enabled') as HTMLInputElement;
         this.includePageContentCheckbox = document.getElementById('include-page-content') as HTMLInputElement;
         this.deleteTemplateBtn = document.getElementById('delete-template-btn') as HTMLButtonElement;
+        this.duplicateTemplateBtn = document.getElementById('duplicate-template-btn') as HTMLButtonElement;
         this.generateBtn = document.getElementById('generate-btn') as HTMLButtonElement;
         this.generatedTextArea = document.getElementById('generated-text') as HTMLTextAreaElement;
 
@@ -63,6 +65,14 @@ export class TemplateEditorView {
         // Add event listeners
         this.deleteTemplateBtn.addEventListener('click', async () => {
             await this.template.deleteTemplate(this.template.getActiveTemplateId());
+        });
+        
+        this.duplicateTemplateBtn.addEventListener('click', async () => {
+            const activeId = this.template.getActiveTemplateId();
+            const duplicatedTemplate = await this.template.duplicateTemplate(activeId);
+            if (duplicatedTemplate) {
+                this.template.setActiveTemplateId(duplicatedTemplate.id);
+            }
         });
 
         // Auto-save template on input changes
@@ -129,13 +139,23 @@ export class TemplateEditorView {
 
         if (activeId === DEFAULT_TEMPLATE.id) {
             this.deleteTemplateBtn.style.visibility = 'hidden';
+            this.deleteTemplateBtn.style.opacity = '0';
             this.deleteTemplateBtn.disabled = true;
             this.deleteTemplateBtn.title = 'Default template cannot be deleted';
-
+            
+            // Show duplicate button for default template (can still duplicate it)
+            this.duplicateTemplateBtn.style.visibility = 'visible';
+            this.duplicateTemplateBtn.disabled = false;
+            this.duplicateTemplateBtn.title = 'Duplicate this template';
         } else {
             this.deleteTemplateBtn.style.visibility = 'visible';
+            this.deleteTemplateBtn.style.opacity = '1';
             this.deleteTemplateBtn.disabled = false;
             this.deleteTemplateBtn.title = 'Delete this template';
+            
+            this.duplicateTemplateBtn.style.visibility = 'visible';
+            this.duplicateTemplateBtn.disabled = false;
+            this.duplicateTemplateBtn.title = 'Duplicate this template';
         }
 
         // Clear generated text area when switching templates
