@@ -30,6 +30,13 @@ export class SettingsModel {
      */
     async initialize(): Promise<SettingsModel> {
         this.settings = await this.getSettingsFromStorage();
+        
+        // Ensure baseUrl has no trailing slash
+        if (this.settings.baseUrl && this.settings.baseUrl.endsWith('/')) {
+            this.settings.baseUrl = this.settings.baseUrl.slice(0, -1);
+            await this.saveSettings();
+        }
+        
         this.notifyListeners();
         logger.debug('Settings loaded:', this.settings);
         return this
@@ -50,9 +57,14 @@ export class SettingsModel {
      * Import settings from an external source
      */
     async importSettings(importedSettings: Settings): Promise<void> {
+        const baseUrl = importedSettings.baseUrl ? 
+            (importedSettings.baseUrl.endsWith('/') ? importedSettings.baseUrl.slice(0, -1) : importedSettings.baseUrl) : 
+            DEFAULT_SETTINGS.baseUrl;
+            
         this.settings = {
             ...DEFAULT_SETTINGS,
             ...importedSettings,
+            baseUrl: baseUrl,
             theme: this.validateTheme(importedSettings.theme) || DEFAULT_SETTINGS.theme,
             themeColor: this.validateColor(importedSettings.themeColor) || DEFAULT_SETTINGS.themeColor
         };
@@ -70,6 +82,9 @@ export class SettingsModel {
         } else if (key === 'themeColor') {
             // Make sure color is valid
             this.settings[key] = this.validateColor(value) || DEFAULT_SETTINGS.themeColor;
+        } else if (key === 'baseUrl') {
+            // Remove trailing slash if present
+            this.settings[key] = value.endsWith('/') ? value.slice(0, -1) : value;
         } else {
             this.settings[key] = value;
         }
