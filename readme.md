@@ -19,6 +19,7 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 - Include page content in prompt generation for contextual responses
 - Context menu integration for quick access to templates
 - Light/dark/system theme support to match your browser
+- Multiple theme color options with consistent styling
 - Text generation via customizable API integration
 - Animation during text generation for better user feedback
 - Template variables with custom values - use `{{variable:default}}` syntax in your templates

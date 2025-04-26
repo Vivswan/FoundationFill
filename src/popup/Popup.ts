@@ -11,7 +11,7 @@ import {TemplateEditorView} from './views/TemplateEditor';
 import {SettingsView} from './views/Settings';
 import {ImportExportView} from './views/ImportExport';
 import {createLogger} from '../utils/logging';
-import {ThemeService} from "./views/Theme";
+import {ThemeColor, ThemeMode, ThemeService} from "./views/Theme";
 
 // Create a logger instance for this component
 const logger = createLogger('POPUP_CONTROLLER');
@@ -66,9 +66,15 @@ export class PopupController {
         await this.settingsModel.initialize();
         await this.templateModel.initialize();
 
-        // Set the initial theme
+        // Set the initial theme and color
         this.themeService.setTheme(await this.settingsModel.getTheme());
-        this.settingsModel.onChange((updatedSettings) => this.themeService.setTheme(updatedSettings.theme));
+        this.themeService.setColor(await this.settingsModel.getColor());
+
+        // Update theme and color when settings change
+        this.settingsModel.onChange((updatedSettings) => {
+            this.themeService.setTheme(updatedSettings.theme as ThemeMode);
+            this.themeService.setColor(updatedSettings.themeColor as ThemeColor);
+        });
 
         this.settingsBtn.addEventListener('click', this.show.bind(this, 'setting'));
         this.templateListView.onShowCallback = this.show.bind(this, 'template');

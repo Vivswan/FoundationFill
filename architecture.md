@@ -169,6 +169,8 @@ class Storage,LocalStorage,API external;
    - Manages application theming
    - Handles system theme detection
    - Applies theme changes
+   - Uses CSS variables via document.documentElement.style.setProperty
+   - Centralized color management with THEME_COLORS as single source of truth
 
 ## Data Flow
 
@@ -236,8 +238,10 @@ class Storage,LocalStorage,API external;
 
 2. **Theme Management**
    - User selects a theme or system uses default
-   - ThemeService applies the appropriate theme
-   - UI components update to reflect the theme
+   - User can choose from multiple color schemes (blue, red, green, purple, orange, pink)
+   - ThemeService applies theme by setting CSS variables via document.documentElement.style.setProperty
+   - THEME_COLORS object serves as single source of truth for all color values
+   - UI updates dynamically based on CSS variables
 
 ## Error Handling Strategy
 

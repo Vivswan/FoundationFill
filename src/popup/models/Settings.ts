@@ -7,7 +7,7 @@ import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {DEFAULT_SETTINGS} from '../../defaults';
 import {Settings} from "../views/Settings";
-import {ThemeMode} from "../views/Theme";
+import {ThemeColor, ThemeMode} from "../views/Theme";
 
 // Create a logger for this component
 const logger = createLogger('SETTINGS_MODEL');
@@ -53,7 +53,8 @@ export class SettingsModel {
         this.settings = {
             ...DEFAULT_SETTINGS,
             ...importedSettings,
-            theme: this.validateTheme(importedSettings.theme) || DEFAULT_SETTINGS.theme
+            theme: this.validateTheme(importedSettings.theme) || DEFAULT_SETTINGS.theme,
+            themeColor: this.validateColor(importedSettings.themeColor) || DEFAULT_SETTINGS.themeColor
         };
         await this.saveSettings();
     }
@@ -65,7 +66,10 @@ export class SettingsModel {
         logger.debug(`Updating setting ${key} to:`, value);
         if (key === 'theme') {
             // Make sure theme is valid
-            this.settings[key] = value as 'light' | 'dark' | 'system';
+            this.settings[key] = this.validateTheme(value) || DEFAULT_SETTINGS.theme;
+        } else if (key === 'themeColor') {
+            // Make sure color is valid
+            this.settings[key] = this.validateColor(value) || DEFAULT_SETTINGS.themeColor;
         } else {
             this.settings[key] = value;
         }
@@ -136,6 +140,32 @@ export class SettingsModel {
     private validateTheme(theme: string | undefined): ThemeMode | undefined {
         if (theme && ['light', 'dark', 'system'].includes(theme)) {
             return theme as ThemeMode;
+        }
+        return undefined;
+    }
+
+    /**
+     * Get just the color setting
+     */
+    async getColor(): Promise<ThemeColor> {
+        const settings = await this.getSettingsFromStorage();
+        return (settings.themeColor as ThemeColor) || DEFAULT_SETTINGS.themeColor as ThemeColor;
+    }
+
+    /**
+     * Update just the color setting
+     */
+    async setColor(color: ThemeColor): Promise<void> {
+        this.settings.themeColor = color;
+        return this.saveSettings();
+    }
+
+    /**
+     * Validate color value
+     */
+    private validateColor(color: string | undefined): ThemeColor | undefined {
+        if (color && ['blue', 'red', 'green', 'purple', 'orange', 'pink'].includes(color)) {
+            return color as ThemeColor;
         }
         return undefined;
     }

@@ -3,7 +3,7 @@
  * Manages the UI for user settings including API configuration and theme preferences
  */
 import {SettingsModel} from "../models/Settings";
-import {ThemeMode} from "./Theme";
+import {THEME_COLORS, ThemeColor, ThemeMode} from "./Theme";
 
 /**
  * Interface defining application settings properties
@@ -12,12 +12,14 @@ import {ThemeMode} from "./Theme";
  * @property {string} baseUrl - Base URL for API endpoint
  * @property {string} model - LLM model identifier to use for generation
  * @property {ThemeMode} theme - UI theme preference ('light', 'dark', or 'system')
+ * @property {string} themeColor - UI accent color preference
  */
 export interface Settings {
     apiKey: string;
     baseUrl: string;
     model: string;
     theme: ThemeMode;
+    themeColor: string;
 }
 
 /**
@@ -33,6 +35,8 @@ export class SettingsView {
     private apiKeyInput: HTMLInputElement;
     private modelInput: HTMLInputElement;
     private themeSelect: HTMLSelectElement;
+    private colorSelect: HTMLSelectElement;
+    private colorPreview: HTMLElement;
     private settingsStatus: HTMLElement;
 
     // Status timeout
@@ -51,6 +55,8 @@ export class SettingsView {
         this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
         this.modelInput = document.getElementById('model') as HTMLInputElement;
         this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
+        this.colorSelect = document.getElementById('color-select') as HTMLSelectElement;
+        this.colorPreview = document.getElementById('color-preview') as HTMLElement;
         this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
 
         // Update the settings panel visibility based on the current state
@@ -64,6 +70,12 @@ export class SettingsView {
 
         // Theme dropdown change handler
         this.themeSelect.addEventListener('change', this.handleThemeChange.bind(this));
+
+        // Color dropdown change handler
+        this.colorSelect.addEventListener('change', this.handleColorChange.bind(this));
+
+        // Update color preview when settings change
+        this.updateColorPreview();
     }
 
     /**
@@ -94,6 +106,38 @@ export class SettingsView {
 
         // Update theme dropdown
         this.themeSelect.value = settings.theme;
+
+        // Update color dropdown
+        this.colorSelect.value = settings.themeColor;
+
+        // Update color preview
+        this.updateColorPreview();
+    }
+
+    /**
+     * Updates the color preview element based on current theme color
+     * Sets the background color to match the selected theme color
+     */
+    updateColorPreview(): void {
+        const settings = this.settings.getSettings();
+        this.colorPreview.style.backgroundColor = this.getColorHex(settings.themeColor);
+    }
+
+    /**
+     * Gets the hex color value for a given theme color
+     * Uses THEME_COLORS as the single source of truth
+     *
+     * @param colorName - The name of the theme color
+     * @returns The hex color value or a default value if not found
+     */
+    getColorHex(colorName: string): string {
+        // Convert to ThemeColor type if possible
+        if (THEME_COLORS[colorName as ThemeColor]) {
+            return THEME_COLORS[colorName as ThemeColor].primary;
+        }
+
+        // Default to blue if not found
+        return THEME_COLORS.blue.primary;
     }
 
     /**
@@ -143,6 +187,21 @@ export class SettingsView {
     private async handleThemeChange(e: Event): Promise<void> {
         const value = (e.target as HTMLSelectElement).value;
         await this.settings.updateSetting('theme', value);
+        this.showStatus('Settings saved!');
+    }
+
+    /**
+     * Handles changes to the color dropdown
+     * Updates the theme color setting and shows a confirmation message
+     *
+     * @param e - The change event
+     * @returns Promise that resolves when the color is updated
+     * @private Internal event handler
+     */
+    private async handleColorChange(e: Event): Promise<void> {
+        const value = (e.target as HTMLSelectElement).value;
+        await this.settings.updateSetting('themeColor', value);
+        this.updateColorPreview();
         this.showStatus('Settings saved!');
     }
 }

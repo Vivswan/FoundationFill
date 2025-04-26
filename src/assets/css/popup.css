@@ -1,4 +1,5 @@
 :root {
+    /* Default values that will be overridden by JS with document.documentElement.style.setProperty */
     --primary-color: #2563eb;
     --primary-hover: #1d4ed8;
     --danger-color: #dc2626;
@@ -11,30 +12,22 @@
     --sidebar-bg: #f9fafb;
 }
 
-.theme-light {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --danger-color: #dc2626;
-    --danger-hover: #b91c1c;
-    --bg-color: #ffffff;
-    --text-color: #1f2937;
-    --border-color: #e5e7eb;
-    --highlight-color: #f3f4f6;
-    --sidebar-width: 200px;
-    --sidebar-bg: #f9fafb;
+/* Color selector styling */
+.color-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.theme-dark {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --danger-color: #ef4444;
-    --danger-hover: #dc2626;
-    --bg-color: #0f172a;
-    --text-color: #f8fafc;
-    --border-color: #1e293b;
-    --highlight-color: #1e293b;
-    --sidebar-bg: #020617;
+.color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
 }
+
+/* Theme classes replaced with CSS variables set by JS */
 
 * {
     box-sizing: border-box;
@@ -194,15 +187,15 @@ body {
     resize: vertical;
 }
 
-.theme-dark .form-group input[type="text"],
-.theme-dark .form-group input[type="password"],
-.theme-dark .form-group textarea {
-    background-color: #0f172a;
-    border-color: #1e293b;
+[data-theme="dark"] .form-group input[type="text"],
+[data-theme="dark"] .form-group input[type="password"],
+[data-theme="dark"] .form-group textarea {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
 }
 
-.theme-dark .form-group textarea[readonly] {
-    background-color: #0f172a;
+[data-theme="dark"] .form-group textarea[readonly] {
+    background-color: var(--bg-color);
 }
 
 .form-group textarea:focus,
@@ -325,22 +318,22 @@ body {
     background-color: var(--border-color);
 }
 
-.theme-dark .button-secondary {
-    background-color: #1e293b;
-    color: #f8fafc;
+[data-theme="dark"] .button-secondary {
+    background-color: var(--highlight-color);
+    color: var(--text-color);
 }
 
-.theme-dark .button-secondary:hover {
-    background-color: #334155;
+[data-theme="dark"] .button-secondary:hover {
+    background-color: var(--border-color);
 }
 
-.theme-dark .button-small {
-    background-color: #1e293b;
-    color: #f8fafc;
+[data-theme="dark"] .button-small {
+    background-color: var(--highlight-color);
+    color: var(--text-color);
 }
 
-.theme-dark .button-small:hover {
-    background-color: #334155;
+[data-theme="dark"] .button-small:hover {
+    background-color: var(--border-color);
 }
 
 .button-danger {
@@ -401,7 +394,7 @@ body {
     font-weight: 500;
 }
 
-.theme-dark .settings-status {
+[data-theme="dark"] .settings-status {
     color: #4ade80;
 }
 
@@ -423,9 +416,29 @@ body {
 }
 
 /* Specific dark mode overrides */
-.theme-dark .theme-selector {
-    background-color: #0f172a;
-    border-color: #1e293b;
+[data-theme="dark"] .theme-selector {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
+}
+
+/* Color selector styling */
+.color-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-selector-container .theme-selector {
+    flex: 1;
+}
+
+.color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 /* Separator */
@@ -436,8 +449,8 @@ body {
     margin: 12px 0 16px 0;
 }
 
-.theme-dark .separator {
-    background-color: #1e293b;
+[data-theme="dark"] .separator {
+    background-color: var(--border-color);
 }
 
 /* Import/Export section */
