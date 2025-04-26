@@ -119,6 +119,8 @@
       <p class="dialog-info">Add domains to link this template to specific websites. Use * for wildcards (e.g.,
         *.example.com).</p>
 
+      <button class="button-secondary" id="add-current-domain-btn">Add Current Domain</button>
+
       <div class="domain-list" id="domain-list">
         <!-- Domains will be populated here -->
       </div>
@@ -126,11 +128,6 @@
       <div class="domain-input-group">
         <input id="new-domain-input" placeholder="Enter domain (e.g., example.com or *.example.com)" type="text">
         <button class="button-primary" id="add-domain-btn">Add</button>
-      </div>
-
-      <div class="current-domain-info">
-        <p>Current page domain: <span id="current-page-domain"></span></p>
-        <button class="button-secondary" id="add-current-domain-btn">Add Current Domain</button>
       </div>
     </div>
     <div class="dialog-footer">

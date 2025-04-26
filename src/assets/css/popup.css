@@ -306,6 +306,16 @@ body {
     background-color: var(--primary-hover);
 }
 
+.button-primary:disabled,
+.button-secondary:disabled,
+.button-danger:disabled,
+.button-small:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--highlight-color);
+    color: var(--text-color);
+}
+
 .button-secondary {
     background-color: var(--highlight-color);
     color: var(--text-color);
@@ -567,14 +577,11 @@ body {
     border-radius: 4px;
 }
 
-.current-domain-info {
+#add-current-domain-btn {
     font-size: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: 100%;
 }
 
 /* Domains button styling */

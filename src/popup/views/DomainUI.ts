@@ -8,10 +8,10 @@ export class DomainUI {
     // Domain dialog elements
     private domainDialog: HTMLElement;
     private closeDomainDialogBtn: HTMLButtonElement;
+    private domainDialogBackground: HTMLButtonElement;
     private domainList: HTMLElement;
     private newDomainInput: HTMLInputElement;
     private addDomainBtn: HTMLButtonElement;
-    private currentPageDomainSpan: HTMLElement;
     private addCurrentDomainBtn: HTMLButtonElement;
     private saveDomainsBtn: HTMLButtonElement;
 
@@ -29,19 +29,22 @@ export class DomainUI {
         // Initialize domain dialog DOM elements
         this.domainDialog = document.getElementById('domain-dialog') as HTMLElement;
         this.closeDomainDialogBtn = document.getElementById('close-domain-dialog') as HTMLButtonElement;
+        this.domainDialogBackground = document.getElementById('domain-dialog') as HTMLButtonElement;
         this.domainList = document.getElementById('domain-list') as HTMLElement;
         this.newDomainInput = document.getElementById('new-domain-input') as HTMLInputElement;
         this.addDomainBtn = document.getElementById('add-domain-btn') as HTMLButtonElement;
-        this.currentPageDomainSpan = document.getElementById('current-page-domain') as HTMLElement;
         this.addCurrentDomainBtn = document.getElementById('add-current-domain-btn') as HTMLButtonElement;
         this.saveDomainsBtn = document.getElementById('save-domains-btn') as HTMLButtonElement;
 
         // Set up event listeners
         this.manageDomainsBtn.addEventListener('click', this.openDomainDialog.bind(this));
         this.closeDomainDialogBtn.addEventListener('click', this.closeDomainDialog.bind(this));
+        this.domainDialogBackground.addEventListener('click', async (e) => {
+            if (e.target === this.domainDialogBackground) await this.saveDomains();
+        });
         this.addDomainBtn.addEventListener('click', this.addDomain.bind(this));
-        this.newDomainInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.addDomain();
+        this.newDomainInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') await this.addDomain();
         });
         this.addCurrentDomainBtn.addEventListener('click', this.addCurrentDomain.bind(this));
         this.saveDomainsBtn.addEventListener('click', this.saveDomains.bind(this));
@@ -74,11 +77,10 @@ export class DomainUI {
     private async openDomainDialog(): Promise<void> {
         // Set current page domain for easy adding
         const currentDomain = await getCurrentDomain();
-        this.currentPageDomainSpan.textContent = currentDomain || 'N/A';
         this.addCurrentDomainBtn.disabled = !currentDomain;
 
         // Render the current domains
-        this.renderDomainList();
+        await this.renderDomainList();
 
         // Show the dialog
         this.domainDialog.classList.remove('hidden');
@@ -90,14 +92,14 @@ export class DomainUI {
     }
 
     // Add a new domain from the input field
-    private addDomain(): void {
+    private async addDomain(): Promise<void> {
         const domain = this.newDomainInput.value.trim();
         if (!domain) return;
 
         // Add domain if it's not already in the list
         if (!this.currentDomains.includes(domain)) {
             this.currentDomains.push(domain);
-            this.renderDomainList();
+            await this.renderDomainList();
         }
 
         // Clear input field
@@ -112,14 +114,14 @@ export class DomainUI {
         const currentDomain = await getCurrentDomain();
         if (currentDomain && !this.currentDomains.includes(currentDomain)) {
             this.currentDomains.push(currentDomain);
-            this.renderDomainList();
+            await this.renderDomainList();
         }
     }
 
     // Remove a domain from the list
-    private removeDomain(domain: string): void {
+    private async removeDomain(domain: string): Promise<void> {
         this.currentDomains = this.currentDomains.filter(d => d !== domain);
-        this.renderDomainList();
+        await this.renderDomainList();
     }
 
     // Save domains and close the dialog
@@ -133,7 +135,7 @@ export class DomainUI {
     }
 
     // Render the domain list in the dialog
-    private renderDomainList(): void {
+    private async renderDomainList(): Promise<void> {
         this.domainList.innerHTML = '';
 
         if (this.currentDomains.length === 0) {
@@ -144,7 +146,6 @@ export class DomainUI {
             emptyMessage.style.fontStyle = 'italic';
             emptyMessage.style.opacity = '0.7';
             this.domainList.appendChild(emptyMessage);
-            return;
         }
 
         this.currentDomains.forEach(domain => {
@@ -165,5 +166,14 @@ export class DomainUI {
             domainItem.appendChild(removeButton);
             this.domainList.appendChild(domainItem);
         });
+
+        const currentDomain = await getCurrentDomain();
+        if (currentDomain && !this.currentDomains.includes(currentDomain)) {
+            this.addCurrentDomainBtn.disabled = false;
+            this.addCurrentDomainBtn.textContent = `Add '${currentDomain}'`;
+        } else {
+            this.addCurrentDomainBtn.disabled = true;
+            this.addCurrentDomainBtn.textContent = 'Already Added';
+        }
     }
 }
