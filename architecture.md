@@ -121,6 +121,7 @@ class Storage,LocalStorage,API external;
    - Handles template creation, updating, and deletion
    - Provides domain-specific template filtering
    - Maintains template order and supports reordering
+   - Provides template duplication capability
    - Persists templates to storage
 
 2. **Settings Model (`popup/models/Settings.ts`)**
@@ -134,13 +135,14 @@ class Storage,LocalStorage,API external;
 1. **Template List View (`popup/views/TemplateList.ts`)**
    - Displays the list of available templates
    - Handles template selection events
-   - Manages template deletion UI
+   - Manages template deletion and duplication UI
    - Provides drag-and-drop reordering of templates
    - Ensures default template always remains at the top
 
 2. **Template Editor View (`popup/views/TemplateEditor.ts`)**
    - Provides interface for editing templates
    - Handles saving template changes
+   - Manages template duplication functionality 
    - Manages domain-specific settings
    - Integrates with template variable processing
 

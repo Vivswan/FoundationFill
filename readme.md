@@ -13,7 +13,7 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 
 ## Features
 
-- Create, edit, reorder, and manage reusable templates
+- Create, edit, duplicate, reorder, and manage reusable templates
 - Customize system prompts and user prompts
 - Domain-specific templates (only appear on specific websites)
 - Include page content in prompt generation for contextual responses
@@ -43,7 +43,7 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 1. **Create Templates**: Open the extension popup and create templates with system prompts and user prompts
 2. **Use Templates**: Right-click on any text field while browsing and select your template from the context menu
 3. **Organize Templates**: Reorder templates by dragging and dropping using the handle icon (default template always
-   stays at the top)
+   stays at the top). Easily duplicate templates with the copy button for quick variations.
 4. **Domain-Specific Templates**: Set templates to only appear on specific websites
 5. **Generate Text**: Configure API settings to use an LLM for generating content based on your templates
 6. **Use Template Variables**: Add variables like `{{name:John}}` in your templates and you'll be prompted to provide
