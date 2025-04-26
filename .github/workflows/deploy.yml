@@ -1,0 +1,142 @@
+name: Deploy and Release
+
+on:
+  push:
+    branches:
+      - deploy  # Execute when code is pushed to the deploy branch
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deploy branch
+        uses: actions/checkout@v4
+        with:
+          ref: deploy
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install dependencies
+        run: bun install
+
+      # Extract version from package.json
+      - name: Get version from package.json
+        id: version
+        run: |
+          PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d ' ')
+          echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "Version from package.json: $PACKAGE_VERSION"
+
+      # Create extension private key file if secret exists
+      - name: Create extension private key file
+        if: "${{ env.EXTENSION_PRIVATE_KEY != '' }}"
+        env:
+          EXTENSION_PRIVATE_KEY: ${{ secrets.EXTENSION_PRIVATE_KEY }}
+        run: |
+          echo "$EXTENSION_PRIVATE_KEY" > key.pem
+          echo "Private key configured"
+        
+      # Build the extension
+      - name: Build the extension
+        run: bun run build
+        
+      # Verify the build output directory exists
+      - name: Verify build output
+        run: |
+          ls -la builds/
+          echo "Build artifacts ready for release"
+          
+      # Create GitHub release with both files if CRX exists
+      - name: Create GitHub Release with CRX
+        id: create_release_with_crx
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Foundation Fill v${{ steps.version.outputs.version }}
+          body: |
+            ## Foundation Fill v${{ steps.version.outputs.version }}
+            
+            ### Installation
+            1. Download the zip file
+            2. Extract the contents
+            3. Go to chrome://extensions
+            4. Enable "Developer mode"
+            5. Click "Load unpacked" and select the extracted folder
+            
+            [Full documentation](https://github.com/Vivswan/FoundationFill#readme)
+          files: |
+            builds/foundation-fill-v${{ steps.version.outputs.version }}.zip
+            builds/foundation-fill-v${{ steps.version.outputs.version }}.crx
+          draft: false
+          prerelease: false
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          CRX_EXISTS: ${{ steps.check_crx.outputs.crx_exists }}
+
+  bump-version:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          
+      # Extract current version from package.json
+      - name: Get current version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d ' ')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+          
+      # Calculate next patch version (increment by 0.0.1)
+      - name: Calculate next version
+        id: next_version
+        run: |
+          # Split the version into parts
+          IFS='.' read -r -a VERSION_PARTS <<< "${{ steps.current_version.outputs.current_version }}"
+          
+          # Increment the patch version (last part)
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=$((VERSION_PARTS[2] + 1))
+          
+          NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Next version will be: $NEXT_VERSION"
+      
+      # Update package.json with new version
+      - name: Update version in package.json
+        run: |
+          # Use jq to update the version
+          jq '.version = "${{ steps.next_version.outputs.next_version }}"' package.json > package.json.tmp
+          mv package.json.tmp package.json
+          echo "Updated package.json with new version: ${{ steps.next_version.outputs.next_version }}"
+          
+      # Configure Git
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+      # Commit and push version update to main
+      - name: Commit version update
+        run: |
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.next_version.outputs.next_version }}"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
