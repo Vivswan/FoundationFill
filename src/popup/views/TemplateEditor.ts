@@ -17,6 +17,7 @@ export class TemplateEditorView {
     private template: TemplateModel;
     private lastTemplateId: string = DEFAULT_TEMPLATE.id;
     private domainUI: DomainUI;
+    private templateVariableView: TemplateVariableView;
 
     // DOM elements
     private templateEditor: HTMLElement;
@@ -40,6 +41,9 @@ export class TemplateEditorView {
 
         // Initialize the domain UI
         this.domainUI = new DomainUI(template);
+
+        // Initialize the template variable UI
+        this.templateVariableView = new TemplateVariableView();
 
         // Initialize DOM elements
         this.templateEditor = document.getElementById('template-editor') as HTMLElement;
@@ -156,6 +160,15 @@ export class TemplateEditorView {
 
         if (!templateData) return;
 
-        return generateTextWithAnimation(this.generatedTextArea, templateData, await getCurrentPageContent());
+        const processedTemplate = await this.templateVariableView.process(templateData);
+        return generateTextWithAnimation(
+            this.generatedTextArea,
+            processedTemplate,
+            await getCurrentPageContent()
+        );
+    }
+
+    public async processTemplateVariables(template: Template): Promise<Template> {
+        return await this.templateVariableView.process(template);
     }
 }

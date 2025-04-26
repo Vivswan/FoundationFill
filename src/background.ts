@@ -2,12 +2,19 @@
  * Background Script - Main Service Worker
  * Manages context menus, API communication, and message handling between components
  */
-import {FillTemplateMessage, GenerateTextMessage, MessageTypes,} from './utils/types';
+import {
+    FillTemplateMessage,
+    GenerateTextMessage,
+    Message,
+    ResolveTemplateVariablesMessage,
+    Response,
+} from './utils/types';
 import {createLogger} from './utils/logging';
 import {getCurrentTab, sendMessageToTab} from './utils/chrome-api-utils';
 import {handleGenerateText} from "./generate/api-service";
 import {TemplateModel} from "./popup/models/Template";
 import {extractDomainFromUrl} from "./utils/associatedDomain";
+import {TemplateVariableView} from "./popup/views/TemplateVariable";
 
 // Create a logger instance for this component
 const logger = createLogger('BACKGROUND');
@@ -123,7 +130,20 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
         const template = templates.find(t => t.id === templateId);
 
         if (!template) return;
-        await sendMessageToTab(tab.id, {action: 'fillTemplate', template} as FillTemplateMessage);
+
+        const systemVars = TemplateVariableView.extractTemplateVariables(template.systemPrompt);
+        const userVars = TemplateVariableView.extractTemplateVariables(template.userPrompt);
+        if (systemVars.length === 0 && userVars.length === 0) {
+            await sendMessageToTab(tab.id, {action: 'fillTemplate', template} as FillTemplateMessage);
+        } else {
+            const templateMessage: ResolveTemplateVariablesMessage = {
+                action: 'resolveTemplateVariables',
+                timestamp: Date.now(),
+                template: template,
+            };
+            console.log("Template message:", templateMessage);
+            chrome.storage.local.set({"resolveTemplateVariables": templateMessage}, () => chrome.action.openPopup());
+        }
     }
 });
 
@@ -137,7 +157,7 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
  * @returns Boolean indicating whether the response will be sent asynchronously
  */
 chrome.runtime.onMessage.addListener((
-    request: MessageTypes,
+    request: Message,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: unknown) => void
 ) => {
@@ -145,7 +165,7 @@ chrome.runtime.onMessage.addListener((
     if (request.action === 'templatesUpdated') {
         // Templates have been updated, refresh the context menu
         loadTemplatesIntoContextMenu();
-        sendResponse({success: true});
+        sendResponse({success: true} as Response);
         return true;
     }
 

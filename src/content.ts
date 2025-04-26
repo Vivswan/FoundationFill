@@ -3,7 +3,7 @@
  * Handles text field manipulation and template insertion
  */
 import {createLogger} from "./utils/logging";
-import {FillTemplateMessage, MessageTypes} from "./utils/types";
+import {FillTemplateMessage, Message, Response} from "./utils/types";
 import {Template} from "./popup/models/Template";
 import {generateTextWithAnimation} from "./generate/toElement";
 
@@ -18,7 +18,7 @@ logger.debug('Content script loaded, notifying background script');
  * Handles fill template requests
  */
 chrome.runtime.onMessage.addListener((
-    request: MessageTypes,
+    request: Message,
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: unknown) => void
 ) => {
@@ -28,15 +28,15 @@ chrome.runtime.onMessage.addListener((
     if (request.action === 'fillTemplate') {
       const fillRequest = request as FillTemplateMessage;
       fillTextArea(fillRequest.template);
-      sendResponse({success: true});
+      sendResponse({success: true} as Response);
       return true;
     }
   } catch (error) {
     logger.error('Error handling message:', error);
-    sendResponse({success: false, error: 'Error processing request'});
+    sendResponse({success: false, error: 'Error processing request'} as Response);
   }
 
-  sendResponse({success: false, error: 'Unknown action'});
+  sendResponse({success: false, error: 'Unknown action'} as Response);
   return true;
 });
 
@@ -47,6 +47,7 @@ chrome.runtime.onMessage.addListener((
  */
 async function fillTextArea(template: Template): Promise<void> {
   const activeElement = document.activeElement as HTMLElement;
-  await generateTextWithAnimation(activeElement, template, document.body.innerText);
+  const pageContent = template.includePageContent ? document.body.innerText : '';
+  await generateTextWithAnimation(activeElement, template, pageContent);
 }
 

@@ -4,7 +4,7 @@
  * Coordinates between models and views, manages navigation
  */
 import {Panel} from '../utils/types';
-import {TemplateModel} from './models/Template';
+import {Template, TemplateModel} from './models/Template';
 import {SettingsModel} from './models/Settings';
 import {TemplateListView} from './views/TemplateList';
 import {TemplateEditorView} from './views/TemplateEditor';
@@ -97,5 +97,11 @@ export class PopupController {
             default:
                 logger.error('Unknown panel:', panel);
         }
+    }
+
+    public async resolveTemplateVariables(template: Template): Promise<Template> {
+        this.show("template");
+        this.templateModel.setActiveTemplateId(template.id);
+        return await this.templateEditorView.processTemplateVariables(template);
     }
 }

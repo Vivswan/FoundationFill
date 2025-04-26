@@ -2,14 +2,13 @@
  * Text Generation UI Handler
  * Manages the process of generating text and displaying it in the DOM with animation
  */
-import {GenerateTextMessage} from "../utils/types";
+import {GenerateTextMessage, Response} from "../utils/types";
 import {generatingAnimation} from "./animation";
 import {sendMessageToBackground} from "../utils/chrome-api-utils";
 import {ANIMATION_TIMEOUT} from "../defaults";
 import {createLogger} from "../utils/logging";
 import {DOMUtils} from "../utils/dom-utils";
 import {Template} from "../popup/models/Template";
-import {GenerateTextResponse} from "./api-service";
 
 // Create a logger instance for this component
 const logger = createLogger('GENERATE_TEXT');
@@ -35,7 +34,7 @@ export const generateTextWithAnimation = async (element: HTMLElement, templateDa
     const stopCallback = generatingAnimation(element, ANIMATION_TIMEOUT);
     try {
         // Call the API using the api-service utility
-        const response = await sendMessageToBackground<GenerateTextResponse>({
+        const response = await sendMessageToBackground<Response>({
             action: 'generateText',
             systemPrompt: templateData.systemPrompt,
             userPrompt: templateData.userPrompt,

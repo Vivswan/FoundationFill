@@ -5,7 +5,7 @@
 import {createLogger} from '../utils/logging';
 import {SettingsModel} from '../popup/models/Settings';
 import {API_TIMEOUT} from '../defaults';
-import {GenerateTextMessage} from "../utils/types";
+import {GenerateTextMessage, Response} from "../utils/types";
 
 // Create a logger instance for this component
 const logger = createLogger('API');
@@ -37,19 +37,6 @@ interface APIRequestOptions {
 }
 
 /**
- * Response object for text generation requests
- * @interface GenerateTextResponse
- * @property {boolean} success - Whether the generation was successful
- * @property {string} [text] - The generated text (if successful)
- * @property {string} [error] - Error message (if unsuccessful)
- */
-export interface GenerateTextResponse {
-    success: boolean;
-    text?: string;
-    error?: string;
-}
-
-/**
  * Handles text generation requests from the extension
  * Processes the request and sends the response back to the caller
  *
@@ -59,7 +46,7 @@ export interface GenerateTextResponse {
  */
 export async function handleGenerateText(
     request: GenerateTextMessage,
-    sendResponse: (response?: GenerateTextResponse) => void
+    sendResponse: (response?: Response) => void
 ): Promise<void> {
     logger.debug('Handling generate text request');
 
@@ -77,7 +64,7 @@ export async function handleGenerateText(
         logger.error(`API error: ${response.error}`);
     }
 
-    sendResponse(response);
+    sendResponse(response as Response);
 }
 
 /**
@@ -93,7 +80,7 @@ export async function handleGenerateText(
  *   timeout: 30000
  * });
  */
-export const generateChatCompletion = async (options: APIRequestOptions): Promise<GenerateTextResponse> => {
+export const generateChatCompletion = async (options: APIRequestOptions): Promise<Response> => {
     try {
         // Create an instance of SettingsModel to get settings
         const settings = (await new SettingsModel().initialize()).getSettings();
