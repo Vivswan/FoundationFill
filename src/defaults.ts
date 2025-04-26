@@ -15,7 +15,7 @@ export const DEFAULT_TEMPLATE: Template = {
     enabled: true,
     name: 'Base',
     systemPrompt: 'You are a helpful assistant.',
-    userPrompt: '',
+    userPrompt: 'Hi',
     associatedDomains: [],
     includePageContent: false,
 };

@@ -24,6 +24,8 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 - Animation during text generation for better user feedback
 - Template variables with custom values - use `{{variable:default}}` syntax in your templates
 
+![Extension Popup Interface](src/assets/images/screenshots/popup.png)
+
 ## Installation
 
 ### From Chrome Web Store (Recommended)
