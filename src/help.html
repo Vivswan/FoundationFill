@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Foundation Fill - Help</title>
+  <link rel="icon" type="image/png" href="assets/images/icon128.png">
   <style>
     :root {
       --primary-color: #2563eb;
@@ -27,6 +28,12 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    a {
+        color: var(--primary-color);
+        text-decoration: underline;
+        transition: color 0.3s;
     }
 
     body {
@@ -313,7 +320,8 @@
   </div>
 
   <footer>
-    <p>Foundation Fill &copy; 2023-2025 | <a href="https://github.com/Vivswan/FoundationFill">GitHub Repository</a></p>
+    <p>Foundation Fill &copy; 2025-<span id="current-year"></span> | <a href="https://github.com/Vivswan/FoundationFill">GitHub Repository</a></p>
   </footer>
+  <script src="assets/js/help.js"></script>
 </body>
 </html>

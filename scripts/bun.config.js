@@ -68,6 +68,12 @@ const copyAssets = () => {
     if (!fs.existsSync(fontsDir)) {
         fs.mkdirSync(fontsDir, {recursive: true});
     }
+    
+    // Create js directory if it doesn't exist
+    const jsDir = path.join(distDir, 'assets/js');
+    if (!fs.existsSync(jsDir)) {
+        fs.mkdirSync(jsDir, {recursive: true});
+    }
 
     // Copy CSS files
     const cssFiles = fs.readdirSync(path.join(rootDir, 'src/assets/css'));
@@ -77,6 +83,19 @@ const copyAssets = () => {
           path.join(cssDir, file)
         );
     });
+    
+    // Copy JS files if they exist
+    const jsSourceDir = path.join(rootDir, 'src/assets/js');
+    if (fs.existsSync(jsSourceDir)) {
+        const jsFiles = fs.readdirSync(jsSourceDir);
+        jsFiles.forEach(file => {
+            fs.copyFileSync(
+                path.join(jsSourceDir, file),
+                path.join(jsDir, file)
+            );
+        });
+        console.log('Copied JS files to dist directory');
+    }
 
     // Copy image files
     const copyDirRecursive = (srcDir, destDir) => {

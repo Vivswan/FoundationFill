@@ -96,6 +96,8 @@ body {
     cursor: pointer;
     transition: background-color 0.2s;
     border-left: 3px solid transparent;
+    display: flex;
+    flex-direction: row;
 }
 
 .template-item:hover {
@@ -182,7 +184,6 @@ body.template-dragging {
     padding: 0;
     margin: 0;
     font: inherit;
-    width: 100%;
 }
 
 .default-badge {
