@@ -1,14 +1,31 @@
+/**
+ * Theme Management Module
+ * Handles application theme switching, system preference detection, and theme persistence
+ */
 import {createLogger} from '../../utils/logging';
 
+/**
+ * Theme mode options for the application
+ * @type ThemeMode
+ */
 export type ThemeMode = 'light' | 'dark' | 'system';
+
+// Create a logger instance for this component
 const logger = createLogger('THEME');
 
 /**
- * A service for managing and applying themes
+ * Service for managing and applying application themes
+ * Handles light/dark mode, system preference detection, and theme transitions
  */
 export class ThemeService {
     private currentTheme: ThemeMode = 'system';
 
+    /**
+     * Creates a new ThemeService instance
+     * Sets up system theme preference listeners and applies the initial theme
+     *
+     * @param initialTheme - The theme to initialize with (defaults to 'system')
+     */
     constructor(initialTheme: ThemeMode = 'system') {
         this.currentTheme = initialTheme;
         this.setupSystemThemeListener();
@@ -16,7 +33,10 @@ export class ThemeService {
     }
 
     /**
-     * Set the current theme and apply it
+     * Sets the current theme and applies it
+     * Updates DOM classes to reflect the selected theme
+     *
+     * @param theme - The theme to apply ('light', 'dark', or 'system')
      */
     setTheme(theme: ThemeMode): void {
         this.currentTheme = theme;
@@ -24,7 +44,9 @@ export class ThemeService {
     }
 
     /**
-     * Apply the current theme to the document
+     * Applies the current theme to the document
+     * Updates CSS classes based on the active theme or system preference
+     * @private Internal method called when theme changes
      */
     private applyTheme(): void {
         // Get the html element
@@ -50,7 +72,9 @@ export class ThemeService {
     }
 
     /**
-     * Set up a listener for system theme changes
+     * Sets up a listener for system theme preference changes
+     * Ensures theme updates automatically when system settings change
+     * @private Internal method called during initialization
      */
     private setupSystemThemeListener(): void {
         const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

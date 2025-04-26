@@ -69,14 +69,25 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
     }
 }
 
-// Initialize context menu items
-// Load templates and create menu items
+/**
+ * Initialize context menu items when extension is installed or updated
+ * Loads templates and creates menu items
+ */
 chrome.runtime.onInstalled.addListener(loadTemplatesIntoContextMenu);
 
-// When user switches tabs, refresh the context menu
+/**
+ * Refresh context menu when user switches tabs
+ * This ensures that domain-specific templates are properly displayed
+ */
 chrome.tabs.onActivated.addListener(loadTemplatesIntoContextMenu);
 
-// Listen for storage changes to update context menu
+/**
+ * Listen for storage changes to update context menu
+ * Updates the context menu when templates are modified
+ *
+ * @param changes Object containing the changes to storage
+ * @param area Storage area that was changed ('sync', 'local', or 'managed')
+ */
 chrome.storage.onChanged.addListener((changes: {
     [key: string]: { oldValue?: unknown, newValue?: unknown }
 }, area: string) => {
@@ -85,7 +96,13 @@ chrome.storage.onChanged.addListener((changes: {
     }
 });
 
-// Handle context menu clicks
+/**
+ * Handle context menu clicks
+ * Processes user interactions with the extension's context menu items
+ *
+ * @param info Information about the clicked menu item
+ * @param tab The tab where the context menu was clicked
+ */
 chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | number }, tab?: chrome.tabs.Tab) => {
     // Check if the tab is valid for message sending
     if (!tab || !tab.id || tab.id === chrome.tabs.TAB_ID_NONE) {
@@ -110,7 +127,15 @@ chrome.contextMenus.onClicked.addListener(async (info: { menuItemId: string | nu
     }
 });
 
-// Listen for messages from content scripts and popup
+/**
+ * Message handler for communication with content scripts and popup
+ * Processes various message types and performs appropriate actions
+ *
+ * @param request The message request object containing action and data
+ * @param sender Information about the sender of the message
+ * @param sendResponse Function to call with the response data
+ * @returns Boolean indicating whether the response will be sent asynchronously
+ */
 chrome.runtime.onMessage.addListener((
     request: MessageTypes,
     sender: chrome.runtime.MessageSender,

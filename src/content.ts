@@ -40,6 +40,11 @@ chrome.runtime.onMessage.addListener((
   return true;
 });
 
+/**
+ * Fills the active text area with generated text from the template
+ * @param template The template to process and use for text generation
+ * @returns Promise that resolves when the text area is filled
+ */
 async function fillTextArea(template: Template): Promise<void> {
   const activeElement = document.activeElement as HTMLElement;
   await generateTextWithAnimation(activeElement, template, document.body.innerText);

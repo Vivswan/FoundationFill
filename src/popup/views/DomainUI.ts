@@ -1,6 +1,14 @@
+/**
+ * Domain Management UI Module
+ * Manages associated domains for templates and domain-specific behavior
+ */
 import {Template, TemplateModel} from "../models/Template";
 import {getCurrentDomain} from "../../utils/associatedDomain";
 
+/**
+ * View component for managing domain associations with templates
+ * Provides UI for listing, adding, and removing domains from templates
+ */
 export class DomainUI {
     private template: TemplateModel;
     private currentDomains: string[] = [];
@@ -19,6 +27,12 @@ export class DomainUI {
     private manageDomainsBtn: HTMLButtonElement;
     private domainCountBadge: HTMLElement;
 
+    /**
+     * Initializes the domain UI component
+     * Sets up DOM references and event handlers for domain management
+     *
+     * @param template - The template model to bind with domain management
+     */
     constructor(template: TemplateModel) {
         this.template = template;
 
@@ -57,6 +71,12 @@ export class DomainUI {
         })
     }
 
+    /**
+     * Updates the domain UI with the current template's domains
+     * Refreshes the domain counter and button state
+     *
+     * @param template - The template whose domains should be displayed
+     */
     public update(template: Template): void {
         this.currentDomains = template.associatedDomains || [];
         if (this.currentDomains.length > 0) {
@@ -67,13 +87,24 @@ export class DomainUI {
         this.domainCountBadge.textContent = this.currentDomains.length > 0 ? `(${this.currentDomains.length.toString()})` : '';
     }
 
-    // Show/hide the domain management group for default templates
+    /**
+     * Shows or hides the domain management UI
+     * Used to disable domain management for certain templates
+     *
+     * @param visibility - Whether the domain management controls should be visible
+     */
     public updateDomainGroupVisibility(visibility: boolean): void {
         (this.manageDomainsBtn.parentElement as HTMLElement).style.display = visibility ? 'flex' : 'none';
         if (!visibility) this.closeDomainDialog();
     }
 
-    // Open the domain management dialog
+    /**
+     * Opens the domain management dialog
+     * Fetches current domain and renders the domain list
+     *
+     * @returns Promise that resolves when the dialog is open and populated
+     * @private Event handler for manage domains button
+     */
     private async openDomainDialog(): Promise<void> {
         // Set current page domain for easy adding
         const currentDomain = await getCurrentDomain();
@@ -86,12 +117,23 @@ export class DomainUI {
         this.domainDialog.classList.remove('hidden');
     }
 
-    // Close the domain management dialog
+    /**
+     * Closes the domain management dialog
+     * Hides the dialog without saving changes
+     *
+     * @private Event handler for close button
+     */
     private closeDomainDialog(): void {
         this.domainDialog.classList.add('hidden');
     }
 
-    // Add a new domain from the input field
+    /**
+     * Adds a new domain from the input field
+     * Validates and adds the domain to the current list
+     *
+     * @returns Promise that resolves when the domain is added
+     * @private Event handler for add domain button
+     */
     private async addDomain(): Promise<void> {
         const domain = this.newDomainInput.value.trim();
         if (!domain) return;
@@ -109,7 +151,13 @@ export class DomainUI {
         }
     }
 
-    // Add the current page's domain
+    /**
+     * Adds the current page's domain to the list
+     * Fetches the current domain and adds it if not already present
+     *
+     * @returns Promise that resolves when the domain is added
+     * @private Event handler for add current domain button
+     */
     private async addCurrentDomain(): Promise<void> {
         const currentDomain = await getCurrentDomain();
         if (currentDomain && !this.currentDomains.includes(currentDomain)) {
@@ -118,13 +166,26 @@ export class DomainUI {
         }
     }
 
-    // Remove a domain from the list
+    /**
+     * Removes a domain from the list
+     * Filters out the specified domain and updates the UI
+     *
+     * @param domain - The domain to remove
+     * @returns Promise that resolves when the domain is removed
+     * @private Event handler for domain remove buttons
+     */
     private async removeDomain(domain: string): Promise<void> {
         this.currentDomains = this.currentDomains.filter(d => d !== domain);
         await this.renderDomainList();
     }
 
-    // Save domains and close the dialog
+    /**
+     * Saves domain changes to the template
+     * Updates the template model and closes the dialog
+     *
+     * @returns Promise that resolves when changes are saved
+     * @private Event handler for save button
+     */
     private async saveDomains(): Promise<void> {
         await this.template.updateTemplate(this.template.getActiveTemplateId(), {
             associatedDomains: [...this.currentDomains]
@@ -134,7 +195,13 @@ export class DomainUI {
         this.closeDomainDialog();
     }
 
-    // Render the domain list in the dialog
+    /**
+     * Renders the list of domains in the dialog
+     * Creates DOM elements for each domain with remove buttons
+     *
+     * @returns Promise that resolves when rendering is complete
+     * @private Internal method for UI updates
+     */
     private async renderDomainList(): Promise<void> {
         this.domainList.innerHTML = '';
 

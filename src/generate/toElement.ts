@@ -11,6 +11,7 @@ import {DOMUtils} from "../utils/dom-utils";
 import {Template} from "../popup/models/Template";
 import {GenerateTextResponse} from "./api-service";
 
+// Create a logger instance for this component
 const logger = createLogger('GENERATE_TEXT');
 
 /**

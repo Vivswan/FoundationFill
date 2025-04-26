@@ -7,16 +7,28 @@ import {SettingsModel} from '../popup/models/Settings';
 import {API_TIMEOUT} from '../defaults';
 import {GenerateTextMessage} from "../utils/types";
 
+// Create a logger instance for this component
 const logger = createLogger('API');
 
 /**
  * Interface representing a chat message in the API request format
+ * @interface ChatMessage
+ * @property {string} role - The role of the message sender ('system', 'user', or 'assistant')
+ * @property {string} content - The content of the message
  */
 interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
     content: string;
 }
 
+/**
+ * Configuration options for API requests
+ * @interface APIRequestOptions
+ * @property {string} systemPrompt - The system prompt to use for the generation
+ * @property {string} userPrompt - The user prompt to use for the generation
+ * @property {string} [pageContent] - Optional page content to include in the request
+ * @property {number} [timeout] - Optional timeout in milliseconds for the request
+ */
 interface APIRequestOptions {
     systemPrompt: string;
     userPrompt: string;
@@ -24,13 +36,27 @@ interface APIRequestOptions {
     timeout?: number;
 }
 
+/**
+ * Response object for text generation requests
+ * @interface GenerateTextResponse
+ * @property {boolean} success - Whether the generation was successful
+ * @property {string} [text] - The generated text (if successful)
+ * @property {string} [error] - Error message (if unsuccessful)
+ */
 export interface GenerateTextResponse {
     success: boolean;
     text?: string;
     error?: string;
 }
 
-// Handle generate text action
+/**
+ * Handles text generation requests from the extension
+ * Processes the request and sends the response back to the caller
+ *
+ * @param request - The generation request message containing prompts and options
+ * @param sendResponse - Function to call with the generation results
+ * @returns Promise that resolves when the generation is complete
+ */
 export async function handleGenerateText(
     request: GenerateTextMessage,
     sendResponse: (response?: GenerateTextResponse) => void
@@ -56,6 +82,16 @@ export async function handleGenerateText(
 
 /**
  * Makes a request to the chat completions API
+ * Handles building the request, sending it to the API, and processing the response
+ *
+ * @param options - Configuration options for the API request
+ * @returns Promise that resolves to a GenerateTextResponse object
+ * @example
+ * const response = await generateChatCompletion({
+ *   systemPrompt: "You are a helpful assistant.",
+ *   userPrompt: "Tell me about TypeScript.",
+ *   timeout: 30000
+ * });
  */
 export const generateChatCompletion = async (options: APIRequestOptions): Promise<GenerateTextResponse> => {
     try {

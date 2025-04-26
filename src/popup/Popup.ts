@@ -1,3 +1,8 @@
+/**
+ * Popup Controller Module
+ * Main controller for the extension popup UI
+ * Coordinates between models and views, manages navigation
+ */
 import {Panel} from '../utils/types';
 import {TemplateModel} from './models/Template';
 import {SettingsModel} from './models/Settings';
@@ -11,6 +16,10 @@ import {ThemeService} from "./views/Theme";
 // Create a logger instance for this component
 const logger = createLogger('POPUP_CONTROLLER');
 
+/**
+ * Main controller for the extension popup
+ * Manages initialization, panel navigation, and coordinates between models and views
+ */
 export class PopupController {
     private settingsModel: SettingsModel;
     private themeService: ThemeService;
@@ -23,6 +32,10 @@ export class PopupController {
 
     private settingsBtn: HTMLElement;
 
+    /**
+     * Initializes the popup controller
+     * Creates instances of models and views needed for the popup UI
+     */
     constructor() {
         this.settingsModel = new SettingsModel();
         this.themeService = new ThemeService();
@@ -39,7 +52,12 @@ export class PopupController {
         this.settingsBtn = document.getElementById('settings-btn') as HTMLElement;
     }
 
-    // Initialize the controller
+    /**
+     * Initializes the controller
+     * Loads data, sets up event listeners, and displays the initial UI
+     *
+     * @returns Promise that resolves when initialization is complete
+     */
     async initialize(): Promise<void> {
         logger.debug('Initializing');
 
@@ -57,6 +75,13 @@ export class PopupController {
         this.show("template");
     }
 
+    /**
+     * Shows a specific panel in the popup
+     * Hides all other panels and displays the requested one
+     *
+     * @param panel - The panel to show ('template' or 'setting')
+     * @private Internal method used for navigation
+     */
     private show(panel: Panel): void {
         // Hide all panels
         this.templateEditorView.hide();

@@ -1,3 +1,7 @@
+/**
+ * Template List View Module
+ * Handles the sidebar list of templates, selection, and inline editing
+ */
 import {createLogger} from '../../utils/logging';
 import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
@@ -5,6 +9,10 @@ import {DEFAULT_TEMPLATE} from "../../defaults";
 // Create a logger for this component
 const logger = createLogger('TEMPLATE_LIST_VIEW');
 
+/**
+ * View component for displaying and managing the list of templates
+ * Handles template selection, inline name editing, and new template creation
+ */
 export class TemplateListView {
     private template: TemplateModel;
 
@@ -12,10 +20,16 @@ export class TemplateListView {
     private readonly templateList: HTMLElement;
     private readonly newTemplateBtn: HTMLElement;
 
-    // Callbacks
-    public onShowCallback: () => void = () => {
-    };
+    // Track click timer to distinguish between single and double clicks
+    private clickTimer: number | null = null;
+    private clickedTemplateId: string | null = null;
 
+    /**
+     * Initializes the template list view
+     * Sets up DOM elements, event listeners, and data binding
+     *
+     * @param template - The template model to bind to this view
+     */
     constructor(template: TemplateModel) {
         this.template = template;
 
@@ -33,10 +47,28 @@ export class TemplateListView {
         });
     }
 
+    /**
+     * Callback function triggered when a template is selected
+     * Can be set externally to handle navigation to template editor
+     */
+    public onShowCallback: () => void = () => {
+    };
+
+    /**
+     * Re-renders the template list with current data
+     * Convenience method that calls render with current state
+     */
     rerender(): void {
         this.render(this.template.getActiveTemplateId(), this.template.getTemplates());
     }
 
+    /**
+     * Renders the template list with the provided data
+     * Creates DOM elements for each template and adds appropriate event listeners
+     *
+     * @param selectedTemplateId - The ID of the currently selected template
+     * @param templates - Array of templates to display in the list
+     */
     render(selectedTemplateId: string, templates: Template[]): void {
         this.templateList.innerHTML = '';
 
@@ -93,15 +125,25 @@ export class TemplateListView {
         });
     }
 
+    /**
+     * Updates a template with a new name
+     * Called when inline editing of a template name is completed
+     *
+     * @param templateId - The ID of the template to update
+     * @param newName - The new name for the template
+     */
     setNewName(templateId: string, newName: string): void {
         if (!newName) return;
         this.template.updateTemplate(templateId, {name: newName} as Partial<Template>);
     }
 
-    // Track click timer to distinguish between single and double clicks
-    private clickTimer: number | null = null;
-    private clickedTemplateId: string | null = null;
-
+    /**
+     * Handles click events on template items
+     * Selects the template and triggers the onShowCallback to display it
+     *
+     * @param e - The click event
+     * @private Internal event handler
+     */
     private templateItemClick(e: Event) {
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;
@@ -136,6 +178,13 @@ export class TemplateListView {
         }, 250); // Short delay to wait for possible double-click
     }
 
+    /**
+     * Handles double-click events on template items
+     * Enables inline editing of template names
+     *
+     * @param e - The double-click event
+     * @private Internal event handler
+     */
     private templateItemDblClick(e: Event) {
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;

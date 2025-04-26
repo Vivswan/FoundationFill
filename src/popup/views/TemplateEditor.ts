@@ -1,9 +1,18 @@
+/**
+ * Template Editor View
+ * Handles the UI for editing templates, managing user inputs, and previewing generation
+ */
 import {getCurrentPageContent} from "../../utils/chrome-api-utils";
 import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
 import {generateTextWithAnimation} from "../../generate/toElement";
 import {DomainUI} from "./DomainUI";
+import {TemplateVariableView} from "./TemplateVariable";
 
+/**
+ * TemplateEditorView class
+ * Manages the template editor UI, including input fields, controls, and text generation preview
+ */
 export class TemplateEditorView {
     private template: TemplateModel;
     private lastTemplateId: string = DEFAULT_TEMPLATE.id;
@@ -20,6 +29,12 @@ export class TemplateEditorView {
     private generateBtn: HTMLButtonElement;
     private generatedTextArea: HTMLTextAreaElement;
 
+    /**
+     * Initializes the template editor view
+     * Sets up DOM elements, event listeners, and child components
+     *
+     * @param template - The template model to bind to this view
+     */
     constructor(template: TemplateModel) {
         this.template = template;
 
@@ -74,17 +89,29 @@ export class TemplateEditorView {
         this.generateBtn.addEventListener('click', this.generate.bind(this));
     }
 
-    // Show the template editor
+    /**
+     * Shows the template editor panel
+     * Removes the 'hidden' class to make the editor visible
+     */
     show(): void {
         this.templateEditor.classList.remove('hidden');
     }
 
-    // Hide the template editor
+    /**
+     * Hides the template editor panel
+     * Adds the 'hidden' class to make the editor invisible
+     */
     hide(): void {
         this.templateEditor.classList.add('hidden');
     }
 
-    // Update the editor with template data
+    /**
+     * Updates the editor with template data
+     * Syncs the UI state with the active template's properties
+     *
+     * @param activeId - The ID of the active template
+     * @param templates - Array of all available templates
+     */
     update(activeId: string, templates: Template[]): void {
         const template = templates.find(t => t.id === activeId);
         if (!template) return;
@@ -117,6 +144,12 @@ export class TemplateEditorView {
         this.domainUI.update(template);
     }
 
+    /**
+     * Generates a preview of the template output
+     * Processes variables, fetches page content, and displays generated text with animation
+     *
+     * @returns Promise that resolves when generation is complete
+     */
     async generate(): Promise<void> {
         const templateData = this.template.getTemplates()
             .find(t => t.id === this.template.getActiveTemplateId());

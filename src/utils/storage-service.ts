@@ -5,6 +5,7 @@
  */
 import {createLogger} from './logging';
 
+// Create a logger instance for this component
 const logger = createLogger('STORAGE_SERVICE');
 
 /**
@@ -15,6 +16,13 @@ const logger = createLogger('STORAGE_SERVICE');
 export class StorageService {
     /**
      * Get an item from storage with fallback to default value
+     * Retrieves data from Chrome's sync storage with type safety
+     *
+     * @param key - The key to retrieve from storage
+     * @param defaultValue - The default value to return if the key doesn't exist
+     * @returns Promise resolving to the stored value or the default value
+     * @example
+     * const settings = await storageService.getItem('settings', defaultSettings);
      */
     async getItem<T>(key: string, defaultValue: T): Promise<T> {
         logger.debug(`Getting ${key} from storage`);
@@ -46,6 +54,14 @@ export class StorageService {
 
     /**
      * Set an item in storage
+     * Saves data to Chrome's sync storage with proper error handling
+     *
+     * @param key - The key to store the value under
+     * @param value - The value to store
+     * @returns Promise that resolves when the operation is complete
+     * @throws Error if storage operation fails
+     * @example
+     * await storageService.setItem('settings', updatedSettings);
      */
     async setItem<T>(key: string, value: T): Promise<void> {
         logger.debug(`Saving ${key} to storage`);
@@ -76,6 +92,13 @@ export class StorageService {
 
     /**
      * Remove an item from storage
+     * Deletes data from Chrome's sync storage
+     *
+     * @param key - The key to remove from storage
+     * @returns Promise that resolves when the operation is complete
+     * @throws Error if storage operation fails
+     * @example
+     * await storageService.removeItem('temporaryData');
      */
     async removeItem(key: string): Promise<void> {
         logger.debug(`Removing ${key} from storage`);
@@ -107,6 +130,10 @@ export class StorageService {
 
     /**
      * Checks if Chrome storage API is available
+     * Verifies that the extension has access to chrome.storage.sync
+     *
+     * @returns True if Chrome storage API is available, false otherwise
+     * @private Used internally before storage operations
      */
     private isStorageAvailable(): boolean {
         return typeof chrome !== 'undefined' && !!chrome.storage && !!chrome.storage.sync;

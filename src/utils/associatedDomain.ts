@@ -1,9 +1,26 @@
+/**
+ * Domain Utilities
+ * Functions for extracting, validating, and working with domain names
+ */
 import {getCurrentTab} from "./chrome-api-utils";
 import {createLogger} from "./logging";
 
-
+// Create a logger instance for this component
 const logger = createLogger('ASSOCIATED_DOMAIN');
 
+/**
+ * Extracts the domain from a URL
+ * Returns hostname with port if present
+ *
+ * @param url - The URL to extract the domain from
+ * @returns The domain (hostname with optional port) or empty string if invalid
+ * @example
+ * // Returns "example.com"
+ * extractDomainFromUrl("https://example.com/path")
+ *
+ * // Returns "localhost:8080"
+ * extractDomainFromUrl("http://localhost:8080/test")
+ */
 export const extractDomainFromUrl = (url: string): string => {
     try {
         const urlObj = new URL(url);
@@ -56,7 +73,13 @@ export const validateDomain = (pattern: string, domain: string): boolean => {
 }
 
 /**
- * Get the domain of the current active tab
+ * Gets the domain of the current active tab
+ * Uses the Chrome API to get the current tab and extract its domain
+ *
+ * @returns Promise that resolves to the current domain or empty string if not available
+ * @example
+ * const domain = await getCurrentDomain();
+ * // domain might be "mail.google.com"
  */
 export const getCurrentDomain = async (): Promise<string> => {
     try {
