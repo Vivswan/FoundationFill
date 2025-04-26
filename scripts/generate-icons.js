@@ -5,7 +5,7 @@ const path = require('path');
 // Paths
 const rootDir = path.join(__dirname, '..');
 const svgPath = path.join(rootDir, 'src/assets/images/icon.svg');
-const distOutputDir = path.join(rootDir, 'dist/images');
+const distOutputDir = path.join(rootDir, 'dist/assets/images');
 
 // Icon sizes to generate
 const sizes = [16, 48, 128];

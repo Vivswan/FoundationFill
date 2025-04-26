@@ -285,6 +285,8 @@ export class ThemeService {
             html.style.setProperty('--border-color', themeColor.dark.border);
             html.style.setProperty('--highlight-color', themeColor.dark.highlight);
             html.style.setProperty('--sidebar-bg', themeColor.dark.sidebar);
+            // SVG filter for dark mode (creates white color)
+            html.style.setProperty('--svg-filter-color', 'invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)');
         } else {
             // Light theme
             html.style.setProperty('--bg-color', themeColor.light.bg);
@@ -292,6 +294,8 @@ export class ThemeService {
             html.style.setProperty('--border-color', themeColor.light.border);
             html.style.setProperty('--highlight-color', themeColor.light.highlight);
             html.style.setProperty('--sidebar-bg', themeColor.light.sidebar);
+            // SVG filter for light mode (creates black color)
+            html.style.setProperty('--svg-filter-color', 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)');
         }
 
         // For backward compatibility, set data attributes that can be used in CSS selectors

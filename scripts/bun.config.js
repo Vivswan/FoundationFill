@@ -52,19 +52,19 @@ const copyManifest = () => {
 // Copy CSS and images
 const copyAssets = () => {
     // Create css directory if it doesn't exist
-    const cssDir = path.join(distDir, 'css');
+    const cssDir = path.join(distDir, 'assets/css');
     if (!fs.existsSync(cssDir)) {
         fs.mkdirSync(cssDir, {recursive: true});
     }
 
     // Create images directory if it doesn't exist
-    const imagesDir = path.join(distDir, 'images');
+    const imagesDir = path.join(distDir, 'assets/images');
     if (!fs.existsSync(imagesDir)) {
         fs.mkdirSync(imagesDir, {recursive: true});
     }
 
     // Create fonts directory if it doesn't exist
-    const fontsDir = path.join(distDir, 'fonts');
+    const fontsDir = path.join(distDir, 'assets/fonts');
     if (!fs.existsSync(fontsDir)) {
         fs.mkdirSync(fontsDir, {recursive: true});
     }
