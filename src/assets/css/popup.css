@@ -356,11 +356,23 @@ body.template-dragging {
     justify-content: center;
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .delete-btn:hover {
     background-color: var(--danger-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.delete-btn:active,
+.delete-btn:focus {
+    background-color: var(--danger-hover);
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    outline: 2px solid rgba(220, 38, 38, 0.3);
+    outline-offset: 1px;
 }
 
 .delete-btn:disabled {
@@ -382,17 +394,30 @@ body.template-dragging {
     border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
     user-select: none;
+    position: relative;
 }
 
 .button-primary {
     background-color: var(--primary-color);
     color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .button-primary:hover {
     background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+}
+
+.button-primary:active, 
+.button-primary:focus {
+    background-color: var(--primary-hover);
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    outline: 2px solid rgba(37, 99, 235, 0.3);
+    outline-offset: 1px;
 }
 
 .button-primary:disabled,
@@ -408,10 +433,21 @@ body.template-dragging {
 .button-secondary {
     background-color: var(--highlight-color);
     color: var(--text-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .button-secondary:hover {
     background-color: var(--border-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-secondary:active,
+.button-secondary:focus {
+    background-color: var(--border-color);
+    transform: translateY(0);
+    outline: 2px solid rgba(0, 0, 0, 0.1);
+    outline-offset: 1px;
 }
 
 [data-theme="dark"] .button-secondary {
@@ -435,10 +471,22 @@ body.template-dragging {
 .button-danger {
     background-color: var(--danger-color);
     color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .button-danger:hover {
     background-color: var(--danger-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+}
+
+.button-danger:active,
+.button-danger:focus {
+    background-color: var(--danger-hover);
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    outline: 2px solid rgba(220, 38, 38, 0.3);
+    outline-offset: 1px;
 }
 
 .button-danger:disabled {
@@ -454,6 +502,21 @@ body.template-dragging {
     padding: 4px 8px;
     font-size: 12px;
     background-color: var(--highlight-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.button-small:hover {
+    background-color: var(--border-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.button-small:active,
+.button-small:focus {
+    transform: translateY(0);
+    background-color: var(--border-color);
+    outline: 2px solid rgba(0, 0, 0, 0.1);
+    outline-offset: 1px;
 }
 
 .hidden {
@@ -612,10 +675,28 @@ body.template-dragging {
     cursor: pointer;
     color: var(--text-color);
     opacity: 0.7;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .close-btn:hover {
     opacity: 1;
+    background-color: var(--highlight-color);
+    transform: translateY(-1px);
+}
+
+.close-btn:active,
+.close-btn:focus {
+    opacity: 1;
+    background-color: var(--border-color);
+    transform: translateY(0);
+    outline: 2px solid rgba(0, 0, 0, 0.1);
+    outline-offset: 1px;
 }
 
 .dialog-body {
