@@ -52,6 +52,7 @@ const copyManifest = () => {
   
   // Update manifest version with package.json version
   manifest.version = packageJson.version;
+  delete manifest["_comment"];
   
   // Write updated manifest
   fs.writeFileSync(
@@ -168,9 +169,14 @@ const createPackage = async () => {
   if (!fs.existsSync(buildsDir)) {
     fs.mkdirSync(buildsDir, {recursive: true});
   }
-
-  const zipPath = path.join(buildsDir, 'extension.zip');
-  const crxPath = path.join(buildsDir, 'extension.crx');
+  
+  // Read package.json to get version
+  const packagePath = path.resolve(rootDir, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+  const version = packageJson.version;
+  
+  const zipPath = path.join(buildsDir, `foundation-fill-v${version}.zip`);
+  const crxPath = path.join(buildsDir, `foundation-fill-v${version}.crx`);
 
   try {
     // Step 1: Create a zip file
@@ -182,7 +188,7 @@ const createPackage = async () => {
       });
 
       output.on('close', () => {
-        console.log(`Extension zip created: ${zipPath} (${archive.pointer()} bytes)`);
+        console.log(`Extension zip created: ${zipPath} (${archive.pointer()} bytes) (v${version})`);
         resolve();
       });
 
@@ -214,7 +220,7 @@ const createPackage = async () => {
         const crxBuffer = await crx.pack();
 
         fs.writeFileSync(crxPath, crxBuffer);
-        console.log(`CRX package created: ${crxPath}`);
+        console.log(`CRX package created: ${crxPath} (v${version})`);
       } catch (crxErr) {
         console.error('Error creating CRX package:', crxErr);
       }
