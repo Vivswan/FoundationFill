@@ -1,3 +1,16 @@
+/* Font Awesome font path fix */
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('../fonts/fontawesome-webfont.eot');
+    src: url('../fonts/fontawesome-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/fontawesome-webfont.woff2') format('woff2'),
+         url('../fonts/fontawesome-webfont.woff') format('woff'),
+         url('../fonts/fontawesome-webfont.ttf') format('truetype'),
+         url('../fonts/fontawesome-webfont.svg#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root {
     /* Default values that will be overridden by JS with document.documentElement.style.setProperty */
     --primary-color: #2563eb;
@@ -103,7 +116,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: var(--highlight-color);
     opacity: 1 !important;
 }
 
@@ -189,6 +201,18 @@ body.template-dragging {
 
 #settings-btn {
     margin-left: auto;
+}
+
+.sidebar-footer button {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-footer .fa {
+    font-size: 16px;
 }
 
 .main-content {

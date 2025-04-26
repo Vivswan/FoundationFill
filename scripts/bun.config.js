@@ -63,6 +63,12 @@ const copyAssets = () => {
         fs.mkdirSync(imagesDir, {recursive: true});
     }
 
+    // Create fonts directory if it doesn't exist
+    const fontsDir = path.join(distDir, 'fonts');
+    if (!fs.existsSync(fontsDir)) {
+        fs.mkdirSync(fontsDir, {recursive: true});
+    }
+
     // Copy CSS files
     const cssFiles = fs.readdirSync(path.join(rootDir, 'src/assets/css'));
     cssFiles.forEach(file => {
@@ -78,6 +84,21 @@ const copyAssets = () => {
         fs.copyFileSync(
           path.join(rootDir, 'src/assets/images', file),
           path.join(imagesDir, file)
+        );
+    });
+
+    // Copy Font Awesome CSS
+    fs.copyFileSync(
+        path.join(rootDir, 'node_modules/font-awesome/css/font-awesome.min.css'),
+        path.join(cssDir, 'font-awesome.min.css')
+    );
+
+    // Copy Font Awesome fonts
+    const fontFiles = fs.readdirSync(path.join(rootDir, 'node_modules/font-awesome/fonts'));
+    fontFiles.forEach(file => {
+        fs.copyFileSync(
+            path.join(rootDir, 'node_modules/font-awesome/fonts', file),
+            path.join(fontsDir, file)
         );
     });
 
