@@ -60,7 +60,9 @@ body {
 .container {
     display: flex;
     width: 800px;
-    height: 500px;
+    height: auto;
+    max-height: 600px;
+    min-height: 524px;
 }
 
 .sidebar {
@@ -69,7 +71,7 @@ body {
     background-color: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: auto;
 }
 
 .template-list-header {
@@ -836,5 +838,4 @@ body.template-dragging {
     pointer-events: none;
     user-select: none;
     white-space: nowrap;
-
 }
