@@ -273,6 +273,26 @@ body.template-dragging {
     background-color: var(--bg-color);
 }
 
+/* Input with button container */
+.input-with-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-with-button > input {
+    flex: 1;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.input-with-button > button {
+    height: 35px;
+    margin-left: -1px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
 .form-group textarea:focus,
 .form-group input:focus {
     outline: none;

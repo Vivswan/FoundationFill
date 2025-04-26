@@ -33,6 +33,7 @@ export class SettingsView {
     private settingsPanel: HTMLElement;
     private baseUrlInput: HTMLInputElement;
     private apiKeyInput: HTMLInputElement;
+    private toggleApiKeyBtn: HTMLButtonElement;
     private modelInput: HTMLInputElement;
     private themeSelect: HTMLSelectElement;
     private colorSelect: HTMLSelectElement;
@@ -41,6 +42,9 @@ export class SettingsView {
 
     // Status timeout
     private statusTimeout: number | null = null;
+    
+    // API key visibility state
+    private isApiKeyVisible: boolean = false;
 
     /**
      * Initializes the settings view
@@ -53,6 +57,7 @@ export class SettingsView {
         this.settingsPanel = document.getElementById('settings-panel') as HTMLElement;
         this.baseUrlInput = document.getElementById('base-url') as HTMLInputElement;
         this.apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
+        this.toggleApiKeyBtn = document.getElementById('toggle-api-key') as HTMLButtonElement;
         this.modelInput = document.getElementById('model') as HTMLInputElement;
         this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
         this.colorSelect = document.getElementById('color-select') as HTMLSelectElement;
@@ -73,9 +78,30 @@ export class SettingsView {
 
         // Color dropdown change handler
         this.colorSelect.addEventListener('change', this.handleColorChange.bind(this));
+        
+        // Toggle API key visibility handler
+        this.toggleApiKeyBtn.addEventListener('click', this.toggleApiKeyVisibility.bind(this));
 
         // Update color preview when settings change
         this.updateColorPreview();
+    }
+    
+    /**
+     * Toggles the visibility of the API key field
+     * Switches between password and text input types
+     */
+    toggleApiKeyVisibility(): void {
+        this.isApiKeyVisible = !this.isApiKeyVisible;
+        this.apiKeyInput.type = this.isApiKeyVisible ? 'text' : 'password';
+        
+        // Update the eye icon
+        const eyeIcon = this.toggleApiKeyBtn.querySelector('i');
+        if (eyeIcon) {
+            eyeIcon.className = this.isApiKeyVisible ? 'fa fa-eye-slash' : 'fa fa-eye';
+        }
+        
+        // Set focus back to input
+        this.apiKeyInput.focus();
     }
 
     /**
