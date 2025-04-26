@@ -71,21 +71,26 @@ export class ImportExportView {
      * Shows feedback about import/export operations with auto-dismissal
      *
      * @param message - The status message to display
+     * @param error - Indicates if the message is an error
+     * @param timeout - Duration in milliseconds to show the message
      * @private Internal utility method
      */
-    private showStatus(message: string): void {
-        this.settingsStatus.textContent = message;
-
-        // Clear any existing timeout
+    private showStatus(message: string, error: boolean, timeout: number = 2000): void {
         if (this.statusTimeout) {
             clearTimeout(this.statusTimeout);
         }
+        if (error) {
+            this.settingsStatus.classList.add('error');
+        } else {
+            this.settingsStatus.classList.remove('error');
+        }
+        this.settingsStatus.textContent = message;
 
         // Set a new timeout to clear the message after 2 seconds
         this.statusTimeout = setTimeout(() => {
             this.settingsStatus.textContent = '';
             this.statusTimeout = null;
-        }, 2000);
+        }, timeout);
     }
 
     /**
@@ -127,12 +132,12 @@ export class ImportExportView {
 
             // Clean up
             URL.revokeObjectURL(url);
-            this.showStatus('Data exported successfully!');
+            this.showStatus('Data exported successfully!', false);
 
             logger.debug('Data exported successfully');
         } catch (error) {
             logger.error('Error exporting data:', error);
-            this.showStatus('Error exporting data!');
+            this.showStatus('Error exporting data!', true);
         }
     }
 
@@ -147,11 +152,12 @@ export class ImportExportView {
     private async handleImport(event: Event): Promise<void> {
         const fileInput = event.target as HTMLInputElement;
         if (!fileInput.files || fileInput.files.length === 0) {
-            this.showStatus('No file selected!');
+            this.showStatus('No file selected!', true);
             return;
         }
 
         const file = fileInput.files[0];
+        fileInput.value = '';
 
         try {
             // Read the file
@@ -160,7 +166,7 @@ export class ImportExportView {
 
             // Validate the import data
             if (!this.validateImportData(importData)) {
-                this.showStatus('Invalid import file format!');
+                this.showStatus('Invalid import file format!', true);
                 return;
             }
 
@@ -170,17 +176,11 @@ export class ImportExportView {
             // Import templates
             await this.templateModel.importTemplates(importData.templates);
 
-            this.showStatus('Data imported successfully!');
+            this.showStatus('Data imported successfully!', false);
             logger.debug('Data imported successfully');
-
-            // Reset the file input
-            fileInput.value = '';
         } catch (error) {
             logger.error('Error importing data:', error);
-            this.showStatus('Error importing data!');
-
-            // Reset the file input
-            fileInput.value = '';
+            this.showStatus('Error importing data!', true);
         }
     }
 
@@ -208,7 +208,7 @@ export class ImportExportView {
      * @returns Boolean indicating whether the data is valid
      * @private Type guard for import data validation
      */
-    private validateImportData(data: any): data is ExportData {
+    private validateImportData(data: unknown): data is ExportData {
         // Check if data has required properties
         if (!data || typeof data !== 'object') return false;
         if (!('version' in data && 'settings' in data && 'templates' in data)) return false;
@@ -224,9 +224,8 @@ export class ImportExportView {
         // Check each template
         for (const template of data.templates) {
             if (!template || typeof template !== 'object') return false;
-            if (!('id' in template && 'enabled' in template && 'name' in template &&
-                'systemPrompt' in template && 'userPrompt' in template &&
-                'includePageContent' in template && 'associatedDomain' in template)) {
+            if (!('id' in template && 'name' in template &&
+                'systemPrompt' in template && 'userPrompt' in template)) {
                 return false;
             }
         }

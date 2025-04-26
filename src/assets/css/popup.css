@@ -577,13 +577,16 @@ body.template-dragging {
     margin-top: 8px;
     margin-bottom: 16px;
     height: 16px;
-    opacity: 0;
     transition: opacity 0.3s ease-in-out;
     font-weight: 500;
 }
 
 [data-theme="dark"] .settings-status {
     color: #4ade80;
+}
+
+.error {
+    color: var(--danger-color) !important;
 }
 
 /* Theme selector styling */

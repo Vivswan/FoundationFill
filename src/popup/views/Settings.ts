@@ -171,20 +171,25 @@ export class SettingsView {
      * Displays feedback about settings operations with auto-dismissal
      *
      * @param message - The status message to display
+     * @param error - Indicates if the message is an error
+     * @param timeout - The duration to show the message (default: 500ms)
      */
-    showStatus(message: string): void {
-        this.settingsStatus.textContent = message;
-
-        // Clear any existing timeout
+    showStatus(message: string, error:boolean, timeout: number = 500): void {
         if (this.statusTimeout) {
             clearTimeout(this.statusTimeout);
         }
+        if (error) {
+            this.settingsStatus.classList.add('error');
+        } else {
+            this.settingsStatus.classList.remove('error');
+        }
+        this.settingsStatus.textContent = message;
 
         // Set a new timeout to clear the message after 0.5 seconds
         this.statusTimeout = setTimeout(() => {
             this.settingsStatus.textContent = '';
             this.statusTimeout = null;
-        }, 500);
+        }, timeout);
     }
 
     /**
@@ -199,7 +204,7 @@ export class SettingsView {
     private async handleValueChange(key: keyof Settings, e: Event): Promise<void> {
         const value = (e.target as HTMLInputElement).value;
         await this.settings.updateSetting(key, value);
-        this.showStatus('Settings saved!');
+        this.showStatus('Settings saved!', false);
     }
 
     /**
@@ -213,7 +218,7 @@ export class SettingsView {
     private async handleThemeChange(e: Event): Promise<void> {
         const value = (e.target as HTMLSelectElement).value;
         await this.settings.updateSetting('theme', value);
-        this.showStatus('Settings saved!');
+        this.showStatus('Settings saved!', false);
     }
 
     /**
@@ -228,6 +233,6 @@ export class SettingsView {
         const value = (e.target as HTMLSelectElement).value;
         await this.settings.updateSetting('themeColor', value);
         this.updateColorPreview();
-        this.showStatus('Settings saved!');
+        this.showStatus('Settings saved!', false);
     }
 }
