@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const popupController = new PopupController();
         await popupController.initialize();
         (document.getElementById("github-link") as HTMLElement)
-            .addEventListener("click", () => chrome.tabs.create({url: 'https://github.com/Vivswan'}));
+            .addEventListener("click", () => chrome.tabs.create({url: 'https://github.com/Vivswan/FoundationFill'}));
         (document.getElementById("vs-link") as HTMLElement)
             .addEventListener("click", () => chrome.tabs.create({url: 'https://vivswan.github.io/'}));
         
