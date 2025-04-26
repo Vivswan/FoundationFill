@@ -31,46 +31,69 @@ async function loadTemplatesIntoContextMenu(): Promise<void> {
         // Get current tab for domain filtering
         const tab = await getCurrentTab();
         const currentDomain = tab?.url ? extractDomainFromUrl(tab.url) : null;
-        let activeTemplates = templates.getEnabledTemplates()
+        let activeTemplates = templates.getEnabledTemplates();
         if (currentDomain) {
             activeTemplates = templates.getEnabledTemplatesForDomain(currentDomain);
         }
 
-        // Remove existing template menu items (keep the parent and refresh items)
-        chrome.contextMenus.removeAll(() => {
-            // Recreate the parent menu
-            chrome.contextMenus.create({
-                id: 'foundationFill',
-                title: 'Foundation Fill',
-                contexts: ['editable']
+        // Remove existing template menu items using promise to ensure it completes before creating new ones
+        await new Promise<void>((resolve) => {
+            chrome.contextMenus.removeAll(() => {
+                resolve();
             });
+        });
+        
+        // Create the parent menu
+        chrome.contextMenus.create({
+            id: 'foundationFill',
+            title: 'Foundation Fill',
+            contexts: ['editable']
+        });
 
-            // Add each enabled template as a menu item
-            activeTemplates.forEach(template => {
+        // Add each enabled template as a menu item
+        // Use a Map to ensure no duplicate IDs
+        const addedIds = new Set<string>();
+        
+        for (const template of activeTemplates) {
+            const menuId = `template-${template.id}`;
+            
+            // Skip if we already added this template
+            if (addedIds.has(menuId)) {
+                logger.debug(`Skipping duplicate menu item: ${menuId}`);
+                continue;
+            }
+            
+            try {
                 chrome.contextMenus.create({
-                    id: `template-${template.id}`,
+                    id: menuId,
                     title: template.name,
                     parentId: 'foundationFill',
                     contexts: ['editable']
                 });
-            });
+                
+                // Track that we added this ID
+                addedIds.add(menuId);
+            } catch (error) {
+                logger.error(`Error creating menu item for template ${template.id}:`, error);
+            }
+        }
 
-            // Create separator
-            chrome.contextMenus.create({
-                id: 'separator',
-                type: 'separator',
-                parentId: 'foundationFill',
-                contexts: ['editable']
-            });
-
-            // Add refresh menu item
-            chrome.contextMenus.create({
-                id: 'refreshTemplates',
-                title: 'Refresh Templates',
-                parentId: 'foundationFill',
-                contexts: ['editable']
-            });
+        // Create separator
+        chrome.contextMenus.create({
+            id: 'separator',
+            type: 'separator',
+            parentId: 'foundationFill',
+            contexts: ['editable']
         });
+
+        // Add refresh menu item
+        chrome.contextMenus.create({
+            id: 'refreshTemplates',
+            title: 'Refresh Templates',
+            parentId: 'foundationFill',
+            contexts: ['editable']
+        });
+        
     } catch (error) {
         logger.error("Error loading templates into context menu:", error);
     }
@@ -85,21 +108,45 @@ chrome.runtime.onInstalled.addListener(loadTemplatesIntoContextMenu);
 /**
  * Refresh context menu when user switches tabs
  * This ensures that domain-specific templates are properly displayed
+ * Use a debounce to prevent too many refreshes in quick succession
  */
-chrome.tabs.onActivated.addListener(loadTemplatesIntoContextMenu);
+let tabActivationTimer: number | null = null;
+chrome.tabs.onActivated.addListener(() => {
+    // Clear existing timer
+    if (tabActivationTimer !== null) {
+        clearTimeout(tabActivationTimer);
+    }
+    
+    // Set a new timer to debounce the context menu refresh
+    tabActivationTimer = setTimeout(() => {
+        loadTemplatesIntoContextMenu();
+        tabActivationTimer = null;
+    }, 500); // Wait 500ms before refreshing the context menu
+});
 
 /**
  * Listen for storage changes to update context menu
  * Updates the context menu when templates are modified
+ * Uses debouncing to prevent multiple rapid refreshes
  *
  * @param changes Object containing the changes to storage
  * @param area Storage area that was changed ('sync', 'local', or 'managed')
  */
+let storageChangeTimer: number | null = null;
 chrome.storage.onChanged.addListener((changes: {
     [key: string]: { oldValue?: unknown, newValue?: unknown }
 }, area: string) => {
     if (area === 'sync' && changes.templates) {
-        loadTemplatesIntoContextMenu();
+        // Clear existing timer
+        if (storageChangeTimer !== null) {
+            clearTimeout(storageChangeTimer);
+        }
+        
+        // Set a new timer to debounce the context menu refresh
+        storageChangeTimer = setTimeout(() => {
+            loadTemplatesIntoContextMenu();
+            storageChangeTimer = null;
+        }, 300); // Wait 300ms before refreshing the context menu
     }
 });
 
