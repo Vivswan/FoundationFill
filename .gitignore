@@ -1,5 +1,18 @@
 package-lock.json
 
+# key
+*.key
+*.p12
+*.pfx
+*.cer
+*.pem
+
+# build output
+dist
+build
+builds
+out-tsc
+
 # Logs
 logs
 *.log

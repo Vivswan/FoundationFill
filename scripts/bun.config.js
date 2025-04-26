@@ -84,6 +84,76 @@ const copyAssets = () => {
     console.log('Copied asset files to dist directory');
 };
 
+// Create packaged extension files
+const createPackage = async () => {
+    const archiver = require('archiver');
+    const ChromeExtension = require('crx');
+    
+    // Create builds directory if it doesn't exist
+    const buildsDir = path.join(rootDir, 'builds');
+    if (!fs.existsSync(buildsDir)) {
+        fs.mkdirSync(buildsDir, {recursive: true});
+    }
+    
+    const zipPath = path.join(buildsDir, 'extension.zip');
+    const crxPath = path.join(buildsDir, 'extension.crx');
+    
+    try {
+        // Step 1: Create a zip file
+        await new Promise((resolve, reject) => {
+            console.log('Creating extension zip file...');
+            const output = fs.createWriteStream(zipPath);
+            const archive = archiver('zip', {
+                zlib: { level: 9 } // Maximum compression
+            });
+            
+            output.on('close', () => {
+                console.log(`Extension zip created: ${zipPath} (${archive.pointer()} bytes)`);
+                resolve();
+            });
+            
+            archive.on('warning', (err) => {
+                if (err.code === 'ENOENT') {
+                    console.warn('Archive warning:', err);
+                } else {
+                    reject(err);
+                }
+            });
+            
+            archive.on('error', reject);
+            
+            archive.pipe(output);
+            archive.directory(distDir, false);
+            archive.finalize();
+        });
+        
+        // Step 2: Create a CRX file if a key is available
+        const keyPath = path.join(rootDir, 'key.pem');
+        if (fs.existsSync(keyPath)) {
+            console.log('Creating CRX package...');
+            const crx = new ChromeExtension({
+                privateKey: fs.readFileSync(keyPath)
+            });
+            
+            try {
+                await crx.load(distDir);
+                const crxBuffer = await crx.pack();
+                
+                fs.writeFileSync(crxPath, crxBuffer);
+                console.log(`CRX package created: ${crxPath}`);
+            } catch (crxErr) {
+                console.error('Error creating CRX package:', crxErr);
+            }
+        } else {
+            console.log('No private key found at key.pem. Skipping CRX creation.');
+            console.log('To create a CRX file, generate a private key with:');
+            console.log('openssl genrsa -out key.pem 2048');
+        }
+    } catch (error) {
+        console.error('Error creating extension packages:', error);
+    }
+};
+
 // Run build process
 async function build() {
     // Generate icons first
@@ -128,6 +198,9 @@ async function build() {
         // Initial build
         const result = await Bun.build(buildOptions);
         console.log('Build completed successfully');
+        
+        // Create packaged extension files
+        await createPackage();
 
         if (isWatchMode) {
             console.log('Watching for changes...');
@@ -139,6 +212,8 @@ async function build() {
                     try {
                         await Bun.build(buildOptions);
                         console.log('Rebuild completed');
+                        // Create updated extension packages
+                        await createPackage();
                     } catch (error) {
                         console.error('Rebuild failed:', error);
                     }
@@ -146,27 +221,31 @@ async function build() {
             });
 
             // Watch popup.html
-            watch(path.join(rootDir, 'src/popup.html'), () => {
+            watch(path.join(rootDir, 'src/popup.html'), async () => {
                 console.log('Change detected in popup.html');
                 processHTML();
+                await createPackage();
             });
 
             // Watch manifest.json
-            watch(path.join(rootDir, 'manifest.json'), () => {
+            watch(path.join(rootDir, 'manifest.json'), async () => {
                 console.log('Change detected in manifest.json');
                 copyManifest();
+                await createPackage();
             });
 
             // Watch CSS files
-            watch(path.join(rootDir, 'src/assets/css'), {recursive: true}, () => {
+            watch(path.join(rootDir, 'src/assets/css'), {recursive: true}, async () => {
                 console.log('Change detected in CSS files');
                 copyAssets();
+                await createPackage();
             });
 
             // Watch image files
-            watch(path.join(rootDir, 'src/assets/images'), {recursive: true}, () => {
+            watch(path.join(rootDir, 'src/assets/images'), {recursive: true}, async () => {
                 console.log('Change detected in image files');
                 copyAssets();
+                await createPackage();
             });
 
             // Keep process running
