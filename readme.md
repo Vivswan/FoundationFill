@@ -32,6 +32,15 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 2. Click "Add to Chrome"
 3. Accept the permissions
 
+### From GitHub Releases
+
+1. Visit the [GitHub Releases page](https://github.com/Vivswan/FoundationFill/releases)
+2. Download the latest release zip file
+3. Extract the zip file to a folder
+4. Go to `chrome://extensions/`
+5. Enable Developer mode
+6. Click "Load unpacked" and select the extracted folder
+
 ### Manual Installation (Development)
 
 1. Clone the repository or download the source code
