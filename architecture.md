@@ -22,6 +22,7 @@ graph TD
     TemplateList[Template List View]
     TemplateEditor[Template Editor View]
     Settings[Settings View]
+   TemplateVariable[Template Variable View]
 %% Services
     ThemeService[Theme Service]
     APIService[API Service]
@@ -52,6 +53,8 @@ graph TD
     API -->|Response| APIService
     APIService -->|Generated Text| Background
     Background -->|Fill Text Area| ContentScript
+   ContentScript -->|Template Variables| TemplateVariable
+   TemplateVariable -->|Processed Template| ContentScript
     ContentScript -->|Fill Active Element| Browser
 %% Settings Flow
     Settings -->|Theme Change| ThemeService
@@ -73,11 +76,11 @@ graph TD
    classDef external fill: #ddd, stroke: #333, stroke-width: 1px;
    classDef user fill: #fbb, stroke: #333, stroke-width: 2px;
     class User user;
-   class Popup, Background, ContentScript, Browser component;
-   class ThemeService, APIService, StorageService, MessageService, TemplateService service;
-   class TemplateModel, SettingsModel model;
-   class TemplateList, TemplateEditor, Settings view;
-   class Storage, API external;
+class Popup, Background, ContentScript, Browser component;
+class ThemeService,APIService, StorageService, MessageService, TemplateService service;
+class TemplateModel,SettingsModel model;
+class TemplateList,TemplateEditor, TemplateVariable, Settings view;
+class Storage,API external;
 ```
 
 ## Core Components
@@ -95,6 +98,7 @@ graph TD
    - Interacts with the web page DOM
    - Fills text fields with template content
    - Manages text generation animation
+   - Processes template variables via TemplateVariableView
 
 3. **Popup UI (`index.ts`, `Popup.ts`)**
    - User interface for managing templates and settings
@@ -132,6 +136,12 @@ graph TD
    - Manages API configuration input
    - Handles theme selection
 
+4. **Template Variable View (`popup/views/TemplateVariable.ts`)**
+   - Extracts template variables from prompts
+   - Provides UI for entering variable values
+   - Replaces variables in templates with user input
+   - Uses format `{{variable:default value}}` for template variables
+
 ### Services
 
 1. **API Service (`generate/api-service.ts`)**
@@ -167,12 +177,25 @@ graph TD
    - User selects a template
    - Background script receives the selection
    - Template is sent to the content script
-   - Content script fills the text field with the template
+   - Content script processes template variables if present
+   - User inputs values for template variables in dialog
+   - Content script fills the text field with the processed template
+
+### Template Variables Flow
+
+1. **Variable Processing**
+   - User selects a template with variables (e.g., `{{name:default}}`)
+   - Content script extracts variables using TemplateVariableView
+   - TemplateVariableView shows dialog for each variable
+   - User inputs values for each variable
+   - TemplateVariableView replaces variables with user input
+   - Processed template is used for text generation or insertion
 
 ### Text Generation Flow
 
 1. **Text Generation Request**
    - User selects a template with API generation enabled
+   - Content script processes any template variables
    - Content script sends generation request to background
    - Background script uses APIService to make external request
    - Animation is displayed while waiting for response

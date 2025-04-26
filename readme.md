@@ -21,6 +21,7 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 - Light/dark/system theme support to match your browser
 - Text generation via customizable API integration
 - Animation during text generation for better user feedback
+- Template variables with custom values - use `{{variable:default}}` syntax in your templates
 
 ## Installation
 
@@ -42,6 +43,8 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 2. **Use Templates**: Right-click on any text field while browsing and select your template from the context menu
 3. **Domain-Specific Templates**: Set templates to only appear on specific websites
 4. **Generate Text**: Configure API settings to use an LLM for generating content based on your templates
+5. **Use Template Variables**: Add variables like `{{name:John}}` in your templates and you'll be prompted to provide
+   values when using the template
 
 ## Project Structure
 
