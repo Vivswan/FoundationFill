@@ -120,6 +120,7 @@ class Storage,LocalStorage,API external;
    - Manages template data (system prompts, user prompts)
    - Handles template creation, updating, and deletion
    - Provides domain-specific template filtering
+   - Maintains template order and supports reordering
    - Persists templates to storage
 
 2. **Settings Model (`popup/models/Settings.ts`)**
@@ -134,6 +135,8 @@ class Storage,LocalStorage,API external;
    - Displays the list of available templates
    - Handles template selection events
    - Manages template deletion UI
+   - Provides drag-and-drop reordering of templates
+   - Ensures default template always remains at the top
 
 2. **Template Editor View (`popup/views/TemplateEditor.ts`)**
    - Provides interface for editing templates
@@ -176,13 +179,14 @@ class Storage,LocalStorage,API external;
 
 ### Template Creation and Usage Flow
 
-1. **Template Creation**
+1. **Template Creation and Management**
    - User opens the extension popup
    - User creates/edits a template in TemplateEditor
-   - TemplateModel saves the template to StorageService
+   - User can reorder templates via drag and drop in TemplateList (with SortableJS)
+   - TemplateModel saves the template data and order to StorageService
    - StorageService persists to Chrome Storage
    - Background script is notified of changes
-   - Context menu is updated with the new template
+   - Context menu is updated with the new templates in their specified order
 
 2. **Template Usage**
    - User right-clicks on a text field
@@ -269,6 +273,7 @@ class Storage,LocalStorage,API external;
 1. **Context Menu Updates**
    - Context menu only updates when templates change
    - Domain-specific filtering reduces menu clutter
+   - Templates are displayed in user-specified order
 
 2. **Storage Usage**
    - Data is stored efficiently

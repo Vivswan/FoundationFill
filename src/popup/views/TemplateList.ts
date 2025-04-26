@@ -1,10 +1,11 @@
 /**
  * Template List View Module
- * Handles the sidebar list of templates, selection, and inline editing
+ * Handles the sidebar list of templates, selection, inline editing, and reordering
  */
 import {createLogger} from '../../utils/logging';
 import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
+import Sortable from 'sortablejs';
 
 // Create a logger for this component
 const logger = createLogger('TEMPLATE_LIST_VIEW');
@@ -23,6 +24,9 @@ export class TemplateListView {
     // Track click timer to distinguish between single and double clicks
     private clickTimer: number | null = null;
     private clickedTemplateId: string | null = null;
+
+    // Sortable instance for drag-and-drop reordering
+    private sortableInstance: Sortable | null = null;
 
     /**
      * Initializes the template list view
@@ -72,6 +76,12 @@ export class TemplateListView {
     render(selectedTemplateId: string, templates: Template[]): void {
         this.templateList.innerHTML = '';
 
+        // Destroy existing Sortable instance if it exists
+        if (this.sortableInstance) {
+            this.sortableInstance.destroy();
+            this.sortableInstance = null;
+        }
+
         if (!templates || templates.length === 0) {
             logger.debug('No templates to render');
             const emptyMessage = document.createElement('div');
@@ -80,6 +90,11 @@ export class TemplateListView {
             this.templateList.appendChild(emptyMessage);
             return;
         }
+
+        // Create a dedicated container for sortable items
+        const sortableContainer = document.createElement('div');
+        sortableContainer.className = 'sortable-container';
+        this.templateList.appendChild(sortableContainer);
 
         templates.forEach(template => {
             const templateItem = document.createElement('div');
@@ -98,6 +113,12 @@ export class TemplateListView {
             if (template.id === DEFAULT_TEMPLATE.id) {
                 templateItem.classList.add('default-template');
 
+                // Add a drag handle for default template but style it differently
+                const handle = document.createElement('span');
+                handle.className = 'template-handle default-handle';
+                handle.innerHTML = '&#x2630;'; // hamburger menu icon
+                handle.style.visibility = 'hidden'; // Hide the handle for default template
+                
                 const nameContainer = document.createElement('span');
                 nameContainer.className = 'template-name';
                 nameContainer.textContent = template.name;
@@ -106,12 +127,20 @@ export class TemplateListView {
                 defaultBadge.className = 'default-badge';
                 defaultBadge.textContent = '(default)';
 
+                templateItem.appendChild(handle);
                 templateItem.appendChild(nameContainer);
                 templateItem.appendChild(defaultBadge);
             } else {
+                // Add a drag handle for non-default templates
+                const handle = document.createElement('span');
+                handle.className = 'template-handle';
+                handle.innerHTML = '&#x2630;'; // hamburger menu icon
+                
                 const nameContainer = document.createElement('span');
                 nameContainer.className = 'template-name';
                 nameContainer.textContent = template.name;
+
+                templateItem.appendChild(handle);
                 templateItem.appendChild(nameContainer);
             }
 
@@ -121,8 +150,11 @@ export class TemplateListView {
             // Double click to edit name
             templateItem.addEventListener('dblclick', this.templateItemDblClick.bind(this));
 
-            this.templateList.appendChild(templateItem);
+            sortableContainer.appendChild(templateItem);
         });
+
+        // Initialize Sortable after all items are added
+        this.initSortable(sortableContainer);
     }
 
     /**
@@ -132,9 +164,48 @@ export class TemplateListView {
      * @param templateId - The ID of the template to update
      * @param newName - The new name for the template
      */
-    setNewName(templateId: string, newName: string): void {
+    async setNewName(templateId: string, newName: string): Promise<void> {
         if (!newName) return;
-        this.template.updateTemplate(templateId, {name: newName} as Partial<Template>);
+        await this.template.updateTemplate(templateId, {name: newName} as Partial<Template>);
+    }
+
+    /**
+     * Initializes SortableJS for template reordering
+     *
+     * @param container - The container element for sortable items
+     * @private Internal method used during rendering
+     */
+    private initSortable(container: HTMLElement): void {
+        this.sortableInstance = new Sortable(container, {
+            animation: 150,
+            handle: '.template-handle',
+            filter: '.default-template', // Prevent the default template from being moved
+            onStart: () => {
+                // Add a class to the body when dragging starts
+                document.body.classList.add('template-dragging');
+            },
+            onEnd: async (evt: Sortable.SortableEvent) => {
+                // Remove the class when dragging ends
+                document.body.classList.remove('template-dragging');
+
+                // If we moved a template
+                if (evt.oldIndex !== evt.newIndex) {
+                    // Ensure default template remains at the top (index 0)
+                    if (evt.newIndex === 0 && this.template.getTemplates()[0].id === DEFAULT_TEMPLATE.id) {
+                        // If someone tried to move a template before the default, revert by re-rendering
+                        this.rerender();
+                        return;
+                    }
+
+                    // Get new order of template IDs (excluding the default template)
+                    const templateItems = Array.from(container.querySelectorAll('.template-item'));
+                    const newOrder = templateItems.map(item => item.getAttribute('data-id') as string);
+
+                    // Update the model with the new order
+                    await this.template.reorderTemplates(newOrder);
+                }
+            }
+        });
     }
 
     /**
@@ -145,6 +216,11 @@ export class TemplateListView {
      * @private Internal event handler
      */
     private templateItemClick(e: Event) {
+        // Don't trigger click when dragging or clicking the handle
+        if ((e.target as HTMLElement).closest('.template-handle')) {
+            return;
+        }
+        
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;
         if (element.querySelector('.template-name-edit')) return; // Ignore if editing
@@ -186,6 +262,11 @@ export class TemplateListView {
      * @private Internal event handler
      */
     private templateItemDblClick(e: Event) {
+        // Don't trigger dblclick when dragging or clicking the handle
+        if ((e.target as HTMLElement).closest('.template-handle')) {
+            return;
+        }
+        
         const element = (e.target as HTMLElement).closest('.template-item');
         if (!element) return;
         const id = element.getAttribute('data-id');
@@ -221,11 +302,11 @@ export class TemplateListView {
         }, 10);
 
         // Save on Enter key
-        input.addEventListener('keydown', (e) => {
+        input.addEventListener('keydown', async (e) => {
             if (e.key === 'Enter') {
                 const newName = input.value.trim();
                 if (newName) {
-                    this.setNewName(id, newName)
+                    await this.setNewName(id, newName)
                 }
                 e.preventDefault();
             } else if (e.key === 'Escape') {
@@ -235,10 +316,10 @@ export class TemplateListView {
         });
 
         // Save on blur (click outside)
-        input.addEventListener('blur', () => {
+        input.addEventListener('blur', async () => {
             const newName = input.value.trim();
             if (newName) {
-                this.setNewName(id, newName);
+                await this.setNewName(id, newName);
             } else {
                 this.rerender();
             }

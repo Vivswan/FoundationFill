@@ -197,6 +197,54 @@ export class TemplateModel {
     }
 
     /**
+     * Reorder templates based on the new order of IDs
+     * Default template always remains at the first position
+     *
+     * @param newOrder - Array of template IDs in the new order
+     */
+    async reorderTemplates(newOrder: string[]): Promise<void> {
+        if (!newOrder || newOrder.length === 0) return;
+
+        // Make sure default template is first
+        const defaultTemplate = this.templates.find(t => t.id === DEFAULT_TEMPLATE.id);
+        if (!defaultTemplate) {
+            logger.error('Default template not found during reordering');
+            return;
+        }
+
+        // Create a map of all templates by ID for quick lookup
+        const templateMap: Record<string, Template> = {};
+        this.templates.forEach(template => {
+            templateMap[template.id] = template;
+        });
+
+        // Build the new templates array with default template first
+        const orderedTemplates: Template[] = [defaultTemplate];
+
+        // Add the rest of the templates in the new order
+        newOrder.forEach(id => {
+            if (id !== DEFAULT_TEMPLATE.id && templateMap[id]) {
+                orderedTemplates.push(templateMap[id]);
+            }
+        });
+
+        // Make sure we didn't lose any templates during reordering
+        // Add any templates that weren't in the newOrder list
+        this.templates.forEach(template => {
+            const templateInNewOrder = orderedTemplates.some(t => t.id === template.id);
+            if (!templateInNewOrder) {
+                orderedTemplates.push(template);
+            }
+        });
+
+        // Update the templates array
+        this.templates = orderedTemplates;
+
+        // Save the new order
+        await this.saveTemplates();
+    }
+
+    /**
      * Save templates to storage
      */
     async saveTemplates(): Promise<void> {

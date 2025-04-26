@@ -103,6 +103,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background-color: var(--highlight-color);
+    opacity: 1 !important;
 }
 
 .template-name {
@@ -114,6 +116,46 @@ body {
 
 .default-badge {
     user-select: none;
+}
+
+/* Sortable styles */
+.sortable-container {
+    width: 100%;
+}
+
+.template-handle {
+    margin-right: 8px;
+    color: var(--text-color);
+    opacity: 0.3;
+    cursor: move;
+    user-select: none;
+}
+
+.template-item:hover .template-handle {
+    opacity: 0.7;
+}
+
+/* When item is being dragged */
+.sortable-ghost {
+    opacity: 0.3;
+    background-color: var(--highlight-color);
+}
+
+.sortable-drag {
+    background-color: var(--bg-color);
+    opacity: 0.8;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Hide default template handle */
+.default-handle {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+/* Cursor changes during dragging */
+body.template-dragging {
+    cursor: grabbing;
 }
 
 .template-name-edit {
