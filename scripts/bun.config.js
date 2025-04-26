@@ -40,13 +40,25 @@ const processHTML = () => {
   console.log('Processed popup.html');
 };
 
-// Copy manifest file
+// Copy manifest file and update version from package.json
 const copyManifest = () => {
-  fs.copyFileSync(
-    path.resolve(rootDir, 'manifest.json'),
-    path.resolve(distDir, 'manifest.json')
+  // Read manifest file
+  const manifestPath = path.resolve(rootDir, 'manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  
+  // Read package.json to get version
+  const packagePath = path.resolve(rootDir, 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+  
+  // Update manifest version with package.json version
+  manifest.version = packageJson.version;
+  
+  // Write updated manifest
+  fs.writeFileSync(
+    path.resolve(distDir, 'manifest.json'),
+    JSON.stringify(manifest, null, 2)
   );
-  console.log('Copied manifest.json to dist directory');
+  console.log(`Updated manifest.json with version ${packageJson.version} and copied to dist directory`);
 };
 
 // Copy CSS and images

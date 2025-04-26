@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Foundation Fill",
-  "version": "0.1.0",
+  "version": "0.0.0",
+  "_comment": "The version is automatically replaced by the value from package.json during build",
   "description": "Fill text fields with predefined system prompt templates",
   "permissions": [
     "storage",
