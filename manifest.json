@@ -40,5 +40,11 @@
         "content.js"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["help.html", "assets/images/*", "assets/css/*", "assets/images/screenshots/*"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }

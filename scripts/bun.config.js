@@ -79,13 +79,35 @@ const copyAssets = () => {
     });
 
     // Copy image files
-    const imageFiles = fs.readdirSync(path.join(rootDir, 'src/assets/images'));
-    imageFiles.forEach(file => {
-        fs.copyFileSync(
-          path.join(rootDir, 'src/assets/images', file),
-          path.join(imagesDir, file)
-        );
-    });
+    const copyDirRecursive = (srcDir, destDir) => {
+        // Create destination directory if it doesn't exist
+        if (!fs.existsSync(destDir)) {
+            fs.mkdirSync(destDir, { recursive: true });
+        }
+        
+        // Read directory contents
+        const entries = fs.readdirSync(srcDir, { withFileTypes: true });
+        
+        // Process each entry
+        for (const entry of entries) {
+            const srcPath = path.join(srcDir, entry.name);
+            const destPath = path.join(destDir, entry.name);
+            
+            if (entry.isDirectory()) {
+                // Recursively copy subdirectory
+                copyDirRecursive(srcPath, destPath);
+            } else {
+                // Copy file
+                fs.copyFileSync(srcPath, destPath);
+            }
+        }
+    };
+    
+    // Copy the entire images directory recursively
+    copyDirRecursive(
+        path.join(rootDir, 'src/assets/images'),
+        path.join(distDir, 'assets/images')
+    );
 
     // Copy Font Awesome CSS
     fs.copyFileSync(
@@ -184,6 +206,13 @@ async function build() {
     processHTML();
     copyManifest();
     copyAssets();
+    
+    // Copy help.html if it exists
+    const helpHtmlPath = path.join(rootDir, 'src/help.html');
+    if (fs.existsSync(helpHtmlPath)) {
+        fs.copyFileSync(helpHtmlPath, path.join(distDir, 'help.html'));
+        console.log('Copied help.html to dist directory');
+    }
 
     try {
         const isWatchMode = process.argv.includes('--watch');
@@ -241,11 +270,30 @@ async function build() {
                 }
             });
 
-            // Watch popup.html
-            watch(path.join(rootDir, 'src/popup.html'), async () => {
-                console.log('Change detected in popup.html');
-                processHTML();
-                await createPackage();
+            // Watch HTML files
+            watch(path.join(rootDir, 'src'), { recursive: true }, async (eventType, filename) => {
+                if (filename && filename.endsWith('.html')) {
+                    console.log(`Change detected in ${filename}`);
+                    
+                    if (filename === 'popup.html' || filename.includes('popup.html')) {
+                        processHTML();
+                    } else {
+                        // Copy other HTML files directly
+                        const srcPath = path.join(rootDir, 'src', filename);
+                        const destPath = path.join(distDir, filename);
+                        
+                        // Ensure the destination directory exists
+                        const destDir = path.dirname(destPath);
+                        if (!fs.existsSync(destDir)) {
+                            fs.mkdirSync(destDir, { recursive: true });
+                        }
+                        
+                        fs.copyFileSync(srcPath, destPath);
+                        console.log(`Copied ${filename} to dist directory`);
+                    }
+                    
+                    await createPackage();
+                }
             });
 
             // Watch manifest.json

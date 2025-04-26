@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             .addEventListener("click", () => chrome.tabs.create({url: 'https://github.com/Vivswan'}));
         (document.getElementById("vs-link") as HTMLElement)
             .addEventListener("click", () => chrome.tabs.create({url: 'https://vivswan.github.io/'}));
+        
+        (document.getElementById("help-btn") as HTMLElement)
+            .addEventListener("click", () => chrome.tabs.create({url: 'help.html'}));
 
         chrome.storage.local.get("resolveTemplateVariables", async (data) => {
             await processResolveTemplateVariables(popupController, data);
