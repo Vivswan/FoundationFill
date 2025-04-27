@@ -15,9 +15,14 @@ const logger = createLogger('GENERATE_TEXT');
 
 /**
  * Generates text using API and inserts it into the specified element with animation
- * @param element - The DOM element to insert text into
- * @param templateData - The template data containing prompts
- * @param pageContent - The current page content for context
+ * Shows a loading animation while waiting for the API response
+ * Handles error cases and updates the element with the generated text or error message
+ *
+ * @param element - The DOM element to insert text into (usually a text input field)
+ * @param templateData - The template data containing system and user prompts
+ * @param pageContent - The current page content for context (used if template's includePageContent is true)
+ * @returns Promise that resolves when text generation and insertion is complete
+ * @throws Will handle errors internally and display them in the target element
  */
 export const generateTextWithAnimation = async (element: HTMLElement, templateData: Template | undefined | null, pageContent: string | null): Promise<void> => {
     if (!templateData) {

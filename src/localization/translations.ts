@@ -16,7 +16,10 @@ export type Translation = typeof enTranslations;
  */
 export type Language = 'en' | 'zh-CN' | 'zh-TW';
 
-// Mapping of language codes to loaded translation files
+/**
+ * Translations object
+ * Maps language codes to their respective translation objects
+ */
 export const translations: Record<Language, Translation> = {
     'en': enTranslations,
     'zh-CN': zhCNTranslations,
@@ -32,9 +35,22 @@ export function getDocumentLanguage(): Language {
     return lang as Language || 'en';
 }
 
+/**
+ * Set the document language attribute
+ * @param language Language code (e.g., 'en', 'zh-CN', 'zh-TW')
+ */
 export function setDocumentLanguage(language: Language) {
     document.documentElement.setAttribute('data-foundation-fill-language', language);
 }
+
+/**
+ * Get all available languages
+ * @returns Array of language codes
+ */
+export function getAllLanguages(): Language[] {
+    return Object.keys(translations) as Language[];
+}
+
 
 /**
  * Get translated text based on the current language
@@ -64,7 +80,6 @@ export function getTranslation(key: string, language: string | null = null): str
             break;
         }
     }
-
     return result as string;
 }
 
@@ -75,7 +90,7 @@ export function getTranslation(key: string, language: string | null = null): str
  */
 function getTranslationFallback(key: string): string {
     const keyPath = key.split('.');
-    let result: any = translations['en'];
+    let result: Translation = translations['en'];
 
     for (const k of keyPath) {
         if (result && typeof result === 'object' && k in result) {
@@ -84,6 +99,5 @@ function getTranslationFallback(key: string): string {
             return key; // Return the key itself if not found
         }
     }
-
     return result as string;
 }

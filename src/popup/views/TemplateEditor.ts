@@ -191,10 +191,13 @@ export class TemplateEditorView {
     }
 
     /**
-     * Processes variables in a template through the variable view
-     * Extracts and replaces variables with user-provided values
+     * Processes variables in a template through the template variable view component
+     * Extracts variables using regex pattern, displays dialog for user input, 
+     * and replaces variables with user-provided values in both prompts
+     * 
+     * This is used both for the template preview and when sending templates to the content script
      *
-     * @param template - The template containing variables to process
+     * @param template - The template containing variables to process (in format {{variable:default}})
      * @returns Promise resolving to the processed template with variable values substituted
      */
     public async processTemplateVariables(template: Template): Promise<Template> {

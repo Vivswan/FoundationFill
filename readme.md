@@ -31,9 +31,9 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 
 ### From Chrome Web Store (Recommended)
 
-1. Visit the [Chrome Web Store page](https://chrome.google.com/webstore/detail/foundation-fill/TBD)
+1. Visit the [Chrome Web Store page](https://chrome.google.com/webstore/detail/foundation-fill/TBD) (Coming soon)
 2. Click "Add to Chrome"
-3. Accept the permissions
+3. Accept the permissions when prompted
 
 ### From GitHub Releases
 
@@ -56,10 +56,12 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 2. **Use Templates**: Right-click on any text field while browsing and select your template from the context menu
 3. **Organize Templates**: Reorder templates by dragging and dropping using the handle icon (default template always
    stays at the top). Easily duplicate templates with the copy button for quick variations.
-4. **Domain-Specific Templates**: Set templates to only appear on specific websites
+4. **Domain-Specific Templates**: Set templates to only appear on specific websites using wildcards like `*.example.com`
 5. **Generate Text**: Configure API settings to use an LLM for generating content based on your templates
 6. **Use Template Variables**: Add variables like `{{name:John}}` in your templates and you'll be prompted to provide
-   values when using the template
+   values when using the template. The format is `{{variable_name:default_value}}` where the default value is optional.
+7. **Import/Export Templates**: Share your templates with others or back them up using the import/export functionality
+8. **Theme Customization**: Choose from light, dark, or system theme with multiple color options
 
 ## Project Structure
 
@@ -101,8 +103,8 @@ foundation-fill/
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/foundation-fill.git
-   cd foundation-fill
+   git clone https://github.com/Vivswan/FoundationFill.git
+   cd FoundationFill
    ```
 
 2. Install dependencies

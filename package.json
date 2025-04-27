@@ -10,7 +10,7 @@
     "generate-icons": "node scripts/generate-icons.js",
     "bump-version": "node scripts/bump-version.js"
   },
-  "author": "",
+  "author": "Vivswan Shah",
   "license": "MIT",
   "devDependencies": {
     "@types/chrome": "^0.0.246",

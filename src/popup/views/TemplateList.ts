@@ -55,6 +55,10 @@ export class TemplateListView {
     /**
      * Callback function triggered when a template is selected
      * Can be set externally to handle navigation to template editor
+     * This function is called after a template is selected from the list
+     * Used by the main Popup class to switch to the template editor view
+     * 
+     * @public Meant to be overridden by the parent component
      */
     public onShowCallback: () => void = () => {
     };
@@ -180,7 +184,7 @@ export class TemplateListView {
         this.sortableInstance = new Sortable(container, {
             animation: 150,
             handle: '.template-handle',
-            filter: '.default-template', // Prevent the default template from being moved
+            filter: '.default-template', // Prevent the default template from being moved/reordered
             onStart: () => {
                 // Add a class to the body when dragging starts
                 document.body.classList.add('template-dragging');

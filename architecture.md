@@ -229,7 +229,8 @@ class Storage,LocalStorage,API external;
     - Variables use format `{{variable_name:default_value}}`
     - Default values are optional: `{{variable_name}}`
     - Variables can be used in both system and user prompts
-    - Same variable name in multiple locations uses the same value
+    - The same variable name in multiple locations uses the same input value
+    - Variables are processed in the TemplateVariableView and presented in a dialog for user input
 
 ### Text Generation Flow
 
@@ -252,11 +253,12 @@ class Storage,LocalStorage,API external;
     - Language changes are applied immediately via the translation system
 
 2. **Theme Management**
-    - User selects a theme or system uses default
+    - User selects a theme (light, dark, or system) in the Settings view
     - User can choose from multiple color schemes (blue, red, green, purple, orange, pink)
-    - ThemeService applies theme by setting CSS variables via document.documentElement.style.setProperty
-    - THEME_COLORS object serves as single source of truth for all color values
+    - ThemeService applies the theme by setting CSS variables via document.documentElement.style.setProperty
+    - THEME_COLORS object serves as the single source of truth for all color values
     - UI updates dynamically based on CSS variables
+    - System theme automatically changes based on browser/OS preference
 
 3. **Localization Management**
     - User selects preferred language in Settings
@@ -306,14 +308,17 @@ class Storage,LocalStorage,API external;
 ## Security Considerations
 
 1. **API Key Storage**
-    - API keys are stored in Chrome's secure storage
-    - Keys are never exposed in the DOM
+    - API keys are stored in Chrome's secure storage (chrome.storage.sync)
+    - Keys are never exposed in the DOM or logs
+    - API requests are made from the background script, not content scripts
 
 2. **Content Security**
-    - Content script follows proper isolation practices
+    - Content script follows proper isolation practices and CSP compliance
     - No arbitrary code execution from templates
     - Variables are safely processed without injection risks
+    - All DOM manipulations use proper sanitization
 
 3. **Permission Usage**
-    - Minimal permissions are requested
+    - Minimal permissions are requested in the manifest
     - Each permission has a specific purpose clearly communicated to users
+    - Extension follows the principle of least privilege
