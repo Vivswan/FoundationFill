@@ -182,10 +182,11 @@ export class TemplateEditorView {
         if (!templateData) return;
 
         const processedTemplate = await this.templateVariableView.process(templateData);
+        const pageContent = templateData.includePageContent ? await getCurrentPageContent() : '';
         return generateTextWithAnimation(
             this.generatedTextArea,
             processedTemplate,
-            await getCurrentPageContent()
+            pageContent
         );
     }
 
