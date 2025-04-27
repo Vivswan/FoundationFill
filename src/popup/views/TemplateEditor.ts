@@ -8,6 +8,7 @@ import {DEFAULT_TEMPLATE} from "../../defaults";
 import {generateTextWithAnimation} from "../../generate/toElement";
 import {DomainUI} from "./DomainUI";
 import {TemplateVariableView} from "./TemplateVariable";
+import {getTranslation} from "../../localization/translations";
 
 /**
  * TemplateEditorView class
@@ -130,7 +131,7 @@ export class TemplateEditorView {
         const template = templates.find(t => t.id === activeId);
         if (!template) return;
 
-        this.templateTitle.innerHTML = "Edit (" + template.name + ")";
+        this.templateTitle.innerHTML = getTranslation('template.title') + " (" + template.name + ")";
         this.systemPromptInput.value = template.systemPrompt;
         this.userPromptInput.value = template.userPrompt;
         this.templateEnabledCheckbox.checked = template.enabled;
@@ -141,21 +142,21 @@ export class TemplateEditorView {
             this.deleteTemplateBtn.style.visibility = 'hidden';
             this.deleteTemplateBtn.style.opacity = '0';
             this.deleteTemplateBtn.disabled = true;
-            this.deleteTemplateBtn.title = 'Default template cannot be deleted';
+            this.deleteTemplateBtn.title = getTranslation('template.cannotDelete');
 
             // Show duplicate button for default template (can still duplicate it)
             this.duplicateTemplateBtn.style.visibility = 'visible';
             this.duplicateTemplateBtn.disabled = false;
-            this.duplicateTemplateBtn.title = 'Duplicate this template';
+            this.duplicateTemplateBtn.title = getTranslation('template.duplicateTitle');
         } else {
             this.deleteTemplateBtn.style.visibility = 'visible';
             this.deleteTemplateBtn.style.opacity = '1';
             this.deleteTemplateBtn.disabled = false;
-            this.deleteTemplateBtn.title = 'Delete this template';
+            this.deleteTemplateBtn.title = getTranslation('template.deleteTitle');
 
             this.duplicateTemplateBtn.style.visibility = 'visible';
             this.duplicateTemplateBtn.disabled = false;
-            this.duplicateTemplateBtn.title = 'Duplicate this template';
+            this.duplicateTemplateBtn.title = getTranslation('template.duplicateTitle');
         }
 
         // Clear generated text area when switching templates

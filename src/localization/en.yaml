@@ -1,0 +1,74 @@
+settings:
+  title: Settings
+  baseUrl: Base URL
+  apiKey: API Key
+  model: Model
+  theme: Theme
+  accentColor: Accent Color
+  language: Language
+  importExport: Import/Export
+  exportBtn: Export All Data
+  importBtn: Import Data
+  saved: Settings saved!
+
+import:
+  noFile: No file selected!
+  invalidFormat: Invalid import file format!
+  success: Data imported successfully!
+  error: Error importing data!
+
+export:
+  success: Data exported successfully!
+  error: Error exporting data!
+
+template:
+  title: Edit
+  systemPrompt: System Prompt
+  userPrompt: User Prompt
+  generatedText: Generated text will appear here...
+  enabled: Enabled
+  webContent: Web Content
+  domains: Domains
+  testPrompt: Test Prompt
+  new: New Template
+  edit: Edit Template
+  duplicate: Duplicate template
+  delete: Delete template
+  default: default
+  cannotDelete: Default template cannot be deleted
+  duplicateTitle: Duplicate this template
+  deleteTitle: Delete this template
+
+domains:
+  title: Manage Domains
+  addCurrent: Add Current Domain
+  add: Add
+  save: Save
+  info: Add domains to link this template to specific websites. Use * for wildcards (e.g., *.example.com).
+  placeholder: Enter domain (e.g., example.com or *.example.com)
+  empty: No domains added yet. Add a domain below.
+  removeTitle: Remove domain
+
+theme:
+  light: Light
+  dark: Dark
+  system: System
+
+colors:
+  blue: Blue
+  red: Red
+  green: Green
+  purple: Purple
+  orange: Orange
+  pink: Pink
+
+dialog:
+  close: Close
+
+generation:
+  generating: Generating
+
+baseTemplate:
+  title: "Base Template"
+  systemPrompt: "You are a helpful assistant."
+  userPrompt: "Hi"

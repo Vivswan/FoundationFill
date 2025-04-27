@@ -4,6 +4,7 @@
  */
 import {SettingsModel} from "../models/Settings";
 import {THEME_COLORS, ThemeColor, ThemeMode} from "./Theme";
+import {getTranslation} from "../../localization/translations";
 
 /**
  * Interface defining application settings properties
@@ -13,6 +14,7 @@ import {THEME_COLORS, ThemeColor, ThemeMode} from "./Theme";
  * @property {string} model - LLM model identifier to use for generation
  * @property {ThemeMode} theme - UI theme preference ('light', 'dark', or 'system')
  * @property {string} themeColor - UI accent color preference
+ * @property {Language} language - UI language preference ('en', 'zh-CN', 'zh-TW')
  */
 export interface Settings {
     apiKey: string;
@@ -20,6 +22,7 @@ export interface Settings {
     model: string;
     theme: ThemeMode;
     themeColor: string;
+    language: string;
 }
 
 /**
@@ -37,6 +40,7 @@ export class SettingsView {
     private modelInput: HTMLInputElement;
     private themeSelect: HTMLSelectElement;
     private colorSelect: HTMLSelectElement;
+    private languageSelect: HTMLSelectElement;
     private colorPreview: HTMLElement;
     private settingsStatus: HTMLElement;
 
@@ -61,6 +65,7 @@ export class SettingsView {
         this.modelInput = document.getElementById('model') as HTMLInputElement;
         this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
         this.colorSelect = document.getElementById('color-select') as HTMLSelectElement;
+        this.languageSelect = document.getElementById('language-select') as HTMLSelectElement;
         this.colorPreview = document.getElementById('color-preview') as HTMLElement;
         this.settingsStatus = document.getElementById('settings-status') as HTMLElement;
 
@@ -78,6 +83,9 @@ export class SettingsView {
 
         // Color dropdown change handler
         this.colorSelect.addEventListener('change', this.handleColorChange.bind(this));
+        
+        // Language dropdown change handler
+        this.languageSelect.addEventListener('change', this.handleLanguageChange.bind(this));
 
         // Toggle API key visibility handler
         this.toggleApiKeyBtn.addEventListener('click', this.toggleApiKeyVisibility.bind(this));
@@ -135,6 +143,9 @@ export class SettingsView {
 
         // Update color dropdown
         this.colorSelect.value = settings.themeColor;
+        
+        // Update language dropdown
+        this.languageSelect.value = settings.language;
 
         // Update color preview
         this.updateColorPreview();
@@ -204,7 +215,7 @@ export class SettingsView {
     private async handleValueChange(key: keyof Settings, e: Event): Promise<void> {
         const value = (e.target as HTMLInputElement).value;
         await this.settings.updateSetting(key, value);
-        this.showStatus('Settings saved!', false);
+        this.showStatus(getTranslation("settings.saved"), false);
     }
 
     /**
@@ -218,7 +229,7 @@ export class SettingsView {
     private async handleThemeChange(e: Event): Promise<void> {
         const value = (e.target as HTMLSelectElement).value;
         await this.settings.updateSetting('theme', value);
-        this.showStatus('Settings saved!', false);
+        this.showStatus(getTranslation("settings.saved"), false);
     }
 
     /**
@@ -233,6 +244,20 @@ export class SettingsView {
         const value = (e.target as HTMLSelectElement).value;
         await this.settings.updateSetting('themeColor', value);
         this.updateColorPreview();
-        this.showStatus('Settings saved!', false);
+        this.showStatus(getTranslation("settings.saved"), false);
+    }
+    
+    /**
+     * Handles changes to the language dropdown
+     * Updates the language setting and shows a confirmation message
+     *
+     * @param e - The change event
+     * @returns Promise that resolves when the language is updated
+     * @private Internal event handler
+     */
+    private async handleLanguageChange(e: Event): Promise<void> {
+        const value = (e.target as HTMLSelectElement).value;
+        await this.settings.updateSetting('language', value);
+        this.showStatus(getTranslation("settings.saved"), false);
     }
 }

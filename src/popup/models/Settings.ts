@@ -66,7 +66,8 @@ export class SettingsModel {
             ...importedSettings,
             baseUrl: baseUrl,
             theme: this.validateTheme(importedSettings.theme) || DEFAULT_SETTINGS.theme,
-            themeColor: this.validateColor(importedSettings.themeColor) || DEFAULT_SETTINGS.themeColor
+            themeColor: this.validateColor(importedSettings.themeColor) || DEFAULT_SETTINGS.themeColor,
+            language: this.validateLanguage(importedSettings.language) || DEFAULT_SETTINGS.language
         };
         await this.saveSettings();
     }
@@ -82,6 +83,9 @@ export class SettingsModel {
         } else if (key === 'themeColor') {
             // Make sure color is valid
             this.settings[key] = this.validateColor(value) || DEFAULT_SETTINGS.themeColor;
+        } else if (key === 'language') {
+            // Make sure language is valid
+            this.settings[key] = this.validateLanguage(value) || DEFAULT_SETTINGS.language;
         } else if (key === 'baseUrl') {
             // Remove trailing slash if present
             this.settings[key] = value.endsWith('/') ? value.slice(0, -1) : value;
@@ -181,6 +185,16 @@ export class SettingsModel {
     private validateColor(color: string | undefined): ThemeColor | undefined {
         if (color && ['blue', 'red', 'green', 'purple', 'orange', 'pink'].includes(color)) {
             return color as ThemeColor;
+        }
+        return undefined;
+    }
+    
+    /**
+     * Validate language value
+     */
+    private validateLanguage(language: string | undefined): string | undefined {
+        if (language && ['en', 'zh-CN', 'zh-TW'].includes(language)) {
+            return language;
         }
         return undefined;
     }

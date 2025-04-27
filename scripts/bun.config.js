@@ -250,6 +250,33 @@ async function build() {
     fs.copyFileSync(helpHtmlPath, path.join(distDir, 'help.html'));
     console.log('Copied help.html to dist directory');
   }
+  
+  // Copy YAML files for localization
+  const copyYamlFiles = () => {
+    const yamlSourceDir = path.join(rootDir, 'src/localization');
+    const yamlDestDir = path.join(distDir, 'localization');
+    
+    // Create destination directory if it doesn't exist
+    if (!fs.existsSync(yamlDestDir)) {
+      fs.mkdirSync(yamlDestDir, { recursive: true });
+    }
+    
+    // Find all YAML files
+    const yamlFiles = fs.readdirSync(yamlSourceDir).filter(file => file.endsWith('.yaml'));
+    
+    // Copy each file
+    yamlFiles.forEach(file => {
+      fs.copyFileSync(
+        path.join(yamlSourceDir, file),
+        path.join(yamlDestDir, file)
+      );
+    });
+    
+    console.log('Copied YAML localization files to dist directory');
+  };
+  
+  // Copy YAML files
+  copyYamlFiles();
 
   try {
     const isWatchMode = process.argv.includes('--watch');
@@ -280,6 +307,23 @@ async function build() {
         // Use flat structure in root output directory
         entry: "[name].js"
       },
+      plugins: [
+        {
+          name: 'yaml-loader',
+          setup(build) {
+            // Load .yaml files
+            build.onLoad({ filter: /\.yaml$/ }, async (args) => {
+              const jsYaml = require('js-yaml');
+              const text = await Bun.file(args.path).text();
+              const content = jsYaml.load(text);
+              return {
+                contents: `export default ${JSON.stringify(content)}`,
+                loader: 'js',
+              };
+            });
+          },
+        },
+      ],
     };
 
     // Initial build
@@ -292,9 +336,9 @@ async function build() {
     if (isWatchMode) {
       console.log('Watching for changes...');
 
-      // Watch src directory for TS/JS changes
+      // Watch src directory for TS/JS/YAML changes
       watch(path.join(rootDir, 'src'), {recursive: true}, async (eventType, filename) => {
-        if (filename && (filename.endsWith('.ts') || filename.endsWith('.js'))) {
+        if (filename && (filename.endsWith('.ts') || filename.endsWith('.js') || filename.endsWith('.yaml'))) {
           console.log(`Change detected in ${filename}, rebuilding...`);
           try {
             await Bun.build(buildOptions);
@@ -352,6 +396,15 @@ async function build() {
         console.log('Change detected in image files');
         copyAssets();
         await createPackage();
+      });
+      
+      // Watch YAML localization files
+      watch(path.join(rootDir, 'src/localization'), {recursive: true}, async (eventType, filename) => {
+        if (filename && filename.endsWith('.yaml')) {
+          console.log('Change detected in YAML localization files');
+          copyYamlFiles();
+          await createPackage();
+        }
       });
 
       // Keep process running

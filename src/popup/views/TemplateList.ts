@@ -6,6 +6,7 @@ import {createLogger} from '../../utils/logging';
 import {Template, TemplateModel} from "../models/Template";
 import {DEFAULT_TEMPLATE} from "../../defaults";
 import Sortable from 'sortablejs';
+import {getTranslation} from "../../localization/translations";
 
 // Create a logger for this component
 const logger = createLogger('TEMPLATE_LIST_VIEW');
@@ -125,7 +126,7 @@ export class TemplateListView {
 
                 const defaultBadge = document.createElement('span');
                 defaultBadge.className = 'default-badge';
-                defaultBadge.textContent = '(default)';
+                defaultBadge.textContent = `(${getTranslation('template.default')})`;
 
                 templateItem.appendChild(handle);
                 templateItem.appendChild(nameContainer);

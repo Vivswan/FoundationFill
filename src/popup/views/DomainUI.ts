@@ -4,6 +4,7 @@
  */
 import {Template, TemplateModel} from "../models/Template";
 import {getCurrentDomain} from "../../utils/associatedDomain";
+import {getTranslation} from "../../localization/translations";
 
 /**
  * View component for managing domain associations with templates
@@ -208,7 +209,7 @@ export class DomainUI {
         if (this.currentDomains.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'domain-empty';
-            emptyMessage.textContent = 'No domains added yet. Add a domain below.';
+            emptyMessage.textContent = getTranslation('domains.empty');
             emptyMessage.style.padding = '8px 12px';
             emptyMessage.style.fontStyle = 'italic';
             emptyMessage.style.opacity = '0.7';
@@ -226,7 +227,7 @@ export class DomainUI {
             const removeButton = document.createElement('button');
             removeButton.className = 'domain-remove-btn';
             removeButton.textContent = '×';
-            removeButton.title = 'Remove domain';
+            removeButton.title = getTranslation('domains.removeTitle');
             removeButton.addEventListener('click', () => this.removeDomain(domain));
 
             domainItem.appendChild(domainName);

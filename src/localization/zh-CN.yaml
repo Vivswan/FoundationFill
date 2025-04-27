@@ -1,0 +1,74 @@
+settings:
+  title: 设置
+  baseUrl: 基础 URL
+  apiKey: API 密钥
+  model: 模型
+  theme: 主题
+  accentColor: 强调色
+  language: 语言
+  importExport: 导入/导出
+  exportBtn: 导出所有数据
+  importBtn: 导入数据
+  saved: 设置已保存！
+
+import:
+  noFile: 未选择文件！
+  invalidFormat: 导入文件格式无效！
+  success: 数据导入成功！
+  error: 导入数据时出错！
+
+export:
+  success: 数据导出成功！
+  error: 导出数据时出错！
+
+template:
+  title: 编辑
+  systemPrompt: 系统提示
+  userPrompt: 用户提示
+  generatedText: 生成的文本将显示在这里...
+  enabled: 已启用
+  webContent: 网页内容
+  domains: 域名
+  testPrompt: 测试提示
+  new: 新建模板
+  edit: 编辑模板
+  duplicate: 复制模板
+  delete: 删除模板
+  default: 默认
+  cannotDelete: 默认模板无法删除
+  duplicateTitle: 复制此模板
+  deleteTitle: 删除此模板
+
+domains:
+  title: 管理域名
+  addCurrent: 添加当前域名
+  add: 添加
+  save: 保存
+  info: 添加域名以将此模板链接到特定网站。使用 * 作为通配符（例如，*.example.com）。
+  placeholder: 输入域名（例如，example.com 或 *.example.com）
+  empty: 尚未添加域名。在下面添加域名。
+  removeTitle: 移除域名
+
+theme:
+  light: 浅色
+  dark: 深色
+  system: 系统
+
+colors:
+  blue: 蓝色
+  red: 红色
+  green: 绿色
+  purple: 紫色
+  orange: 橙色
+  pink: 粉色
+
+dialog:
+  close: 关闭
+
+generation:
+  generating: 生成中
+
+baseTemplate:
+  title: "基础模板"
+  systemPrompt: "你是一个有帮助的助手。"
+  userPrompt: "你好"

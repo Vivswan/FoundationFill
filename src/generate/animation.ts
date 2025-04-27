@@ -4,6 +4,7 @@
  * Handles timeouts and cleanup of animation intervals
  */
 import {DOMUtils} from "../utils/dom-utils";
+import {getTranslation} from "../localization/translations";
 
 /**
  * Starts a "Generating..." animation in the given DOM element
@@ -39,7 +40,8 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
 
         // Initialize loading text
         loadingDots = '';
-        DOMUtils.updateText(element, `Generating${loadingDots}`);
+        const generatingText = getTranslation('generation.generating');
+        DOMUtils.updateText(element, `${generatingText}${loadingDots}`);
 
         // Set up animation interval
         loadingAnimationInterval = window.setInterval(() => {
@@ -48,7 +50,7 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
             if (loadingDots.length > 3) {
                 loadingDots = '.';
             }
-            DOMUtils.updateText(element, `Generating${loadingDots}`);
+            DOMUtils.updateText(element, `${generatingText}${loadingDots}`);
         }, 500);
 
         // Auto-stop the animation after ANIMATION_TIMEOUT

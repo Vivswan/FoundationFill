@@ -19,7 +19,7 @@ const logger = createLogger('GENERATE_TEXT');
  * @param templateData - The template data containing prompts
  * @param pageContent - The current page content for context
  */
-export const generateTextWithAnimation = async (element: HTMLElement, templateData: Template | undefined | null, pageContent: string): Promise<void> => {
+export const generateTextWithAnimation = async (element: HTMLElement, templateData: Template | undefined | null, pageContent: string | null): Promise<void> => {
     if (!templateData) {
         logger.error('Error: Template not found');
         DOMUtils.updateText(element, 'Error: Template not found');
@@ -30,6 +30,7 @@ export const generateTextWithAnimation = async (element: HTMLElement, templateDa
         DOMUtils.updateText(element, 'Error: User prompt is empty');
         return;
     }
+    if (!pageContent) pageContent = '';
 
     const stopCallback = generatingAnimation(element, ANIMATION_TIMEOUT);
     try {

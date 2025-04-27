@@ -113,6 +113,13 @@ class Storage,LocalStorage,API external;
    - Initializes models and views
    - Handles UI interactions and navigation
    - Processes template variables when triggered by background script
+   - Manages language selection and localization
+
+4. **Localization (`localization/translations.ts`)**
+   - Manages translations for all UI text
+   - Supports multiple languages (English, Simplified Chinese, Traditional Chinese)
+   - Provides fallback mechanism when translations are missing
+   - Integrates with the UI through the getTranslation function
 
 ### Models
 
@@ -150,6 +157,7 @@ class Storage,LocalStorage,API external;
    - Interface for editing extension settings
    - Manages API configuration input
    - Handles theme selection
+   - Manages language selection for localization
 
 4. **Template Variable View (`popup/views/TemplateVariable.ts`)**
    - Extracts template variables from prompts
@@ -241,6 +249,7 @@ class Storage,LocalStorage,API external;
    - Settings are passed to SettingsModel
    - SettingsModel updates and persists changes
    - Services that depend on settings are notified
+   - Language changes are applied immediately via the translation system
 
 2. **Theme Management**
    - User selects a theme or system uses default
@@ -248,6 +257,14 @@ class Storage,LocalStorage,API external;
    - ThemeService applies theme by setting CSS variables via document.documentElement.style.setProperty
    - THEME_COLORS object serves as single source of truth for all color values
    - UI updates dynamically based on CSS variables
+
+3. **Localization Management**
+   - User selects preferred language in Settings
+   - UI language is updated immediately using the getTranslation function
+   - Translations are loaded from YAML files for each supported language
+   - The HTML lang attribute is updated to reflect the selected language
+   - Fallback to English is provided when translations are missing
+   - All UI text is managed through the translations system
 
 ## Error Handling Strategy
 

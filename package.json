@@ -19,8 +19,10 @@
     "bun": "^1.2.10",
     "crx": "^5.0.1",
     "eslint": "^8.51.0",
+    "js-yaml": "^4.1.0",
     "sharp": "^0.34.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "yaml-loader": "^0.8.1"
   },
   "dependencies": {
     "@types/sortablejs": "^1.15.8",

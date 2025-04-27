@@ -26,7 +26,8 @@ export const DEFAULT_SETTINGS: Settings = {
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4',
     theme: 'system',
-    themeColor: 'blue'
+    themeColor: 'blue',
+    language: 'en'
 };
 
 // API request constants

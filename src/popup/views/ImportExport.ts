@@ -7,6 +7,7 @@ import {createLogger} from '../../utils/logging';
 import {SettingsModel} from '../models/Settings';
 import {Template, TemplateModel} from '../models/Template';
 import {Settings} from './Settings';
+import {getTranslation} from '../../localization/translations';
 
 // Create a logger for this component
 const logger = createLogger('IMPORT_EXPORT');
@@ -132,12 +133,12 @@ export class ImportExportView {
 
             // Clean up
             URL.revokeObjectURL(url);
-            this.showStatus('Data exported successfully!', false);
+            this.showStatus(getTranslation('export.success'), false);
 
             logger.debug('Data exported successfully');
         } catch (error) {
             logger.error('Error exporting data:', error);
-            this.showStatus('Error exporting data!', true);
+            this.showStatus(getTranslation('export.error'), true);
         }
     }
 
@@ -152,7 +153,7 @@ export class ImportExportView {
     private async handleImport(event: Event): Promise<void> {
         const fileInput = event.target as HTMLInputElement;
         if (!fileInput.files || fileInput.files.length === 0) {
-            this.showStatus('No file selected!', true);
+            this.showStatus(getTranslation('import.noFile'), true);
             return;
         }
 
@@ -166,7 +167,7 @@ export class ImportExportView {
 
             // Validate the import data
             if (!this.validateImportData(importData)) {
-                this.showStatus('Invalid import file format!', true);
+                this.showStatus(getTranslation('import.invalidFormat'), true);
                 return;
             }
 
@@ -176,11 +177,11 @@ export class ImportExportView {
             // Import templates
             await this.templateModel.importTemplates(importData.templates);
 
-            this.showStatus('Data imported successfully!', false);
+            this.showStatus(getTranslation('import.success'), false);
             logger.debug('Data imported successfully');
         } catch (error) {
             logger.error('Error importing data:', error);
-            this.showStatus('Error importing data!', true);
+            this.showStatus(getTranslation('import.error'), true);
         }
     }
 

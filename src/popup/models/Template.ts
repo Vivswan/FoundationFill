@@ -8,6 +8,7 @@ import {createLogger} from '../../utils/logging';
 import {StorageService} from '../../utils/storage-service';
 import {sendMessageToBackground} from '../../utils/chrome-api-utils';
 import {validateDomain} from "../../utils/associatedDomain";
+import {getTranslation} from "../../localization/translations";
 
 /**
  * Interface representing a template for text generation
@@ -80,7 +81,7 @@ export class TemplateModel {
         const newTemplate = {
             ...this.templates.find(template => template.id === DEFAULT_TEMPLATE.id),
             id: crypto.randomUUID(),
-            name: 'New Template',
+            name: getTranslation('template.new'),
         } as Template;
 
         this.templates.push(newTemplate);
