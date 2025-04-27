@@ -110,7 +110,7 @@ export class TemplateModel {
      * @param id - The ID of the template to retrieve
      * @returns Promise resolving to the template or null if not found
      */
-    async getTemplatesById(id: string): Promise<Template | null> {
+    async getTemplateById(id: string): Promise<Template | null> {
         const template = this.templates.find(t => t.id === id);
         if (template) {
             return JSON.parse(JSON.stringify(template));

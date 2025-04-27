@@ -94,7 +94,7 @@ export class PopupController {
     private async onSettingsChange(updatedSettings: Settings): Promise<void> {
         setDocumentLanguage(updatedSettings.language as Language);
 
-        const defaultTemplate = await this.templateModel.getTemplatesById(DEFAULT_TEMPLATE.id) || DEFAULT_TEMPLATE;
+        const defaultTemplate = await this.templateModel.getTemplateById(DEFAULT_TEMPLATE.id) || DEFAULT_TEMPLATE;
         const isDefaultSystemPrompt = getAllLanguages().some(lang => defaultTemplate.systemPrompt === getTranslation("baseTemplate.systemPrompt", lang));
         const isDefaultUserPrompt = getAllLanguages().some(lang => defaultTemplate.userPrompt === getTranslation("baseTemplate.userPrompt", lang));
         await this.templateModel.updateTemplate(DEFAULT_TEMPLATE.id, {
