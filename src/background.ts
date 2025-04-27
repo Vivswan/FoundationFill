@@ -22,6 +22,9 @@ const logger = createLogger('BACKGROUND');
 /**
  * Loads all enabled templates into the context menu
  * Filters templates by domain if a domain is active
+ * Templates are shown in their saved order with domain-specific filtering
+ * 
+ * @returns Promise that resolves when context menu has been fully updated
  */
 async function loadTemplatesIntoContextMenu(): Promise<void> {
     try {

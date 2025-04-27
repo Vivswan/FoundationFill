@@ -1,6 +1,6 @@
 {
   "name": "foundation-fill",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A browser extension to fill text fields with predefined system prompt templates",
   "scripts": {
     "build": "bun scripts/bun.config.js",
@@ -10,7 +10,7 @@
     "generate-icons": "node scripts/generate-icons.js",
     "bump-version": "node scripts/bump-version.js"
   },
-  "author": "",
+  "author": "Vivswan Shah",
   "license": "MIT",
   "devDependencies": {
     "@types/chrome": "^0.0.246",

@@ -20,7 +20,10 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
     let loadingDots = '';
     let autoStopTimeout: number | null = null;
 
-    // Stop loading animation
+    /**
+     * Stops the loading animation
+     * Clears both the animation interval and auto-stop timeout
+     */
     function stopLoadingAnimation(): void {
         if (loadingAnimationInterval !== null) {
             clearInterval(loadingAnimationInterval);
@@ -33,7 +36,12 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
         }
     }
 
-    // Start loading animation in the text field
+    /**
+     * Starts the loading animation in the specified DOM element
+     * Shows a "Generating..." text with animated dots (up to 3)
+     *
+     * @param element - The DOM element to show animation in
+     */
     function startLoadingAnimation(element: HTMLElement): void {
         // Clear any existing animation and timeout
         stopLoadingAnimation();
@@ -53,7 +61,7 @@ export function generatingAnimation(domElement: HTMLElement, timeout: number): (
             DOMUtils.updateText(element, `${generatingText}${loadingDots}`);
         }, 500);
 
-        // Auto-stop the animation after ANIMATION_TIMEOUT
+        // Auto-stop the animation after the specified timeout
         autoStopTimeout = window.setTimeout(() => {
             stopLoadingAnimation();
         }, timeout);

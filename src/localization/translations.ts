@@ -16,7 +16,10 @@ export type Translation = typeof enTranslations;
  */
 export type Language = 'en' | 'zh-CN' | 'zh-TW';
 
-// Mapping of language codes to loaded translation files
+/**
+ * Translations object
+ * Maps language codes to their respective translation objects
+ */
 export const translations: Record<Language, Translation> = {
     'en': enTranslations,
     'zh-CN': zhCNTranslations,
@@ -32,9 +35,61 @@ export function getDocumentLanguage(): Language {
     return lang as Language || 'en';
 }
 
+/**
+ * Get the browser's preferred language
+ * Matches to supported languages or falls back to 'en' if no match found
+ * 
+ * @returns Closest matching supported language code
+ */
+export function getBrowserLanguage(): Language {
+    // Get browser language (e.g., 'en-US', 'zh-CN', etc.)
+    const browserLang = navigator.language || (navigator as any).userLanguage || 'en';
+    
+    // Convert to lowercase for case-insensitive matching
+    const langLower = browserLang.toLowerCase();
+    
+    // Direct match with supported language
+    if (langLower in translations) {
+        return langLower as Language;
+    }
+    
+    // Check for language base (e.g., 'en-US' → 'en')
+    const baseLang = langLower.split('-')[0];
+    
+    // Match with supported languages
+    if (baseLang === 'zh') {
+        // For Chinese, we need to differentiate between variants
+        if (langLower.includes('cn') || langLower.includes('hans')) {
+            return 'zh-CN';  // Simplified Chinese
+        } else if (langLower.includes('tw') || langLower.includes('hant') || langLower.includes('hk')) {
+            return 'zh-TW';  // Traditional Chinese
+        }
+        // For other Chinese variants, default to Simplified
+        return 'zh-CN';
+    } else if (baseLang === 'en') {
+        return 'en';
+    }
+    
+    // Fallback to English for unsupported languages
+    return 'en';
+}
+
+/**
+ * Set the document language attribute
+ * @param language Language code (e.g., 'en', 'zh-CN', 'zh-TW')
+ */
 export function setDocumentLanguage(language: Language) {
     document.documentElement.setAttribute('data-foundation-fill-language', language);
 }
+
+/**
+ * Get all available languages
+ * @returns Array of language codes
+ */
+export function getAllLanguages(): Language[] {
+    return Object.keys(translations) as Language[];
+}
+
 
 /**
  * Get translated text based on the current language
@@ -64,7 +119,6 @@ export function getTranslation(key: string, language: string | null = null): str
             break;
         }
     }
-
     return result as string;
 }
 
@@ -75,7 +129,7 @@ export function getTranslation(key: string, language: string | null = null): str
  */
 function getTranslationFallback(key: string): string {
     const keyPath = key.split('.');
-    let result: any = translations['en'];
+    let result: Translation = translations['en'];
 
     for (const k of keyPath) {
         if (result && typeof result === 'object' && k in result) {
@@ -84,6 +138,5 @@ function getTranslationFallback(key: string): string {
             return key; // Return the key itself if not found
         }
     }
-
     return result as string;
 }

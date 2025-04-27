@@ -131,6 +131,8 @@ export class SettingsView {
     /**
      * Updates the settings form fields with current values
      * Synchronizes UI state with the settings model
+     * Updates all input fields, dropdowns, and the color preview
+     * Called when settings change or the view is initialized
      */
     update(): void {
         const settings = this.settings.getSettings()
@@ -154,6 +156,7 @@ export class SettingsView {
     /**
      * Updates the color preview element based on current theme color
      * Sets the background color to match the selected theme color
+     * Uses the primary color from THEME_COLORS as the visual indicator
      */
     updateColorPreview(): void {
         const settings = this.settings.getSettings();

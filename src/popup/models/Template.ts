@@ -12,6 +12,14 @@ import {getTranslation} from "../../localization/translations";
 
 /**
  * Interface representing a template for text generation
+ * 
+ * @property id - Unique identifier for the template (UUID format)
+ * @property enabled - Whether the template is active and available for use
+ * @property name - Display name for the template
+ * @property systemPrompt - System instructions for the LLM
+ * @property userPrompt - User prompt content for the LLM
+ * @property includePageContent - Whether to include page content when generating text
+ * @property associatedDomains - List of domains this template should be available on
  */
 export interface Template {
     id: string;
@@ -42,6 +50,10 @@ export class TemplateModel {
 
     /**
      * Initialize the model by loading templates from storage
+     * Ensures the default template always exists
+     * Notifies listeners after initialization
+     * 
+     * @returns Promise resolving to this model instance for chaining
      */
     async initialize(): Promise<TemplateModel> {
         logger.debug('Loading templates');
@@ -55,6 +67,12 @@ export class TemplateModel {
         return this;
     }
 
+    /**
+     * Sets the active template by ID
+     * Updates the activeTemplateId and notifies all listeners of the change
+     *
+     * @param id - The ID of the template to set as active
+     */
     setActiveTemplateId(id: string): void {
         const template = this.templates.find((t) => t.id === id);
         if (template) {
@@ -65,17 +83,48 @@ export class TemplateModel {
         }
     }
 
+    /**
+     * Gets the ID of the currently active template
+     *
+     * @returns The ID of the active template
+     */
     getActiveTemplateId(): string {
         return this.activeTemplateId;
     }
 
+    /**
+     * Gets the currently active template
+     * Returns a deep copy to prevent unintentional mutations
+     *
+     * @returns The active template object or null if not found
+     */
     getActiveTemplate(): Template | null {
         const template = this.templates.find((t) => t.id === this.activeTemplateId);
         return template ? JSON.parse(JSON.stringify(template)) : null;
     }
 
     /**
-     * Create a new template
+     * Get a template by its ID
+     * Returns a deep copy to prevent unintentional mutations
+     * 
+     * @param id - The ID of the template to retrieve
+     * @returns Promise resolving to the template or null if not found
+     */
+    async getTemplateById(id: string): Promise<Template | null> {
+        const template = this.templates.find(t => t.id === id);
+        if (template) {
+            return JSON.parse(JSON.stringify(template));
+        } else {
+            logger.error(`Template with ID ${id} not found`);
+            return null;
+        }
+    }
+
+    /**
+     * Create a new template based on the default template
+     * Generates a unique ID and adds the template to the templates array
+     *
+     * @returns Promise resolving to the newly created template
      */
     async createNewTemplate(): Promise<Template> {
         const newTemplate = {
@@ -91,7 +140,11 @@ export class TemplateModel {
 
     /**
      * Duplicate an existing template
+     * Creates a deep copy with a new ID and adds "(Copy)" to the name
+     * Inserts the new template immediately after the source template
+     * 
      * @param templateId - The ID of the template to duplicate
+     * @returns Promise resolving to the new template or null if source not found
      */
     async duplicateTemplate(templateId: string): Promise<Template | null> {
         const sourceTemplate = this.templates.find(template => template.id === templateId);
@@ -116,7 +169,12 @@ export class TemplateModel {
     }
 
     /**
-     * Update the template
+     * Update an existing template with new values
+     * If updating the default template, associated domains will be cleared
+     *
+     * @param updateId - The ID of the template to update
+     * @param updates - Partial template object with the fields to update
+     * @returns Promise resolving to the original template before updates, or null if not found
      */
     async updateTemplate(updateId: string, updates: Partial<Template>): Promise<Template | null> {
         const templateIndex = this.templates.findIndex(template => template.id === updateId);
@@ -136,7 +194,12 @@ export class TemplateModel {
     }
 
     /**
-     * Delete the template
+     * Delete a template by ID
+     * Will not delete the default template (protected)
+     * If the active template is deleted, selects the previous template in the list
+     *
+     * @param id - The ID of the template to delete
+     * @returns Promise that resolves when the deletion is complete
      */
     async deleteTemplate(id: string): Promise<void> {
         if (!id) return;
@@ -154,6 +217,12 @@ export class TemplateModel {
 
     /**
      * Import templates from an external source
+     * Validates templates, preserves the default template, and handles duplicates
+     * If the default template is imported, it will replace the existing one
+     * If the active template is removed during import, defaults to the default template
+     * 
+     * @param importedTemplates - Array of templates to import
+     * @returns Promise that resolves when templates have been imported and saved
      */
     async importTemplates(importedTemplates: Template[]): Promise<void> {
         logger.debug('Importing templates:', importedTemplates);
@@ -197,17 +266,29 @@ export class TemplateModel {
 
     /**
      * Get all templates
+     * Returns a deep copy of the templates array to prevent unintentional mutations
+     * 
+     * @returns Array containing all templates
      */
     getTemplates(): Template[] {
         return JSON.parse(JSON.stringify(this.templates));
     }
 
-    getEnabledTemplates() {
+    /**
+     * Get all enabled templates
+     *
+     * @returns Array of templates that have enabled set to true
+     */
+    getEnabledTemplates(): Template[] {
         return this.templates.filter(template => template.enabled);
     }
 
     /**
      * Get templates that apply to a specific domain
+     * Returns templates with no associated domains or those that match the given domain
+     *
+     * @param domain - The domain to filter templates for
+     * @returns Array of templates that apply to the specified domain
      */
     getTemplatesForDomain(domain: string): Template[] {
         return this.templates.filter(template => {
@@ -218,6 +299,10 @@ export class TemplateModel {
 
     /**
      * Get enabled templates for a specific domain
+     * Combines domain filtering and enabled status filtering
+     *
+     * @param domain - The domain to filter templates for
+     * @returns Array of enabled templates that apply to the specified domain
      */
     getEnabledTemplatesForDomain(domain: string): Template[] {
         return this.getTemplatesForDomain(domain).filter(t => t.enabled);
@@ -273,6 +358,11 @@ export class TemplateModel {
 
     /**
      * Save templates to storage
+     * Persists templates to Chrome sync storage
+     * Notifies the background script that templates have changed
+     * Triggers change listeners for UI updates
+     * 
+     * @returns Promise that resolves when save operations complete
      */
     async saveTemplates(): Promise<void> {
         try {
@@ -288,7 +378,10 @@ export class TemplateModel {
 
     /**
      * Add a listener for template changes
-     * @returns Function to remove the listener
+     * Registers a callback function to be called whenever templates or the active template changes
+     * 
+     * @param callback - Function to call with active template ID and templates array
+     * @returns Function that when called will remove this listener
      */
     onChange(callback: (activeId: string, templates: Template[]) => void): () => void {
         this.changeListeners.push(callback);
@@ -300,19 +393,25 @@ export class TemplateModel {
     }
 
     /**
-     * Validate template data
+     * Validate template data structure
+     * Ensures the template has the required properties to function correctly
+     * 
+     * @param template - The template object to validate
+     * @returns Type guard boolean indicating if the template is valid
+     * @private Used during template import to filter out invalid templates
      */
-    private validateTemplate(template: any): template is Template {
+    private validateTemplate(template: unknown): template is Template {
         if (!template || typeof template !== 'object') return false;
-        if (!('id' in template && 'name' in template &&
-            'systemPrompt' in template && 'userPrompt' in template)) {
-            return false;
-        }
-        return true;
+        return 'id' in template && 'name' in template &&
+            'systemPrompt' in template && 'userPrompt' in template;
     }
 
     /**
      * Notify all listeners of template changes
+     * Calls each registered listener with the current activeTemplateId and a deep copy of templates
+     * Catches and logs errors in listener callbacks to prevent one bad listener from breaking others
+     * 
+     * @private Internal method called whenever templates or activeTemplateId changes
      */
     private notifyListeners(): void {
         this.changeListeners.forEach(listener => {

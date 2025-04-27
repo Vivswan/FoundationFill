@@ -54,9 +54,11 @@ export class TemplateVariableView {
     }
 
     /**
-     * Extracts all template variables from a string
-     * @param text The text to extract variables from
-     * @returns Array of template variables
+     * Extracts all template variables from a string using regex pattern
+     * Identifies variables in the format {{variable_name:default_value}}
+     * 
+     * @param text - The text to extract variables from
+     * @returns Array of template variables with name, defaultValue, and fullMatch properties
      */
     static extractTemplateVariables(text: string): TemplateVariable[] {
         const variables: TemplateVariable[] = [];
@@ -75,9 +77,11 @@ export class TemplateVariableView {
 
     /**
      * Replaces template variables in a string with their values
-     * @param text The text containing template variables
-     * @param variableValues Map of variable names to values
-     * @returns The text with variables replaced
+     * Uses the same regex pattern as extraction to ensure consistency
+     * 
+     * @param text - The text containing template variables
+     * @param variableValues - Map of variable names to values
+     * @returns The text with variables replaced by their values
      */
     replaceTemplateVariables(text: string, variableValues: Map<string, string>): string {
         return text.replace(VARIABLE_REGEX, (match, name) => {
@@ -87,8 +91,11 @@ export class TemplateVariableView {
 
     /**
      * Shows a dialog to collect values for template variables
-     * @param variables Array of template variables
-     * @returns Promise that resolves with a map of variable names to values
+     * Creates form fields dynamically for each variable with appropriate labels
+     * Uses the variable's default value as the initial input value
+     * 
+     * @param variables - Array of template variables to collect values for
+     * @returns Promise that resolves with a map of variable names to user-provided values
      */
     showTemplateVariableDialog(variables: TemplateVariable[]): Promise<Map<string, string>> {
         this.variablesContent.innerHTML = '';
@@ -123,9 +130,12 @@ export class TemplateVariableView {
     }
 
     /**
-     * Processes a template and returns the processed template
-     * @param templateData The template to process
-     * @returns Promise that resolves with the processed template
+     * Processes a template by replacing variables with user-provided values
+     * Extracts variables from both system and user prompts
+     * Deduplicates variables to ensure the user only needs to provide each value once
+     * 
+     * @param templateData - The template to process containing variables
+     * @returns Promise that resolves with the processed template with variables replaced
      */
     async process(templateData: Template): Promise<Template> {
         // Extract template variables from prompts
@@ -151,8 +161,7 @@ export class TemplateVariableView {
         const processedSystemPrompt = this.replaceTemplateVariables(templateData.systemPrompt, variableValues);
         const processedUserPrompt = this.replaceTemplateVariables(templateData.userPrompt, variableValues);
 
-        console.log('Processed System Prompt:', processedSystemPrompt);
-        console.log('Processed User Prompt:', processedUserPrompt);
+        // Return processed template with variables replaced
         // Replace variables in template prompts
         return {
             ...templateData,
@@ -162,9 +171,12 @@ export class TemplateVariableView {
     }
 
     /**
-     * Hides the template variables dialog
+     * Hides the template variables dialog and resolves the promise
+     * Collects all input values and creates a map of variable names to values
      * Adds the 'hidden' CSS class to the dialog element to hide it from view
      * Called when the close button, next button, or outside of the dialog is clicked
+     * 
+     * @private Internal method used by event handlers
      */
     private hideDialog(): void {
         const variableValues = new Map<string, string>();

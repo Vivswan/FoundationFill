@@ -32,9 +32,20 @@ export const extractDomainFromUrl = (url: string): string => {
 
 /**
  * Validate if a domain matches a pattern with support for wildcards
- * @param pattern The domain pattern (possibly with wildcards) to match against
- * @param domain The actual domain to check
+ * Supports exact matches and wildcard subdomain patterns (*.example.com)
+ *
+ * @param pattern - The domain pattern (possibly with wildcards) to match against
+ * @param domain - The actual domain to check
  * @returns True if the domain matches the pattern, false otherwise
+ * @example
+ * // Direct match
+ * validateDomain("example.com", "example.com") // returns true
+ *
+ * // Wildcard subdomain match
+ * validateDomain("*.example.com", "sub.example.com") // returns true
+ * validateDomain("*.example.com", "example.com") // returns true
+ * validateDomain("*.example.com", "sub.other.com") // returns false
+ * validateDomain("*.example.com", "badexample.com") // returns false
  */
 export const validateDomain = (pattern: string, domain: string): boolean => {
     // Handle empty cases
