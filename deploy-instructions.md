@@ -2,7 +2,8 @@
 
 ## Overview
 
-This repository uses GitHub Actions for automated versioning and deployment of the Chrome extension. The workflow is designed to:
+This repository uses GitHub Actions for automated versioning and deployment of the Chrome extension. The workflow is
+designed to:
 
 1. Automatically build and release the extension when code is pushed to the `deploy` branch
 2. Increment the version number in the `main` branch after a successful release
@@ -15,13 +16,13 @@ This repository uses GitHub Actions for automated versioning and deployment of t
 
 1. **Regular development** happens on the `main` branch or feature branches
 2. When ready to deploy a new version:
-   - Ensure all changes are merged to `main`
-   - Push or merge `main` into the `deploy` branch
+    - Ensure all changes are merged to `main`
+    - Push or merge `main` into the `deploy` branch
 3. GitHub Actions will:
-   - Build the extension from the `deploy` branch
-   - Create a GitHub release with built files
-   - Tag the release with the current version number
-   - Automatically increment the patch version in the `main` branch
+    - Build the extension from the `deploy` branch
+    - Create a GitHub release with built files
+    - Tag the release with the current version number
+    - Automatically increment the patch version in the `main` branch
 
 ### Private Key for CRX Files
 
@@ -30,8 +31,8 @@ For building `.crx` files (for direct installation), a private key needs to be a
 1. Go to your repository settings
 2. Click on "Secrets and variables" → "Actions"
 3. Add a new repository secret:
-   - Name: `EXTENSION_PRIVATE_KEY`
-   - Value: The contents of your `key.pem` file
+    - Name: `EXTENSION_PRIVATE_KEY`
+    - Value: The contents of your `key.pem` file
 
 If the private key is not provided, the workflow will still create a release but only with the `.zip` file.
 
@@ -43,7 +44,8 @@ If you don't have a private key for the extension, you can generate one with:
 openssl genrsa -out key.pem 2048
 ```
 
-**Important:** Keep this key secure and consistent. Changing the key will make existing users unable to receive updates for the extension.
+**Important:** Keep this key secure and consistent. Changing the key will make existing users unable to receive updates
+for the extension.
 
 ## Version Management
 

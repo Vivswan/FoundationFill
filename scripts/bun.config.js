@@ -45,15 +45,15 @@ const copyManifest = () => {
   // Read manifest file
   const manifestPath = path.resolve(rootDir, 'manifest.json');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  
+
   // Read package.json to get version
   const packagePath = path.resolve(rootDir, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-  
+
   // Update manifest version with package.json version
   manifest.version = packageJson.version;
   delete manifest["_comment"];
-  
+
   // Write updated manifest
   fs.writeFileSync(
     path.resolve(distDir, 'manifest.json'),
@@ -132,12 +132,12 @@ const createPackage = async () => {
   if (!fs.existsSync(buildsDir)) {
     fs.mkdirSync(buildsDir, {recursive: true});
   }
-  
+
   // Read package.json to get version
   const packagePath = path.resolve(rootDir, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
   const version = packageJson.version;
-  
+
   const zipPath = path.join(buildsDir, `foundation-fill-v${version}.zip`);
   const crxPath = path.join(buildsDir, `foundation-fill-v${version}.crx`);
 
@@ -213,20 +213,20 @@ async function build() {
     fs.copyFileSync(helpHtmlPath, path.join(distDir, 'help-en.html'));
     console.log('Copied help-en.html to dist directory');
   }
-  
+
   // Copy YAML files for localization
   const copyYamlFiles = () => {
     const yamlSourceDir = path.join(rootDir, 'src/localization');
     const yamlDestDir = path.join(distDir, 'localization');
-    
+
     // Create destination directory if it doesn't exist
     if (!fs.existsSync(yamlDestDir)) {
-      fs.mkdirSync(yamlDestDir, { recursive: true });
+      fs.mkdirSync(yamlDestDir, {recursive: true});
     }
-    
+
     // Find all YAML files
     const yamlFiles = fs.readdirSync(yamlSourceDir).filter(file => file.endsWith('.yaml'));
-    
+
     // Copy each file
     yamlFiles.forEach(file => {
       fs.copyFileSync(
@@ -234,10 +234,10 @@ async function build() {
         path.join(yamlDestDir, file)
       );
     });
-    
+
     console.log('Copied YAML localization files to dist directory');
   };
-  
+
   // Copy YAML files
   copyYamlFiles();
 
@@ -275,7 +275,7 @@ async function build() {
           name: 'yaml-loader',
           setup(build) {
             // Load .yaml files
-            build.onLoad({ filter: /\.yaml$/ }, async (args) => {
+            build.onLoad({filter: /\.yaml$/}, async (args) => {
               const jsYaml = require('js-yaml');
               const text = await Bun.file(args.path).text();
               const content = jsYaml.load(text);
@@ -360,7 +360,7 @@ async function build() {
         copyAssets();
         await createPackage();
       });
-      
+
       // Watch YAML localization files
       watch(path.join(rootDir, 'src/localization'), {recursive: true}, async (eventType, filename) => {
         if (filename && filename.endsWith('.yaml')) {

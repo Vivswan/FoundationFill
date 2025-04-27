@@ -4,6 +4,6 @@
 
 // Allow importing YAML files
 declare module '*.yaml' {
-  const content: any;
-  export default content;
+    const content: any;
+    export default content;
 }

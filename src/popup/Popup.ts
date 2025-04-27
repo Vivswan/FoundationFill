@@ -76,19 +76,6 @@ export class PopupController {
         this.show("template");
     }
 
-    private async onSettingsChange(updatedSettings: Settings): Promise<void> {
-        setDocumentLanguage(updatedSettings.language as Language);
-
-        await this.templateModel.updateTemplate(DEFAULT_TEMPLATE.id, {
-            name: getTranslation("baseTemplate.title"),
-            systemPrompt: getTranslation("baseTemplate.systemPrompt"),
-            userPrompt: getTranslation("baseTemplate.userPrompt"),
-        });
-        this.themeService.setTheme(updatedSettings.theme as ThemeMode);
-        this.themeService.setColor(updatedSettings.themeColor as ThemeColor);
-        this.updateUILanguage(updatedSettings.language);
-    }
-
     /**
      * Processes template variables for a template
      * Displays the template editor and processes any variables in the template
@@ -101,6 +88,19 @@ export class PopupController {
         this.show("template");
         this.templateModel.setActiveTemplateId(template.id);
         return await this.templateEditorView.processTemplateVariables(template);
+    }
+
+    private async onSettingsChange(updatedSettings: Settings): Promise<void> {
+        setDocumentLanguage(updatedSettings.language as Language);
+
+        await this.templateModel.updateTemplate(DEFAULT_TEMPLATE.id, {
+            name: getTranslation("baseTemplate.title"),
+            systemPrompt: getTranslation("baseTemplate.systemPrompt"),
+            userPrompt: getTranslation("baseTemplate.userPrompt"),
+        });
+        this.themeService.setTheme(updatedSettings.theme as ThemeMode);
+        this.themeService.setColor(updatedSettings.themeColor as ThemeColor);
+        this.updateUILanguage(updatedSettings.language);
     }
 
     /**
@@ -126,14 +126,14 @@ export class PopupController {
                 logger.error('Unknown panel:', panel);
         }
     }
-    
+
     /**
      * Updates the UI language by replacing text content in DOM elements
      * @param language - The language code to use
      */
     private updateUILanguage(language: string): void {
         logger.debug('Updating UI language to:', language);
-        
+
         // Update settings panel texts
         document.querySelector('.settings-header h2')!.textContent = getTranslation('settings.title');
         document.querySelector('label[for="base-url"]')!.textContent = getTranslation('settings.baseUrl');
@@ -148,13 +148,13 @@ export class PopupController {
         if (defaultBadge) {
             defaultBadge.textContent = `(${getTranslation('template.default')})`;
         }
-        
+
         // Update theme options
         const themeOptions = document.querySelectorAll('#theme-select option');
         themeOptions[0].textContent = getTranslation('theme.light');
         themeOptions[1].textContent = getTranslation('theme.dark');
         themeOptions[2].textContent = getTranslation('theme.system');
-        
+
         // Update color options
         const colorOptions = document.querySelectorAll('#color-select option');
         colorOptions[0].textContent = getTranslation('colors.blue');
@@ -163,12 +163,12 @@ export class PopupController {
         colorOptions[3].textContent = getTranslation('colors.purple');
         colorOptions[4].textContent = getTranslation('colors.orange');
         colorOptions[5].textContent = getTranslation('colors.pink');
-        
+
         // Update import/export section
         document.querySelector('.import-export-group h3')!.textContent = getTranslation('settings.importExport');
         document.querySelector('#export-data-btn')!.textContent = getTranslation('settings.exportBtn');
         document.querySelector('#import-data-btn')!.textContent = getTranslation('settings.importBtn');
-        
+
         // Update template editor texts
         document.querySelector('#template-title')!.textContent = getTranslation('template.title');
         document.querySelector('label[for="system-prompt"]')!.textContent = getTranslation('template.systemPrompt');
@@ -178,7 +178,7 @@ export class PopupController {
         document.querySelector('label[for="include-page-content"]')!.textContent = getTranslation('template.webContent');
         document.querySelector('#manage-domains-btn')!.textContent = ' ' + getTranslation('template.domains') + ' ';
         document.querySelector('#generate-btn')!.textContent = getTranslation('template.testPrompt');
-        
+
         // Update domain dialog
         document.querySelector('#domain-dialog .dialog-header h3')!.textContent = getTranslation('domains.title');
         document.querySelector('#domain-dialog .dialog-info')!.textContent = getTranslation('domains.info');

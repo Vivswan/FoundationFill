@@ -83,7 +83,7 @@ export class SettingsView {
 
         // Color dropdown change handler
         this.colorSelect.addEventListener('change', this.handleColorChange.bind(this));
-        
+
         // Language dropdown change handler
         this.languageSelect.addEventListener('change', this.handleLanguageChange.bind(this));
 
@@ -143,7 +143,7 @@ export class SettingsView {
 
         // Update color dropdown
         this.colorSelect.value = settings.themeColor;
-        
+
         // Update language dropdown
         this.languageSelect.value = settings.language;
 
@@ -185,7 +185,7 @@ export class SettingsView {
      * @param error - Indicates if the message is an error
      * @param timeout - The duration to show the message (default: 500ms)
      */
-    showStatus(message: string, error:boolean, timeout: number = 500): void {
+    showStatus(message: string, error: boolean, timeout: number = 500): void {
         if (this.statusTimeout) {
             clearTimeout(this.statusTimeout);
         }
@@ -246,7 +246,7 @@ export class SettingsView {
         this.updateColorPreview();
         this.showStatus(getTranslation("settings.saved"), false);
     }
-    
+
     /**
      * Handles changes to the language dropdown
      * Updates the language setting and shows a confirmation message

@@ -30,13 +30,13 @@ export class SettingsModel {
      */
     async initialize(): Promise<SettingsModel> {
         this.settings = await this.getSettingsFromStorage();
-        
+
         // Ensure baseUrl has no trailing slash
         if (this.settings.baseUrl && this.settings.baseUrl.endsWith('/')) {
             this.settings.baseUrl = this.settings.baseUrl.slice(0, -1);
             await this.saveSettings();
         }
-        
+
         this.notifyListeners();
         logger.debug('Settings loaded:', this.settings);
         return this
@@ -57,10 +57,10 @@ export class SettingsModel {
      * Import settings from an external source
      */
     async importSettings(importedSettings: Settings): Promise<void> {
-        const baseUrl = importedSettings.baseUrl ? 
-            (importedSettings.baseUrl.endsWith('/') ? importedSettings.baseUrl.slice(0, -1) : importedSettings.baseUrl) : 
+        const baseUrl = importedSettings.baseUrl ?
+            (importedSettings.baseUrl.endsWith('/') ? importedSettings.baseUrl.slice(0, -1) : importedSettings.baseUrl) :
             DEFAULT_SETTINGS.baseUrl;
-            
+
         this.settings = {
             ...DEFAULT_SETTINGS,
             ...importedSettings,
@@ -172,7 +172,7 @@ export class SettingsModel {
         }
         return undefined;
     }
-    
+
     /**
      * Validate language value
      */

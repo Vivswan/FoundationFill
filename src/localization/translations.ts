@@ -39,7 +39,7 @@ export function setDocumentLanguage(language: Language) {
 /**
  * Get translated text based on the current language
  * @param key Translation key path using dot notation (e.g., 'settings.title')
- * @param language Optional language code, defaults to current UI language 
+ * @param language Optional language code, defaults to current UI language
  * @returns Translated text string
  */
 export function getTranslation(key: string, language: string | null = null): string {
@@ -49,10 +49,10 @@ export function getTranslation(key: string, language: string | null = null): str
 
     // Default to English if the language is not supported
     const currentLanguage = (translations[language as Language]) ? language as Language : 'en';
-    
+
     // Parse the key path (e.g., 'settings.title' => ['settings', 'title'])
     const keyPath = key.split('.');
-    
+
     // Traverse the translation object to find the value
     let result: Translation = translations[currentLanguage];
     for (const k of keyPath) {
@@ -64,7 +64,7 @@ export function getTranslation(key: string, language: string | null = null): str
             break;
         }
     }
-    
+
     return result as string;
 }
 
@@ -76,7 +76,7 @@ export function getTranslation(key: string, language: string | null = null): str
 function getTranslationFallback(key: string): string {
     const keyPath = key.split('.');
     let result: any = translations['en'];
-    
+
     for (const k of keyPath) {
         if (result && typeof result === 'object' && k in result) {
             result = result[k];
@@ -84,6 +84,6 @@ function getTranslationFallback(key: string): string {
             return key; // Return the key itself if not found
         }
     }
-    
+
     return result as string;
 }
