@@ -65,21 +65,28 @@ Foundation Fill helps you quickly populate text fields with custom templates. It
 
 ```
 foundation-fill/
-├── scripts/           # Build scripts and configuration
-│   ├── bun.config.js  # Bun build configuration
-│   └── generate-icons.js # Script to generate PNG icons from SVG
-├── src/               # Source code
-│   ├── assets/        # Static assets (CSS, images, js)
-│   ├── background.ts  # Background service worker
-│   ├── content.ts     # Content script for web page interaction
-│   ├── defaults.ts    # Default settings and templates
-│   ├── generate/      # Text generation functionality
-│   ├── popup/         # Popup UI components
-│   │   ├── models/    # Data models
-│   │   └── views/     # UI components
-│   └── utils/         # Utility functions and services
-├── manifest.json      # Extension manifest
-└── tsconfig.json      # TypeScript configuration
+├── scripts/               # Build scripts and configuration
+│   ├── bun.config.js      # Bun build configuration
+│   ├── generate-icons.js  # Script to generate PNG icons from SVG
+│   └── bump-version.js    # Script to handle version bumping
+├── src/                   # Source code
+│   ├── assets/            # Static assets (CSS, images, js)
+│   │   ├── css/           # Stylesheet files
+│   │   ├── html/          # HTML files for help pages
+│   │   ├── images/        # Images and screenshots
+│   │   └── js/            # JavaScript utilities
+│   ├── background.ts      # Background service worker
+│   ├── content.ts         # Content script for web page interaction
+│   ├── defaults.ts        # Default settings and templates
+│   ├── generate/          # Text generation functionality
+│   ├── localization/      # Translations and language support
+│   ├── popup/             # Popup UI components
+│   │   ├── models/        # Data models
+│   │   └── views/         # UI components
+│   └── utils/             # Utility functions and services
+├── .github/workflows/     # GitHub Actions workflows for CI/CD
+├── manifest.json          # Extension manifest
+└── tsconfig.json          # TypeScript configuration
 ```
 
 ## Development

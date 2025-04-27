@@ -76,12 +76,12 @@ graph TD
 %% Template Service
     TemplateService -->|Filter Templates| Background
 %% Styles
-    classDef component fill: #f9f, stroke: #333, stroke-width: 2px;
-    classDef service fill: #bbf, stroke: #333, stroke-width: 1px;
-    classDef model fill: #bfb, stroke: #333, stroke-width: 1px;
-    classDef view fill: #ffb, stroke: #333, stroke-width: 1px;
-    classDef external fill: #ddd, stroke: #333, stroke-width: 1px;
-    classDef user fill: #fbb, stroke: #333, stroke-width: 2px;
+    classDef component fill: #FF45E3, stroke: #000000, stroke-width: 2px;
+    classDef service fill: #F07404, stroke: #000000, stroke-width: 1px;
+    classDef model fill: #004837, stroke: #000000, stroke-width: 1px;
+    classDef view fill: #0057E9, stroke: #000000, stroke-width: 1px;
+    classDef external fill: #8931EF, stroke: #000000, stroke-width: 1px;
+    classDef user fill: #FF5555, stroke: #000000, stroke-width: 2px;
     class User user;
 class Popup,Background,ContentScript,Browser component;
 class ThemeService,APIService,StorageService,MessageService,TemplateService service;
