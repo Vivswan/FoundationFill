@@ -231,7 +231,7 @@ export class TemplateModel {
         const hasDefaultInImport = importedTemplates.some(t => t.id === DEFAULT_TEMPLATE.id);
 
         // If default doesn't exist in import, preserve current default
-        let defaultTemplate: Template;
+        let defaultTemplate: Template = DEFAULT_TEMPLATE;
         if (hasDefaultInImport) {
             defaultTemplate = importedTemplates.find(t => t.id === DEFAULT_TEMPLATE.id) || DEFAULT_TEMPLATE;
         } else {
