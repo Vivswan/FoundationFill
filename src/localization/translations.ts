@@ -36,6 +36,45 @@ export function getDocumentLanguage(): Language {
 }
 
 /**
+ * Get the browser's preferred language
+ * Matches to supported languages or falls back to 'en' if no match found
+ * 
+ * @returns Closest matching supported language code
+ */
+export function getBrowserLanguage(): Language {
+    // Get browser language (e.g., 'en-US', 'zh-CN', etc.)
+    const browserLang = navigator.language || (navigator as any).userLanguage || 'en';
+    
+    // Convert to lowercase for case-insensitive matching
+    const langLower = browserLang.toLowerCase();
+    
+    // Direct match with supported language
+    if (langLower in translations) {
+        return langLower as Language;
+    }
+    
+    // Check for language base (e.g., 'en-US' → 'en')
+    const baseLang = langLower.split('-')[0];
+    
+    // Match with supported languages
+    if (baseLang === 'zh') {
+        // For Chinese, we need to differentiate between variants
+        if (langLower.includes('cn') || langLower.includes('hans')) {
+            return 'zh-CN';  // Simplified Chinese
+        } else if (langLower.includes('tw') || langLower.includes('hant') || langLower.includes('hk')) {
+            return 'zh-TW';  // Traditional Chinese
+        }
+        // For other Chinese variants, default to Simplified
+        return 'zh-CN';
+    } else if (baseLang === 'en') {
+        return 'en';
+    }
+    
+    // Fallback to English for unsupported languages
+    return 'en';
+}
+
+/**
  * Set the document language attribute
  * @param language Language code (e.g., 'en', 'zh-CN', 'zh-TW')
  */

@@ -17,18 +17,22 @@ const logger = createLogger('Popup');
  */
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Initialize the popup controller
         const popupController = new PopupController();
         await popupController.initialize();
+        
+        // Set up external links
         (document.getElementById("github-link") as HTMLElement)
             .addEventListener("click", () => chrome.tabs.create({url: 'https://github.com/Vivswan/FoundationFill'}));
         (document.getElementById("vs-link") as HTMLElement)
             .addEventListener("click", () => chrome.tabs.create({url: 'https://vivswan.github.io/'}));
 
+        // Set up help button with language-specific help page
         (document.getElementById("help-btn") as HTMLElement).addEventListener("click", () => {
-            const language = getDocumentLanguage();
-            chrome.tabs.create({url: `assets/html/help-${language}.html`})
+            chrome.tabs.create({url: `assets/html/help-${getDocumentLanguage()}.html`})
         });
 
+        // Check for template variable resolution request
         chrome.storage.local.get("resolveTemplateVariables", async (data) => {
             await processResolveTemplateVariables(popupController, data);
         });
