@@ -104,11 +104,11 @@ export class SettingsModel {
     }
 
     /**
-     * Update just the theme setting
+     * Get just the language setting
      */
-    async setTheme(theme: ThemeMode): Promise<void> {
-        this.settings.theme = theme;
-        return this.saveSettings();
+    async getLanguage(): Promise<string> {
+        const settings = await this.getSettingsFromStorage();
+        return settings.language;
     }
 
     /**
@@ -122,22 +122,6 @@ export class SettingsModel {
         return () => {
             this.changeListeners = this.changeListeners.filter(listener => listener !== callback);
         };
-    }
-
-    /**
-     * Get just the color setting
-     */
-    async getColor(): Promise<ThemeColor> {
-        const settings = await this.getSettingsFromStorage();
-        return (settings.themeColor as ThemeColor) || DEFAULT_SETTINGS.themeColor as ThemeColor;
-    }
-
-    /**
-     * Update just the color setting
-     */
-    async setColor(color: ThemeColor): Promise<void> {
-        this.settings.themeColor = color;
-        return this.saveSettings();
     }
 
     /**

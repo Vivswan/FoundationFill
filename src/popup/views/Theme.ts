@@ -16,12 +16,6 @@ export type ThemeMode = 'light' | 'dark' | 'system';
  */
 export type ThemeColor = 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'pink';
 
-/**
- * Language options for the application
- * @type Language
- */
-export type Language = 'en' | 'zh-CN' | 'zh-TW';
-
 // Create a logger instance for this component
 const logger = createLogger('THEME');
 

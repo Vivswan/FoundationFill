@@ -6,6 +6,7 @@ import {createLogger} from "./utils/logging";
 import {FillTemplateMessage, Message, Response} from "./utils/types";
 import {Template} from "./popup/models/Template";
 import {generateTextWithAnimation} from "./generate/toElement";
+import {SettingsModel} from "./popup/models/Settings";
 
 // Create a logger instance for this component
 const logger = createLogger('CONTENT');
@@ -46,6 +47,7 @@ chrome.runtime.onMessage.addListener((
  * @returns Promise that resolves when the text area is filled
  */
 async function fillTextArea(template: Template): Promise<void> {
+    document.documentElement.setAttribute('data-foundation-fill-language', await new SettingsModel().getLanguage());
     const activeElement = document.activeElement as HTMLElement;
     const pageContent = template.includePageContent ? document.body.innerText : '';
     await generateTextWithAnimation(activeElement, template, pageContent);

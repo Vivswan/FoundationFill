@@ -6,6 +6,7 @@ import {PopupController} from './popup/Popup';
 import {createLogger} from './utils/logging';
 import {FillTemplateMessage, ResolveTemplateVariablesMessage} from "./utils/types";
 import {getCurrentTab, sendMessageToTab} from "./utils/chrome-api-utils";
+import {getDocumentLanguage} from "./localization/translations";
 
 // Create a logger instance for this component
 const logger = createLogger('Popup');
@@ -23,8 +24,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         (document.getElementById("vs-link") as HTMLElement)
             .addEventListener("click", () => chrome.tabs.create({url: 'https://vivswan.github.io/'}));
 
-        (document.getElementById("help-btn") as HTMLElement)
-            .addEventListener("click", () => chrome.tabs.create({url: 'help.html'}));
+        (document.getElementById("help-btn") as HTMLElement).addEventListener("click", () => {
+            const language = getDocumentLanguage();
+            chrome.tabs.create({url: `assets/html/help-${language}.html`})
+        });
 
         chrome.storage.local.get("resolveTemplateVariables", async (data) => {
             await processResolveTemplateVariables(popupController, data);

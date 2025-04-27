@@ -64,52 +64,6 @@ const copyManifest = () => {
 
 // Copy CSS and images
 const copyAssets = () => {
-  // Create css directory if it doesn't exist
-  const cssDir = path.join(distDir, 'assets/css');
-  if (!fs.existsSync(cssDir)) {
-    fs.mkdirSync(cssDir, {recursive: true});
-  }
-
-  // Create images directory if it doesn't exist
-  const imagesDir = path.join(distDir, 'assets/images');
-  if (!fs.existsSync(imagesDir)) {
-    fs.mkdirSync(imagesDir, {recursive: true});
-  }
-
-  // Create fonts directory if it doesn't exist
-  const fontsDir = path.join(distDir, 'assets/fonts');
-  if (!fs.existsSync(fontsDir)) {
-    fs.mkdirSync(fontsDir, {recursive: true});
-  }
-
-  // Create js directory if it doesn't exist
-  const jsDir = path.join(distDir, 'assets/js');
-  if (!fs.existsSync(jsDir)) {
-    fs.mkdirSync(jsDir, {recursive: true});
-  }
-
-  // Copy CSS files
-  const cssFiles = fs.readdirSync(path.join(rootDir, 'src/assets/css'));
-  cssFiles.forEach(file => {
-    fs.copyFileSync(
-      path.join(rootDir, 'src/assets/css', file),
-      path.join(cssDir, file)
-    );
-  });
-
-  // Copy JS files if they exist
-  const jsSourceDir = path.join(rootDir, 'src/assets/js');
-  if (fs.existsSync(jsSourceDir)) {
-    const jsFiles = fs.readdirSync(jsSourceDir);
-    jsFiles.forEach(file => {
-      fs.copyFileSync(
-        path.join(jsSourceDir, file),
-        path.join(jsDir, file)
-      );
-    });
-    console.log('Copied JS files to dist directory');
-  }
-
   // Copy image files
   const copyDirRecursive = (srcDir, destDir) => {
     // Create destination directory if it doesn't exist
@@ -137,11 +91,16 @@ const copyAssets = () => {
 
   // Copy the entire images directory recursively
   copyDirRecursive(
-    path.join(rootDir, 'src/assets/images'),
-    path.join(distDir, 'assets/images')
+    path.join(rootDir, 'src/assets/'),
+    path.join(distDir, 'assets/')
   );
 
   // Copy Font Awesome CSS
+  const cssDir = path.join(distDir, 'assets/css');
+  if (!fs.existsSync(cssDir)) {
+    fs.mkdirSync(cssDir, {recursive: true});
+  }
+
   fs.copyFileSync(
     path.join(rootDir, 'node_modules/font-awesome/css/font-awesome.min.css'),
     path.join(cssDir, 'font-awesome.min.css')
@@ -149,6 +108,10 @@ const copyAssets = () => {
 
   // Copy Font Awesome fonts
   const fontFiles = fs.readdirSync(path.join(rootDir, 'node_modules/font-awesome/fonts'));
+  const fontsDir = path.join(distDir, 'assets/fonts');
+  if (!fs.existsSync(fontsDir)) {
+    fs.mkdirSync(fontsDir, {recursive: true});
+  }
   fontFiles.forEach(file => {
     fs.copyFileSync(
       path.join(rootDir, 'node_modules/font-awesome/fonts', file),
@@ -244,11 +207,11 @@ async function build() {
   copyManifest();
   copyAssets();
 
-  // Copy help.html if it exists
-  const helpHtmlPath = path.join(rootDir, 'src/help.html');
+  // Copy help-en.html if it exists
+  const helpHtmlPath = path.join(rootDir, 'src/help-en.html');
   if (fs.existsSync(helpHtmlPath)) {
-    fs.copyFileSync(helpHtmlPath, path.join(distDir, 'help.html'));
-    console.log('Copied help.html to dist directory');
+    fs.copyFileSync(helpHtmlPath, path.join(distDir, 'help-en.html'));
+    console.log('Copied help-en.html to dist directory');
   }
   
   // Copy YAML files for localization

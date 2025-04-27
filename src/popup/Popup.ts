@@ -12,7 +12,7 @@ import {Settings, SettingsView} from './views/Settings';
 import {ImportExportView} from './views/ImportExport';
 import {createLogger} from '../utils/logging';
 import {ThemeColor, ThemeMode, ThemeService} from "./views/Theme";
-import {getTranslation} from '../localization/translations';
+import {getTranslation, Language, setDocumentLanguage} from '../localization/translations';
 import {DEFAULT_TEMPLATE} from "../defaults";
 
 // Create a logger instance for this component
@@ -77,8 +77,7 @@ export class PopupController {
     }
 
     private async onSettingsChange(updatedSettings: Settings): Promise<void> {
-        // Update the language attribute on document root
-        document.documentElement.setAttribute('data-language', updatedSettings.language);
+        setDocumentLanguage(updatedSettings.language as Language);
 
         await this.templateModel.updateTemplate(DEFAULT_TEMPLATE.id, {
             name: getTranslation("baseTemplate.title"),

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Foundation Fill - 帮助</title>
+    <link href="assets/images/icon128.png" rel="icon" type="image/png">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+            --highlight-color: #f3f4f6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1f2937;
+                --text-color: #f3f4f6;
+                --border-color: #374151;
+                --highlight-color: #374151;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: var(--highlight-color);
+            border: 1px solid var(--border-color);
+        }
+
+        img.screenshot {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: var(--highlight-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .steps {
+            list-style-type: decimal;
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .steps li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .tip {
+            padding: 1rem;
+            margin: 1rem 0;
+            background-color: rgba(37, 99, 235, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .language-selector a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .language-selector a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="language-selector">
+        <a href="help-en.html">English</a>
+        <a href="help-zh-CN.html"><strong>简体中文</strong></a>
+        <a href="help-zh-TW.html">繁體中文</a>
+    </div>
+    <div class="icon-container">
+        <img alt="Foundation Fill 图标" class="icon" src="../images/icon.svg" style="height: auto; width: auto;">
+    </div>
+    <h1>Foundation Fill</h1>
+    <p>一个用于填充文本字段的 Chrome 扩展，提供预定义模板和使用 LLM API 生成文本的功能</p>
+</header>
+
+<div class="container">
+    <div class="section">
+        <h2>概述</h2>
+        <p>Foundation Fill 帮助您快速使用自定义模板填充文本字段。它特别适用于：</p>
+        <ul class="steps">
+            <li>软件工程师创建样板代码片段</li>
+            <li>作家为 AI 工具使用一致的提示</li>
+            <li>支持团队使用标准化回复模板</li>
+            <li>研究人员为 AI 助手使用特定指令</li>
+        </ul>
+        <img alt="Foundation Fill 弹出界面" class="screenshot" src="../images/screenshots/popup.png">
+    </div>
+
+    <h2>功能</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>模板管理</h3>
+            <p>创建、编辑、复制、重新排序和管理可重用模板，方便快速访问。</p>
+        </div>
+        <div class="feature-card">
+            <h3>特定域名模板</h3>
+            <p>配置模板仅在特定网站上显示，以获得更好的组织管理。</p>
+        </div>
+        <div class="feature-card">
+            <h3>模板变量</h3>
+            <p>在模板中使用 <code>{{变量:默认值}}</code> 语法，实现自定义值。</p>
+        </div>
+        <div class="feature-card">
+            <h3>右键菜单集成</h3>
+            <p>在任何文本字段上右键单击即可快速访问您的模板。</p>
+        </div>
+        <div class="feature-card">
+            <h3>主题支持</h3>
+            <p>选择浅色/深色/系统主题，并提供多种强调色选项。</p>
+        </div>
+        <div class="feature-card">
+            <h3>多语言支持</h3>
+            <p>使用英语、简体中文或繁体中文界面。</p>
+        </div>
+        <div class="feature-card">
+            <h3>API 生成</h3>
+            <p>通过自定义 API 集成生成文本，生成过程中显示动画效果。</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>开始使用</h2>
+
+        <h3>安装</h3>
+        <h4>从 Chrome 网上应用店安装（推荐）</h4>
+        <ol class="steps">
+            <li>访问<a href="https://chrome.google.com/webstore/detail/foundation-fill/TBD">Chrome 网上应用店页面</a></li>
+            <li>点击"添加至 Chrome"</li>
+            <li>接受权限</li>
+        </ol>
+
+        <h4>从 GitHub 发布页安装</h4>
+        <ol class="steps">
+            <li>访问<a href="https://github.com/Vivswan/FoundationFill/releases">GitHub 发布页</a></li>
+            <li>下载最新的发布 zip 文件</li>
+            <li>将 zip 文件解压到一个文件夹</li>
+            <li>前往 <code>chrome://extensions/</code></li>
+            <li>启用开发者模式</li>
+            <li>点击"加载已解压的扩展程序"并选择解压后的文件夹</li>
+        </ol>
+
+        <h4>手动安装（开发）</h4>
+        <ol class="steps">
+            <li>克隆仓库或下载源代码</li>
+            <li>运行 <code>npm install</code> 安装依赖</li>
+            <li>运行 <code>npm run build</code> 构建扩展</li>
+            <li>前往 <code>chrome://extensions/</code></li>
+            <li>启用开发者模式</li>
+            <li>点击"加载已解压的扩展程序"并选择 <code>dist</code> 目录</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>使用指南</h2>
+
+        <h3>创建模板</h3>
+        <ol class="steps">
+            <li>点击浏览器工具栏中的 Foundation Fill 图标</li>
+            <li>点击"新建"按钮创建新模板</li>
+            <li>输入您的系统提示和用户提示</li>
+            <li>您的模板将自动保存</li>
+        </ol>
+        <img alt="右键菜单截图" class="screenshot" src="../images/screenshots/context-menu.png" style="width: 50%; max-width: 600px;">
+
+        <h3>使用模板</h3>
+        <ol class="steps">
+            <li>在浏览网页时右键点击任何文本字段</li>
+            <li>从"Foundation Fill"下的右键菜单中选择您的模板</li>
+            <li>模板内容将被插入到文本字段中</li>
+        </ol>
+
+        <h3>组织模板</h3>
+        <ol class="steps">
+            <li>在扩展弹出窗口中，使用手柄图标拖放模板</li>
+            <li>默认模板将始终保持在顶部</li>
+            <li>使用复制按钮（复制图标）创建任何模板的副本</li>
+            <li>复制的模板将直接放置在原始模板之后</li>
+        </ol>
+
+        <h3>特定域名模板</h3>
+        <ol class="steps">
+            <li>编辑模板并点击"域名"按钮</li>
+            <li>点击"添加当前域名"或手动输入域名</li>
+            <li>模板将只在指定的网站上显示</li>
+        </ol>
+
+        <div class="tip">
+            <strong>提示：</strong> 使用域名通配符（例如，<code>*.example.com</code>）匹配所有子域名。
+        </div>
+
+        <h3>使用模板变量</h3>
+        <ol class="steps">
+            <li>在模板中使用 <code>{{变量:默认值}}</code> 格式添加变量</li>
+            <li>使用模板时，系统会提示您提供值</li>
+            <li>具有相同名称的变量将在整个模板中使用相同的值</li>
+        </ol>
+        <img alt="模板变量对话框" class="screenshot" src="../images/screenshots/variables.png" style="width: 50%; max-width: 600px;">
+
+        <h3>使用 API 生成文本</h3>
+        <ol class="steps">
+            <li>点击齿轮图标进入设置</li>
+            <li>输入您的 API 配置（URL、密钥、模型）</li>
+            <li>使用"测试提示"按钮通过模板生成文本</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>设置</h2>
+
+        <h3>API 配置</h3>
+        <p>配置您首选的 LLM API 用于文本生成：</p>
+        <ul class="steps">
+            <li><strong>基础 URL：</strong> API 端点（例如，https://api.openai.com/v1）</li>
+            <li><strong>API 密钥：</strong> 您的认证密钥（安全存储）</li>
+            <li><strong>模型：</strong> 模型标识符（例如，gpt-4）</li>
+        </ul>
+
+        <h3>主题设置</h3>
+        <p>自定义扩展的外观：</p>
+        <ul class="steps">
+            <li><strong>主题：</strong> 浅色、深色或系统（跟随浏览器的主题）</li>
+            <li><strong>强调色：</strong> 选择蓝色、红色、绿色、紫色、橙色或粉色</li>
+            <li><strong>语言：</strong> 选择英语、简体中文或繁体中文</li>
+        </ul>
+
+        <h3>导入/导出</h3>
+        <p>备份和恢复您的模板和设置：</p>
+        <ul class="steps">
+            <li><strong>导出所有数据：</strong> 将您的模板和设置保存为 JSON 文件</li>
+            <li><strong>导入数据：</strong> 从之前导出的文件恢复</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>架构</h2>
+        <p>Foundation Fill 遵循具有面向服务组件的模型-视图架构：</p>
+
+        <h3>核心组件</h3>
+        <ul class="steps">
+            <li><strong>模型：</strong> 处理数据和业务逻辑（模板、设置）</li>
+            <li><strong>视图：</strong> 渲染用户界面并处理用户交互</li>
+            <li><strong>服务：</strong> 提供可重用功能（存储、API、主题）</li>
+            <li><strong>后台脚本：</strong> 管理右键菜单和消息传递</li>
+            <li><strong>内容脚本：</strong> 填充文本字段并管理文本插入</li>
+        </ul>
+
+        <h3>数据流</h3>
+        <p>模板存储在 Chrome 存储中，由后台脚本访问以填充右键菜单。当选择模板时，如果需要，会处理变量，然后发送到内容脚本以插入到活动文本字段中。</p>
+    </div>
+</div>
+
+<footer>
+    <p>Foundation Fill &copy; 2025-<span id="current-year"></span> | <a
+            href="https://github.com/Vivswan/FoundationFill">GitHub 仓库</a></p>
+</footer>
+<script src="../js/help.js"></script>
+</body>
+</html>

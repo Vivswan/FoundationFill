@@ -3,13 +3,18 @@
  * Contains translations for all UI elements in different languages
  * Loads translations from YAML files
  */
-import { Language } from '../popup/views/Theme';
 import enTranslations from './en.yaml';
 import zhCNTranslations from './zh-CN.yaml';
 import zhTWTranslations from './zh-TW.yaml';
 
 // Type definition for translation structure
 export type Translation = typeof enTranslations;
+
+/**
+ * Language options for the application
+ * @type Language
+ */
+export type Language = 'en' | 'zh-CN' | 'zh-TW';
 
 // Mapping of language codes to loaded translation files
 export const translations: Record<Language, Translation> = {
@@ -19,6 +24,19 @@ export const translations: Record<Language, Translation> = {
 };
 
 /**
+ * Get the current language of the document
+ * @returns Language code (e.g., 'en', 'zh-CN', 'zh-TW')
+ */
+export function getDocumentLanguage(): Language {
+    const lang = document.documentElement.getAttribute('data-foundation-fill-language');
+    return lang as Language || 'en';
+}
+
+export function setDocumentLanguage(language: Language) {
+    document.documentElement.setAttribute('data-foundation-fill-language', language);
+}
+
+/**
  * Get translated text based on the current language
  * @param key Translation key path using dot notation (e.g., 'settings.title')
  * @param language Optional language code, defaults to current UI language 
@@ -26,7 +44,7 @@ export const translations: Record<Language, Translation> = {
  */
 export function getTranslation(key: string, language: string | null = null): string {
     if (!language) {
-        language = document.documentElement.getAttribute('data-language') || 'en';
+        language = document.documentElement.getAttribute('data-foundation-fill-language') || 'en';
     }
 
     // Default to English if the language is not supported

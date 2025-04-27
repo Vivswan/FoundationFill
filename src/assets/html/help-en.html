@@ -144,12 +144,34 @@
             border-top: 1px solid var(--border-color);
             margin-top: 2rem;
         }
+        
+        .language-selector {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .language-selector a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .language-selector a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 <header>
+    <div class="language-selector">
+        <a href="help-en.html"><strong>English</strong></a>
+        <a href="help-zh-CN.html">简体中文</a>
+        <a href="help-zh-TW.html">繁體中文</a>
+    </div>
     <div class="icon-container">
-        <img alt="Foundation Fill Icon" class="icon" src="assets/images/icon.svg" style="height: auto; width: auto;">
+        <img alt="Foundation Fill Icon" class="icon" src="../images/icon.svg" style="height: auto; width: auto;">
     </div>
     <h1>Foundation Fill</h1>
     <p>A Chrome extension for filling text fields with predefined templates and generating text using LLM APIs</p>
@@ -165,7 +187,7 @@
             <li>Support teams using standardized response templates</li>
             <li>Researchers using specific instructions for AI assistants</li>
         </ul>
-        <img alt="Foundation Fill Popup Interface" class="screenshot" src="assets/images/screenshots/popup.png">
+        <img alt="Foundation Fill Popup Interface" class="screenshot" src="../images/screenshots/popup.png">
     </div>
 
     <h2>Features</h2>
@@ -243,7 +265,7 @@
             <li>Enter your system prompt and user prompt</li>
             <li>Your template will be automatically saved</li>
         </ol>
-        <img alt="Context menu screenshot" class="screenshot" src="assets/images/screenshots/context-menu.png" style="width: 50%; max-width: 600px;">
+        <img alt="Context menu screenshot" class="screenshot" src="../images/screenshots/context-menu.png" style="width: 50%; max-width: 600px;">
 
         <h3>Using Templates</h3>
         <ol class="steps">
@@ -277,7 +299,7 @@
             <li>When using the template, you'll be prompted to provide values</li>
             <li>Variables with the same name will use the same value throughout the template</li>
         </ol>
-        <img alt="Template variables dialog" class="screenshot" src="assets/images/screenshots/variables.png" style="width: 50%; max-width: 600px;">
+        <img alt="Template variables dialog" class="screenshot" src="../images/screenshots/variables.png" style="width: 50%; max-width: 600px;">
 
         <h3>Generating Text with APIs</h3>
         <ol class="steps">
@@ -338,6 +360,6 @@
     <p>Foundation Fill &copy; 2025-<span id="current-year"></span> | <a
             href="https://github.com/Vivswan/FoundationFill">GitHub Repository</a></p>
 </footer>
-<script src="assets/js/help.js"></script>
+<script src="../js/help.js"></script>
 </body>
 </html>
