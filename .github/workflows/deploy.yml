@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   id-token: write
+  pull-requests: write
 
 jobs:
   build-and-release:
@@ -88,43 +89,39 @@ jobs:
   bump-version:
     needs: build-and-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
           ref: main
 
-      # Extract current version from package.json
-      - name: Get current version
-        id: current_version
-        run: |
-          CURRENT_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d ' ')
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $CURRENT_VERSION"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-      # Calculate next patch version (increment by 0.0.1)
+      - name: Install dependencies
+        run: npm install
+
+      # Use bump-version script to calculate next patch version
       - name: Calculate next version
         id: next_version
         run: |
-          # Split the version into parts
-          IFS='.' read -r -a VERSION_PARTS <<< "${{ steps.current_version.outputs.current_version }}"
-          
-          # Increment the patch version (last part)
-          MAJOR=${VERSION_PARTS[0]}
-          MINOR=${VERSION_PARTS[1]}
-          PATCH=$((VERSION_PARTS[2] + 1))
-          
-          NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
+          BUMPING_VERSION=$(npm run bump-version)
+          NEXT_VERSION=$(echo $BUMPING_VERSION  | sed 's/.*-> //')
+          CURRENT_VERSION=$(echo $BUMPING_VERSION| sed 's/ ->.*//')
+          echo "bumping_version=BUMPING_VERSION" >> $GITHUB_OUTPUT
           echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
-          echo "Next version will be: $NEXT_VERSION"
-      
-      # Update package.json with new version
-      - name: Update version in package.json
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "$BUMPING_VERSION"
+
+      # Create a new branch for the version bump
+      - name: Create version bump branch
         run: |
-          # Use jq to update the version
-          jq '.version = "${{ steps.next_version.outputs.next_version }}"' package.json > package.json.tmp
-          mv package.json.tmp package.json
-          echo "Updated package.json with new version: ${{ steps.next_version.outputs.next_version }}"
+          git checkout -b version-bump-${{ steps.next_version.outputs.next_version }}
 
       # Configure Git
       - name: Configure Git
@@ -132,11 +129,38 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      # Commit and push version update to main
+      # Commit version update
       - name: Commit version update
         run: |
           git add package.json
           git commit -m "chore: bump version to ${{ steps.next_version.outputs.next_version }}"
-          git push origin main
+          git push origin version-bump-${{ steps.next_version.outputs.next_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check package.json
+        run: |
+          cat package.json
+
+      # Create pull request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: bump version to ${{ steps.next_version.outputs.next_version }}"
+          branch: main
+          title: "Version Bump to ${{ steps.next_version.outputs.next_version }}"
+          body: |
+            ## Version Bump
+            This PR automatically bumps the version from ${{ steps.next_version.outputs.current_version }} to ${{ steps.next_version.outputs.next_version }} after a successful release.
+            
+            This PR was automatically created by the release workflow.
+          labels: |
+            version-bump
+            automated-pr
+          base: version-bump-${{ steps.next_version.outputs.next_version }}
+
+      # Clean up
+      - name: Delete version bump branch
+        run: |
+          git push origin --delete version-bump-${{ steps.next_version.outputs.next_version }}

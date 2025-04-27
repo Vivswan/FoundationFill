@@ -7,7 +7,8 @@
     "dev": "bun scripts/bun.config.js --watch",
     "lint": "npx eslint .",
     "typecheck": "tsc --noEmit",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "bump-version": "node scripts/bump-version.js"
   },
   "author": "",
   "license": "MIT",
