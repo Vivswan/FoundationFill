@@ -5,6 +5,7 @@
  */
 import {Settings} from "./popup/views/Settings";
 import {Template} from "./popup/models/Template";
+import {getBrowserLanguage} from "./localization/translations";
 
 /**
  * Default template that's always present in the system
@@ -20,14 +21,23 @@ export const DEFAULT_TEMPLATE: Template = {
     includePageContent: false,
 };
 
-// Default settings for the extension
+/**
+ * Get browser language to use as default application language
+ * This is executed at module load time to determine the default language setting
+ */
+const defaultLanguage = typeof navigator !== 'undefined' ? getBrowserLanguage() : 'en';
+
+/**
+ * Default settings for the extension
+ * Uses browser language detection for the language setting
+ */
 export const DEFAULT_SETTINGS: Settings = {
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4',
     theme: 'system',
     themeColor: 'blue',
-    language: 'en'
+    language: defaultLanguage
 };
 
 // API request constants

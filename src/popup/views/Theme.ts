@@ -22,6 +22,17 @@ const logger = createLogger('THEME');
 /**
  * Theme color information with display names and hex values for all theme variables
  * Single source of truth for all color values in the application
+ * 
+ * Each color theme contains:
+ * - name: Display name shown in the UI
+ * - primary: Main brand color used for buttons, links and accent elements
+ * - hover: Color used for hover states on interactive elements
+ * - light/dark: Mode-specific color sets containing:
+ *   - bg: Background color for the UI
+ *   - text: Text color for normal content
+ *   - border: Border color for UI elements
+ *   - highlight: Background color for highlighted elements
+ *   - sidebar: Background color for sidebar/navigation areas
  */
 export const THEME_COLORS: Record<ThemeColor, {
     name: string,

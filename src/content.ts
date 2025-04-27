@@ -16,7 +16,15 @@ logger.debug('Content script loaded, notifying background script');
 
 /**
  * Message listener for communication with background script
- * Handles fill template requests
+ * Handles template filling requests from the background script
+ *
+ * Supported actions:
+ * - 'fillTemplate': Fills the active text field with content from the specified template
+ *
+ * @param request - The message request object
+ * @param _sender - The sender of the message (unused)
+ * @param sendResponse - Function to send a response back to the caller
+ * @returns True to indicate asynchronous response handling
  */
 chrome.runtime.onMessage.addListener((
     request: Message,
@@ -43,7 +51,10 @@ chrome.runtime.onMessage.addListener((
 
 /**
  * Fills the active text area with generated text from the template
- * @param template The template to process and use for text generation
+ * Sets the language attribute for localization before generating content
+ * Extracts page content if the template has includePageContent enabled
+ * 
+ * @param template - The template to process and use for text generation
  * @returns Promise that resolves when the text area is filled
  */
 async function fillTextArea(template: Template): Promise<void> {

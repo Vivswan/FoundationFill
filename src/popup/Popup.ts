@@ -12,7 +12,7 @@ import {Settings, SettingsView} from './views/Settings';
 import {ImportExportView} from './views/ImportExport';
 import {createLogger} from '../utils/logging';
 import {ThemeColor, ThemeMode, ThemeService} from "./views/Theme";
-import {getTranslation, Language, setDocumentLanguage} from '../localization/translations';
+import {getAllLanguages, getTranslation, Language, setDocumentLanguage} from '../localization/translations';
 import {DEFAULT_TEMPLATE} from "../defaults";
 
 // Create a logger instance for this component
@@ -74,6 +74,7 @@ export class PopupController {
         this.settingsBtn.addEventListener('click', this.show.bind(this, 'setting'));
         this.templateListView.onShowCallback = this.show.bind(this, 'template');
         this.show("template");
+        this.templateModel.setActiveTemplateId(DEFAULT_TEMPLATE.id);
     }
 
     /**
@@ -93,10 +94,13 @@ export class PopupController {
     private async onSettingsChange(updatedSettings: Settings): Promise<void> {
         setDocumentLanguage(updatedSettings.language as Language);
 
+        const defaultTemplate = await this.templateModel.getTemplatesById(DEFAULT_TEMPLATE.id) || DEFAULT_TEMPLATE;
+        const isDefaultSystemPrompt = getAllLanguages().some(lang => defaultTemplate.systemPrompt === getTranslation("baseTemplate.systemPrompt", lang));
+        const isDefaultUserPrompt = getAllLanguages().some(lang => defaultTemplate.userPrompt === getTranslation("baseTemplate.userPrompt", lang));
         await this.templateModel.updateTemplate(DEFAULT_TEMPLATE.id, {
             name: getTranslation("baseTemplate.title"),
-            systemPrompt: getTranslation("baseTemplate.systemPrompt"),
-            userPrompt: getTranslation("baseTemplate.userPrompt"),
+            systemPrompt: isDefaultSystemPrompt ? getTranslation("baseTemplate.systemPrompt") : defaultTemplate.systemPrompt,
+            userPrompt: isDefaultUserPrompt ? getTranslation("baseTemplate.userPrompt") : defaultTemplate.userPrompt,
         });
         this.themeService.setTheme(updatedSettings.theme as ThemeMode);
         this.themeService.setColor(updatedSettings.themeColor as ThemeColor);

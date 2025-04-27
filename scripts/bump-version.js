@@ -2,13 +2,13 @@
 
 /**
  * Version Bumping Script
- * 
+ *
  * This script handles version bumping for Foundation Fill extension.
  * It updates the version in package.json and not in manifest.json.
- * 
+ *
  * Usage:
  *   node bump-version.js [major|minor|patch|<specific-version>]
- * 
+ *
  * Examples:
  *   node bump-version.js patch     # Increments patch version (0.1.0 -> 0.1.1)
  *   node bump-version.js minor     # Increments minor version (0.1.0 -> 0.2.0)
